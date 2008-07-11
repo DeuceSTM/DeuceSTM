@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<project name="Duece" default="jars" basedir=".">
+	
+	<target name="jars" depends="asm-jar,asm-transformer-jar"/>
+	
+	<target name="asm-jar">
+			<jar destfile="bin/deuceAgent.jar">
+				<fileset dir="classes" />
+				<manifest>
+					<attribute name="Implementation-Vendor" value="deuce.org" />
+					<attribute name="Premain-Class" value="org.deuce.transform.asm.Agent" />
+					<attribute name="Can-Redefine-Classes" value="true"/>
+					<attribute name="Can-Retransform-Classes" value="true"/>
+				</manifest>
+			</jar>
+	</target>
+	
+	<target name="asm-transformer-jar">
+			<jar destfile="bin/transformerAgent.jar">
+				<fileset dir="classes" />
+				<manifest>
+					<attribute name="Implementation-Vendor" value="deuce.org" />
+					<attribute name="Premain-Class" value="org.deuce.transform.asm.Transformer" />
+					<attribute name="Can-Redefine-Classes" value="true"/>
+					<attribute name="Can-Retransform-Classes" value="true"/>
+				</manifest>
+			</jar>
+	</target>
+	
+	<target name="complie">
+		 <javac fork="true" source="1.5" target="1.5" destdir="classes">
+		 	<src path="src"/>		 	
+		 </javac>
+	</target>
+</project>
