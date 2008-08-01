@@ -2,7 +2,7 @@ package org.deuce.test.queue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Ex3q1 {
+public class QueueTest {
 	private static final int NUMBER_OF_THREADS = 4;
 	private static final int NUMBER_OF_ATTEMPTS = 20000;
 	private static final int ADD_FACTOR = 100;
