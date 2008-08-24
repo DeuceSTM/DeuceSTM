@@ -58,14 +58,14 @@ abstract public class AbstractContext
 	final static private String READ_METHOD_DOUBLE_DESC = "(Ljava/lang/Object;DJ" + ABSTRACT_CONTEXT_DESC +")D";
 	final static private String READ_METHOD_OBJ_DESC = "(Ljava/lang/Object;Ljava/lang/Object;J" + ABSTRACT_CONTEXT_DESC +")Ljava/lang/Object;";
 
-	final private static InitializedThreadLocal THREAD_CONTEXT = new InitializedThreadLocal();
+	final private static ContextThreadLocal THREAD_CONTEXT = new ContextThreadLocal();
 
 	@Exclude
-	private static class InitializedThreadLocal extends ThreadLocal<AbstractContext>
+	private static class ContextThreadLocal extends ThreadLocal<AbstractContext>
 	{
 		private Class contextClass;  
 
-		public InitializedThreadLocal(){
+		public ContextThreadLocal(){
 			String className = System.getProperty( "org.deuce.transaction.contextClass");
 			if( className != null){
 				try {
