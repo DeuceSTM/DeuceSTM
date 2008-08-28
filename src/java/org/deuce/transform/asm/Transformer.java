@@ -19,7 +19,7 @@ public class Transformer{
 	UnsafeHolder.getUnsafe();
 //	instrumentation.addTransformer(new Transformer());
 	
-	Class[] classes =  instrumentation.getAllLoadedClasses();
+	Class<?>[] classes =  instrumentation.getAllLoadedClasses();
 //	ClassDefinition[] definitions = new ClassDefinition[ classes.length];
 	
 //	ClassPool cp = ClassPool.getDefault();

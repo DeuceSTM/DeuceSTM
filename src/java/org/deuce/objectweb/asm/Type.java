@@ -224,7 +224,7 @@ public class Type {
      * @param c a class.
      * @return the Java type corresponding to the given class.
      */
-    public static Type getType(final Class c) {
+    public static Type getType(final Class<?> c) {
         if (c.isPrimitive()) {
             if (c == Integer.TYPE) {
                 return INT_TYPE;
@@ -294,7 +294,7 @@ public class Type {
      *         method.
      */
     public static Type[] getArgumentTypes(final Method method) {
-        Class[] classes = method.getParameterTypes();
+        Class<?>[] classes = method.getParameterTypes();
         Type[] types = new Type[classes.length];
         for (int i = classes.length - 1; i >= 0; --i) {
             types[i] = getType(classes[i]);
@@ -564,7 +564,7 @@ public class Type {
      * @param c an object or array class.
      * @return the internal name of the given class.
      */
-    public static String getInternalName(final Class c) {
+    public static String getInternalName(final Class<?> c) {
         return c.getName().replace('.', '/');
     }
 
@@ -574,7 +574,7 @@ public class Type {
      * @param c an object class, a primitive class or an array class.
      * @return the descriptor corresponding to the given class.
      */
-    public static String getDescriptor(final Class c) {
+    public static String getDescriptor(final Class<?> c) {
         StringBuffer buf = new StringBuffer();
         getDescriptor(buf, c);
         return buf.toString();
@@ -586,8 +586,8 @@ public class Type {
      * @param c a {@link Constructor Constructor} object.
      * @return the descriptor of the given constructor.
      */
-    public static String getConstructorDescriptor(final Constructor c) {
-        Class[] parameters = c.getParameterTypes();
+    public static String getConstructorDescriptor(final Constructor<?> c) {
+        Class<?>[] parameters = c.getParameterTypes();
         StringBuffer buf = new StringBuffer();
         buf.append('(');
         for (int i = 0; i < parameters.length; ++i) {
@@ -603,7 +603,7 @@ public class Type {
      * @return the descriptor of the given method.
      */
     public static String getMethodDescriptor(final Method m) {
-        Class[] parameters = m.getParameterTypes();
+        Class<?>[] parameters = m.getParameterTypes();
         StringBuffer buf = new StringBuffer();
         buf.append('(');
         for (int i = 0; i < parameters.length; ++i) {
@@ -620,8 +620,8 @@ public class Type {
      * @param buf the string buffer to which the descriptor must be appended.
      * @param c the class whose descriptor must be computed.
      */
-    private static void getDescriptor(final StringBuffer buf, final Class c) {
-        Class d = c;
+    private static void getDescriptor(final StringBuffer buf, final Class<?> c) {
+        Class<?> d = c;
         while (true) {
             if (d.isPrimitive()) {
                 char car;

@@ -63,7 +63,7 @@ abstract public class AbstractContext
 	@Exclude
 	private static class ContextThreadLocal extends ThreadLocal<AbstractContext>
 	{
-		private Class contextClass;  
+		private Class<?> contextClass;  
 
 		public ContextThreadLocal(){
 			String className = System.getProperty( "org.deuce.transaction.contextClass");
