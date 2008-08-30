@@ -6,8 +6,6 @@
 
 package org.deuce.transaction;
 
-import javax.swing.text.StyledEditorKit.BoldAction;
-
 import org.deuce.objectweb.asm.Type;
 import org.deuce.reflection.AddressUtil;
 import org.deuce.transaction.tl2.Context;
