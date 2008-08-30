@@ -75,8 +75,8 @@ public class ClassTransformer extends ByteCodeVisitor{
 
 			return new StaticMethodTransformer( originalMethod, fields, className, staticField);
 		}
-		else if (!name.equals("<init>"))
-		{ 
+		else
+		{
 			Method newMethod = createNewMethod(name, desc);
 
 			MethodVisitor copyMethod =  super.visitMethod(access, name, newMethod.getDescriptor(),
@@ -84,10 +84,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 			boolean isStatic = (access & Opcodes.ACC_STATIC) != 0;
 			return new MethodTransformer( originalMethod, copyMethod, className,
 					name, desc, newMethod, isStatic);
-		}
-		else
-		{
-			return originalMethod; // TODO add support for CTor
+			
 		}
 	}
 
