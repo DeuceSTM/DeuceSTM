@@ -9,26 +9,27 @@ import org.deuce.objectweb.asm.Attribute;
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Type;
+import org.deuce.objectweb.asm.commons.Method;
 
 public class MethodTransformer implements MethodVisitor{
 
-	private final MethodVisitor copyMethod;
 	private MethodVisitor originalMethod;
 	private boolean atomic = false;
-	private final String className;
-	private final String methodName;
-	private final String descriptor;
 
-	private final HashMap<Label, Label> labelMap = new HashMap<Label, Label>();
-	private final boolean isStatic;
-	private final String newDescriptor;
+	final private MethodVisitor copyMethod;
+	final private String className;
+	final private String methodName;
+	final private String descriptor; // original descriptor
+	final private HashMap<Label, Label> labelMap = new HashMap<Label, Label>();
+	final private boolean isStatic;
+	final private Method newMethod;
 
 	public MethodTransformer(MethodVisitor originalMethod, MethodVisitor copyMethod, 
-			String className, String methodName, String descriptor, String newDescriptor, boolean isStatic) {
+			String className, String methodName, String descriptor, Method newMethod, boolean isStatic) {
 		this.originalMethod = originalMethod;
-		this.newDescriptor = newDescriptor;
+		this.newMethod = newMethod;
 		this.isStatic = isStatic;
-		this.copyMethod = new DuplicateMethod( copyMethod, isStatic);
+		this.copyMethod = new DuplicateMethod( copyMethod, isStatic, newMethod);
 		this.className = className;
 		this.methodName = methodName;
 		this.descriptor = descriptor;
@@ -44,7 +45,7 @@ public class MethodTransformer implements MethodVisitor{
 
 		if( atomic & !(originalMethod instanceof AtomicMethod))
 			originalMethod = new AtomicMethod( originalMethod, className, methodName,
-					descriptor, newDescriptor, isStatic);
+					descriptor, newMethod, isStatic);
 
 					return new MethodAnnotationVisitor( originalMethod.visitAnnotation(desc, visible),
 							copyMethod.visitAnnotation(desc, visible));

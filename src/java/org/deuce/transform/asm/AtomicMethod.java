@@ -7,6 +7,7 @@ import org.deuce.objectweb.asm.MethodAdapter;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
+import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.AbstractContext;
 import org.deuce.transform.asm.type.TypeCodeResolver;
 import org.deuce.transform.asm.type.TypeCodeResolverFactory;
@@ -14,21 +15,21 @@ import org.deuce.transform.asm.type.TypeCodeResolverFactory;
 public class AtomicMethod extends MethodAdapter implements Opcodes{
 
 	private int retries = 7; // TODO set default
-	private final String className;
-	private final String methodName;
-
+	
+	final private String className;
+	final private String methodName;
 	final private TypeCodeResolver returnReolver;
 	final private TypeCodeResolver[] argumentReolvers;
-	private final boolean isStatic;
+	final private boolean isStatic;
 	final private int variablesSize;
-	private final String newDescriptor; 
+	final private Method newMethod; 
 
 	public AtomicMethod(MethodVisitor mv, String className, String methodName,
-			String descriptor, String newDescriptor, boolean isStatic) {
+			String descriptor, Method newMethod, boolean isStatic) {
 		super(mv);
 		this.className = className;
 		this.methodName = methodName;
-		this.newDescriptor = newDescriptor;
+		this.newMethod = newMethod;
 		this.isStatic = isStatic;
 
 		Type returnType = Type.getReturnType(descriptor);
@@ -91,7 +92,6 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		mv.visitLabel(l0);
 		if( !isStatic) // load this id not static
 			mv.visitVarInsn(ALOAD, 0);
-		mv.visitVarInsn(ALOAD, contextIndex); // load the context
 
 		// load the rest of the arguments
 		int local = isStatic ? 0 : 1;
@@ -99,10 +99,13 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 			mv.visitVarInsn(argumentReolvers[i].loadCode(), local);
 			local += argumentReolvers[i].extendLocals();
 		}
+		
+		mv.visitVarInsn(ALOAD, contextIndex); // load the context
+		
 		if( isStatic)
-			mv.visitMethodInsn(INVOKESTATIC, className, methodName, newDescriptor); // ... = foo( ...
+			mv.visitMethodInsn(INVOKESTATIC, className, methodName, newMethod.getDescriptor()); // ... = foo( ...
 		else
-			mv.visitMethodInsn(INVOKEVIRTUAL, className, methodName, newDescriptor); // ... = foo( ...
+			mv.visitMethodInsn(INVOKEVIRTUAL, className, methodName, newMethod.getDescriptor()); // ... = foo( ...
 
 		if( returnReolver != null) {
 			mv.visitVarInsn(returnReolver.storeCode(), resultIndex); // result = ...

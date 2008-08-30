@@ -77,31 +77,18 @@ public class ClassTransformer extends ByteCodeVisitor{
 		}
 		else if (!name.equals("<init>"))
 		{ 
-			String newDescriptor = createNewDescriptor(name, desc);
+			Method newMethod = createNewMethod(name, desc);
 
-			MethodVisitor copyMethod =  super.visitMethod(access, name, newDescriptor,
+			MethodVisitor copyMethod =  super.visitMethod(access, name, newMethod.getDescriptor(),
 					signature, exceptions);
 			boolean isStatic = (access & Opcodes.ACC_STATIC) != 0;
 			return new MethodTransformer( originalMethod, copyMethod, className,
-					name, desc, newDescriptor, isStatic);
+					name, desc, newMethod, isStatic);
 		}
 		else
 		{
 			return originalMethod; // TODO add support for CTor
 		}
-	}
-
-	private String createNewDescriptor(String name, String desc) {
-		Method method = new Method( name, desc);
-		Type[] arguments = method.getArgumentTypes();
-
-		Type[] newArguments = new Type[ arguments.length + 1];
-		System.arraycopy( arguments, 0, newArguments, 1, arguments.length);
-		newArguments[0] = AbstractContext.ABSTRACT_CONTEXT_TYPE; // add as a constant
-
-		Method newMethod = new Method( name, method.getReturnType(), newArguments);
-		String newDescriptor = newMethod.getDescriptor();
-		return newDescriptor;
 	}
 
 	@Override
@@ -115,5 +102,17 @@ public class ClassTransformer extends ByteCodeVisitor{
 			method.visitEnd();
 		}
 		super.visitEnd();
+	}
+	
+	public static Method createNewMethod(String name, String desc) {
+		Method method = new Method( name, desc);
+		Type[] arguments = method.getArgumentTypes();
+
+		Type[] newArguments = new Type[ arguments.length + 1];
+		System.arraycopy( arguments, 0, newArguments, 0, arguments.length);
+		newArguments[newArguments.length - 1] = AbstractContext.ABSTRACT_CONTEXT_TYPE; // add as a constant
+
+		Method newMethod = new Method( name, method.getReturnType(), newArguments);
+		return newMethod;
 	}
 }
