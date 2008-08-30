@@ -27,11 +27,14 @@ public class DuplicateMethod extends MethodAdapter{
 		this.nextLocal = isStatic ? NextLocal.CONTEXT : NextLocal.THIS;
 	}
 
+	/**
+	 * Adds for each field visited a call to the context.
+	 */
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 		switch( opcode) {
-		case Opcodes.GETFIELD:
-			super.visitInsn(Opcodes.DUP); 
+		case Opcodes.GETFIELD:  //	ALOAD 0: this (stack status)
+			super.visitInsn(Opcodes.DUP);
 			super.visitFieldInsn(opcode, owner, name, desc);
 			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
 			super.visitVarInsn(Opcodes.ALOAD, isStatic ? 0 : 1); // load context
@@ -39,7 +42,7 @@ public class DuplicateMethod extends MethodAdapter{
 					AbstractContext.READ_METHOD_NAME, AbstractContext.getReadMethodDesc(desc));
 			
 			Type type = Type.getType(desc);
-			if( type.getSort() > Type.DOUBLE)
+			if( type.getSort() >= Type.ARRAY) // non primitive
 				super.visitTypeInsn( Opcodes.CHECKCAST, Type.getType(desc).getInternalName());
 			break;
 		case Opcodes.PUTFIELD:
@@ -58,7 +61,7 @@ public class DuplicateMethod extends MethodAdapter{
 					AbstractContext.READ_METHOD_NAME, AbstractContext.getReadMethodDesc(desc));
 			
 			type = Type.getType(desc);
-			if( type.getSort() > Type.DOUBLE)
+			if( type.getSort() >= Type.ARRAY) // non primitive
 				super.visitTypeInsn( Opcodes.CHECKCAST, Type.getType(desc).getInternalName());
 			break;
 		case Opcodes.PUTSTATIC:
@@ -71,6 +74,99 @@ public class DuplicateMethod extends MethodAdapter{
 			break;
 		default:
 			super.visitFieldInsn(opcode, owner, name, desc);
+		}
+	}
+	
+	/**
+	 * Adds for each array cell visited a call to the context
+	 */
+	@Override
+	public void visitInsn(int opcode) {
+		boolean load = false;
+		boolean store = false;
+		String desc = null;
+		switch( opcode) {
+		
+		case Opcodes.AALOAD:
+			desc = AbstractContext.READ_ARRAY_METHOD_OBJ_DESC;
+			load = true;
+			break;
+		case Opcodes.BALOAD:
+			desc = AbstractContext.READ_ARRAY_METHOD_BYTE_DESC;
+			load = true;
+			break;
+		case Opcodes.CALOAD:
+			desc = AbstractContext.READ_ARRAY_METHOD_CHAR_DESC;
+			load = true;
+			break;
+		case Opcodes.SALOAD:
+			desc = AbstractContext.READ_ARRAY_METHOD_SHORT_DESC;
+			load = true;
+			break;
+		case Opcodes.IALOAD:
+			desc = AbstractContext.READ_ARRAY_METHOD_INT_DESC;
+			load = true;
+			break;
+		case Opcodes.LALOAD:
+			desc = AbstractContext.READ_ARRAY_METHOD_LONG_DESC;
+			load = true;
+			break;
+		case Opcodes.FALOAD:
+			desc = AbstractContext.READ_ARRAY_METHOD_FLOAT_DESC;
+			load = true;
+			break;
+		case Opcodes.DALOAD:
+			desc = AbstractContext.READ_ARRAY_METHOD_DOUBLE_DESC;
+			load = true;
+			break;
+			
+		case Opcodes.AASTORE:
+			desc = AbstractContext.WRITE_ARRAY_METHOD_OBJ_DESC;
+			store = true;
+			break;
+		case Opcodes.BASTORE:
+			desc = AbstractContext.WRITE_ARRAY_METHOD_BYTE_DESC;
+			store = true;
+			break;
+		case Opcodes.CASTORE:
+			desc = AbstractContext.WRITE_ARRAY_METHOD_CHAR_DESC;
+			store = true;
+			break;
+		case Opcodes.SASTORE:
+			desc = AbstractContext.WRITE_ARRAY_METHOD_SHORT_DESC;
+			store = true;
+			break;
+		case Opcodes.IASTORE:
+			desc = AbstractContext.WRITE_ARRAY_METHOD_INT_DESC;
+			store = true;
+			break;
+		case Opcodes.LASTORE:
+			desc = AbstractContext.WRITE_ARRAY_METHOD_LONG_DESC;
+			store = true;
+			break;
+		case Opcodes.FASTORE:
+			desc = AbstractContext.WRITE_ARRAY_METHOD_FLOAT_DESC;
+			store = true;
+			break;
+		case Opcodes.DASTORE:
+			desc = AbstractContext.WRITE_ARRAY_METHOD_DOUBLE_DESC;
+			store = true;
+			break;
+		default:
+			super.visitInsn(opcode);
+		}
+			
+		if( load)
+		{
+			super.visitVarInsn(Opcodes.ALOAD, isStatic ? 0 : 1); // load context
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, AbstractContext.ABSTRACT_CONTEXT_NAME,
+					AbstractContext.READ_ARR_METHOD_NAME, desc);
+		}
+		else if( store)
+		{
+			super.visitVarInsn(Opcodes.ALOAD, isStatic ? 0 : 1); // load context
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, AbstractContext.ABSTRACT_CONTEXT_NAME,
+					AbstractContext.WRITE_ARR_METHOD_NAME, desc);
 		}
 	}
 

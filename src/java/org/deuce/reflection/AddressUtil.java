@@ -12,7 +12,6 @@ public class AddressUtil {
 	 * Fetches the field direct address.
 	 * @param fieldName field reference
 	 * @return direct address
-	 * @throws NoSuchFieldException if a field with the specified name is not found.
 	 */
 	public static long getAddress( Field field) {
 		if( (field.getModifiers() & Modifier.STATIC) != 0){
@@ -26,9 +25,26 @@ public class AddressUtil {
 	 * Fetches base class handle
 	 * @param fieldName field reference
 	 * @return direct address
-	 * @throws NoSuchFieldException if a field with the specified name is not found.
 	 */
 	public static Object staticFieldBase( Field field) {
 		return UnsafeHolder.getUnsafe().staticFieldBase( field);
+	}
+	
+	/**
+	 * Fetches the array base offset
+	 * @param arrClass array class
+	 * @return offset
+	 */
+	public static int arrayBaseOffset( Class arrClass) {
+		return UnsafeHolder.getUnsafe().arrayBaseOffset( arrClass);
+	}
+	
+	/**
+	 * Fetches the array index scale
+	 * @param arrClass array class
+	 * @return scale
+	 */
+	public static int arrayIndexScale( Class arrClass) {
+		return UnsafeHolder.getUnsafe().arrayIndexScale( arrClass);
 	}
 }

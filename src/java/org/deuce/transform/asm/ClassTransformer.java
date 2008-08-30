@@ -33,6 +33,10 @@ public class ClassTransformer extends ByteCodeVisitor{
 		return super.visitAnnotation(desc, visible);
 	}
 
+	/**
+	 * Creates a new static filed for each existing field.
+	 * The field will be statically initialized to hold the field address.   
+	 */
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc, String signature,
 			Object value) {

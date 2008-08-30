@@ -6,7 +6,10 @@
 
 package org.deuce.transaction;
 
+import javax.swing.text.StyledEditorKit.BoldAction;
+
 import org.deuce.objectweb.asm.Type;
+import org.deuce.reflection.AddressUtil;
 import org.deuce.transaction.tl2.Context;
 import org.deuce.transform.Exclude;
 
@@ -21,12 +24,32 @@ import org.deuce.transform.Exclude;
 @Exclude
 abstract public class AbstractContext
 {
+	final static private int BYTE_ARR_BASE = AddressUtil.arrayBaseOffset(byte[].class);
+	final static private int CHAR_ARR_BASE = AddressUtil.arrayBaseOffset(char[].class);
+	final static private int SHORT_ARR_BASE = AddressUtil.arrayBaseOffset(short[].class);
+	final static private int INT_ARR_BASE = AddressUtil.arrayBaseOffset(int[].class);
+	final static private int LONG_ARR_BASE = AddressUtil.arrayBaseOffset(long[].class);
+	final static private int FLOAT_ARR_BASE = AddressUtil.arrayBaseOffset(float[].class);
+	final static private int DOUBLE_ARR_BASE = AddressUtil.arrayBaseOffset(double[].class);
+	final static private int OBJECT_ARR_BASE = AddressUtil.arrayBaseOffset(Object[].class);
+	
+	final static private int BYTE_ARR_SCALE = AddressUtil.arrayIndexScale(byte[].class);
+	final static private int CHAR_ARR_SCALE = AddressUtil.arrayIndexScale(char[].class);
+	final static private int SHORT_ARR_SCALE = AddressUtil.arrayIndexScale(short[].class);
+	final static private int INT_ARR_SCALE = AddressUtil.arrayIndexScale(int[].class);
+	final static private int LONG_ARR_SCALE = AddressUtil.arrayIndexScale(long[].class);
+	final static private int FLOAT_ARR_SCALE = AddressUtil.arrayIndexScale(float[].class);
+	final static private int DOUBLE_ARR_SCALE = AddressUtil.arrayIndexScale(double[].class);
+	final static private int OBJECT_ARR_SCALE = AddressUtil.arrayIndexScale(Object[].class);
+	
 	final static public Type ABSTRACT_CONTEXT_TYPE = Type.getType( AbstractContext.class);
 	final static public String ABSTRACT_CONTEXT_NAME = ABSTRACT_CONTEXT_TYPE.getInternalName();
 	final static public String ABSTRACT_CONTEXT_DESC = ABSTRACT_CONTEXT_TYPE.getDescriptor();
 	final static public String WRITE_METHOD_NAME = "addWriteAccess";
+	final static public String WRITE_ARR_METHOD_NAME = "addArrayWriteAccess";
 	final static public String STATIC_WRITE_METHOD_NAME = "addStaticWriteAccess";
 	final static public String READ_METHOD_NAME = "addReadAccess";
+	final static public String READ_ARR_METHOD_NAME = "addArrayReadAccess";
 
 	final static private String WRITE_METHOD_BOOLEAN_DESC = "(Ljava/lang/Object;ZJ" + ABSTRACT_CONTEXT_DESC +")V";
 	final static private String WRITE_METHOD_BYTE_DESC = "(Ljava/lang/Object;BJ" + ABSTRACT_CONTEXT_DESC +")V";
@@ -58,6 +81,24 @@ abstract public class AbstractContext
 	final static private String READ_METHOD_DOUBLE_DESC = "(Ljava/lang/Object;DJ" + ABSTRACT_CONTEXT_DESC +")D";
 	final static private String READ_METHOD_OBJ_DESC = "(Ljava/lang/Object;Ljava/lang/Object;J" + ABSTRACT_CONTEXT_DESC +")Ljava/lang/Object;";
 
+	final static public String WRITE_ARRAY_METHOD_BYTE_DESC = "([BIB" + ABSTRACT_CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_CHAR_DESC = "([CIC" + ABSTRACT_CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_SHORT_DESC = "([SIS" + ABSTRACT_CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_INT_DESC = "([III" + ABSTRACT_CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_LONG_DESC = "([JIJ" + ABSTRACT_CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_FLOAT_DESC = "([FIF" + ABSTRACT_CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_DOUBLE_DESC = "([DID" + ABSTRACT_CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_OBJ_DESC = "([Ljava/lang/Object;ILjava/lang/Object;" + ABSTRACT_CONTEXT_DESC +")V";
+
+	final static public String READ_ARRAY_METHOD_BYTE_DESC = "([BI" + ABSTRACT_CONTEXT_DESC +")B";
+	final static public String READ_ARRAY_METHOD_CHAR_DESC = "([CI" + ABSTRACT_CONTEXT_DESC +")C";
+	final static public String READ_ARRAY_METHOD_SHORT_DESC = "([SI" + ABSTRACT_CONTEXT_DESC +")S";
+	final static public String READ_ARRAY_METHOD_INT_DESC = "([II" + ABSTRACT_CONTEXT_DESC +")I";
+	final static public String READ_ARRAY_METHOD_LONG_DESC = "([JI" + ABSTRACT_CONTEXT_DESC +")J";
+	final static public String READ_ARRAY_METHOD_FLOAT_DESC = "([FI" + ABSTRACT_CONTEXT_DESC +")F";
+	final static public String READ_ARRAY_METHOD_DOUBLE_DESC = "([DI" + ABSTRACT_CONTEXT_DESC +")D";
+	final static public String READ_ARRAY_METHOD_OBJ_DESC = "([Ljava/lang/Object;I" + ABSTRACT_CONTEXT_DESC +")Ljava/lang/Object;";
+	
 	final private static ContextThreadLocal THREAD_CONTEXT = new ContextThreadLocal();
 
 	@Exclude
@@ -265,6 +306,56 @@ abstract public class AbstractContext
 	}
 	static public void addStaticWriteAccess( double value, Object obj, long field, AbstractContext context) { 
 		context.addStaticWriteAccess(value, obj, field);
+	}
+	
+	static public <T> T addArrayReadAccess( T[] arr, int index, AbstractContext context) {
+		return context.addReadAccess(arr, arr[index], OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index);
+	}
+	static public byte addArrayReadAccess( byte[] arr, int index, AbstractContext context) {
+		return context.addReadAccess(arr, arr[index], BYTE_ARR_BASE + BYTE_ARR_SCALE*index);
+	}
+	static public char addArrayReadAccess( char[] arr, int index, AbstractContext context) {
+		return context.addReadAccess(arr, arr[index], CHAR_ARR_BASE + CHAR_ARR_SCALE*index);
+	}
+	static public short addArrayReadAccess( short[] arr, int index, AbstractContext context) {
+		return context.addReadAccess(arr, arr[index], SHORT_ARR_BASE + SHORT_ARR_SCALE*index);
+	}
+	static public int addArrayReadAccess( int[] arr, int index, AbstractContext context) {
+		return context.addReadAccess(arr, arr[index], INT_ARR_BASE + INT_ARR_SCALE*index);
+	}
+	static public long addArrayReadAccess( long[] arr, int index, AbstractContext context) {
+		return context.addReadAccess(arr, arr[index], LONG_ARR_BASE + LONG_ARR_SCALE*index);
+	}
+	static public float addArrayReadAccess( float[] arr, int index, AbstractContext context) {
+		return context.addReadAccess(arr, arr[index], FLOAT_ARR_BASE + FLOAT_ARR_SCALE*index);
+	}
+	static public double addArrayReadAccess( double[] arr, int index, AbstractContext context) {
+		return context.addReadAccess(arr, arr[index], DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index);
+	}
+
+	static public <T> void addArrayWriteAccess( T[] arr,  int index, T value, AbstractContext context) {
+		context.addWriteAccess(arr, value, OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index);
+	}
+	static public void addArrayWriteAccess( byte[] arr, int index, byte value, AbstractContext context) {
+		context.addWriteAccess(arr, value, BYTE_ARR_BASE + BYTE_ARR_SCALE*index);
+	}
+	static public void addArrayWriteAccess( char[] arr, int index, char value, AbstractContext context) {
+		context.addWriteAccess(arr, value, CHAR_ARR_BASE + CHAR_ARR_SCALE*index);
+	}
+	static public void addArrayWriteAccess( short[] arr, int index, short value, AbstractContext context) {
+		context.addWriteAccess(arr, value, SHORT_ARR_BASE + SHORT_ARR_SCALE*index);
+	}
+	static public void addArrayWriteAccess( int[] arr, int index, int value, AbstractContext context) {
+		context.addWriteAccess(arr, value, INT_ARR_BASE + INT_ARR_SCALE*index);
+	}
+	static public void addArrayWriteAccess( long[] arr, int index, long value, AbstractContext context) {
+		context.addWriteAccess(arr, value, LONG_ARR_BASE + LONG_ARR_SCALE*index);
+	}
+	static public void addArrayWriteAccess( float[] arr, int index, float value, AbstractContext context) {
+		context.addWriteAccess(arr, value, FLOAT_ARR_BASE + FLOAT_ARR_SCALE*index);
+	}
+	static public void addArrayWriteAccess( double[] arr, int index, double value, AbstractContext context) {
+		context.addWriteAccess(arr, value, DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index);
 	}
 
 	abstract protected <T> T addReadAccess( Object obj, T value, long field);
