@@ -279,31 +279,31 @@ abstract public class AbstractContext
 	}
 
 	static public void addStaticWriteAccess( Object value, Object obj, long field, AbstractContext context) {
-		context.addStaticWriteAccess(value, obj, field);
+		context.addWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( boolean value, Object obj, long field, AbstractContext context) {
-		context.addStaticWriteAccess(value, obj, field);
+		context.addWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( byte value, Object obj, long field, AbstractContext context) {
-		context.addStaticWriteAccess(value, obj, field);
+		context.addWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( char value, Object obj, long field, AbstractContext context) {
-		context.addStaticWriteAccess(value, obj, field);
+		context.addWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( short value, Object obj, long field, AbstractContext context) {
-		context.addStaticWriteAccess(value, obj, field);
+		context.addWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( int value, Object obj, long field, AbstractContext context) {
-		context.addStaticWriteAccess(value, obj, field);
+		context.addWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( long value, Object obj, long field, AbstractContext context) {
-		context.addStaticWriteAccess(value, obj, field);
+		context.addWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( float value, Object obj, long field, AbstractContext context) {
-		context.addStaticWriteAccess(value, obj, field);
+		context.addWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( double value, Object obj, long field, AbstractContext context) { 
-		context.addStaticWriteAccess(value, obj, field);
+		context.addWriteAccess(obj, value, field);
 	}
 	
 	static public <T> T addArrayReadAccess( T[] arr, int index, AbstractContext context) {
@@ -375,14 +375,4 @@ abstract public class AbstractContext
 	abstract protected void addWriteAccess( Object obj, long value, long field);
 	abstract protected void addWriteAccess( Object obj, float value, long field);
 	abstract protected void addWriteAccess( Object obj, double value, long field);
-
-	abstract protected void addStaticWriteAccess( Object value, Object obj, long field);
-	abstract protected void addStaticWriteAccess( boolean value, Object obj, long field);
-	abstract protected void addStaticWriteAccess( byte value, Object obj, long field);
-	abstract protected void addStaticWriteAccess( char value, Object obj, long field);
-	abstract protected void addStaticWriteAccess( short value, Object obj, long field);
-	abstract protected void addStaticWriteAccess( int value, Object obj, long field);
-	abstract protected void addStaticWriteAccess( long value, Object obj, long field);
-	abstract protected void addStaticWriteAccess( float value, Object obj, long field);
-	abstract protected void addStaticWriteAccess( double value, Object obj, long field);
 }

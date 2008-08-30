@@ -213,49 +213,4 @@ final public class Context extends AbstractContext
 	public void addWriteAccess(Object obj, double value, long field) {
 		addWriteAccess0(obj, field, (Object)value, Type.DOUBLE);	
 	}
-
-	@Override
-	protected void addStaticWriteAccess(Object value, Object obj, long field) {
-		addWriteAccess0(obj, field, value, Type.OBJECT);
-	}
-
-	@Override
-	protected void addStaticWriteAccess(boolean value, Object obj, long field) {
-		addWriteAccess0(obj, field, (Object)value, Type.BOOLEAN);	
-	}
-
-	@Override
-	protected void addStaticWriteAccess(byte value, Object obj, long field) {
-		addWriteAccess0(obj, field, (Object)value, Type.BYTE);	
-	}
-
-	@Override
-	protected void addStaticWriteAccess(char value, Object obj, long field) {
-		addWriteAccess0(obj, field, (Object)value, Type.CHAR);	
-	}
-
-	@Override
-	protected void addStaticWriteAccess(short value, Object obj, long field) {
-		addWriteAccess0(obj, field, (Object)value, Type.SHORT);	
-	}
-
-	@Override
-	protected void addStaticWriteAccess(int value, Object obj, long field) {
-		addWriteAccess0(obj, field, (Object)value, Type.INT);	
-	}
-
-	@Override
-	protected void addStaticWriteAccess(long value, Object obj, long field) {
-		addWriteAccess0(obj, field, (Object)value, Type.LONG);	
-	}
-
-	@Override
-	protected void addStaticWriteAccess(float value, Object obj, long field) {
-		addWriteAccess0(obj, field, (Object)value, Type.FLOAT);	
-	}
-
-	@Override
-	protected void addStaticWriteAccess(double value, Object obj, long field) {
-		addWriteAccess0(obj, field, (Object)value, Type.DOUBLE);	
-	}
 }
