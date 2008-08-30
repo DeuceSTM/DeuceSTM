@@ -3,6 +3,10 @@ package org.deuce.benchmark;
 import java.util.*;
 import org.deuce.transform.Exclude;
 
+/**
+ * @author Pascal Felber
+ * @since 0.1
+ */
 @Exclude
 abstract public class BenchmarkThread implements Runnable {
 

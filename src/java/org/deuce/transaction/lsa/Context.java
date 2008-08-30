@@ -15,6 +15,9 @@ import org.deuce.transform.Exclude;
 
 /**
  * LSA implementation
+ * 
+ * @author Pascal Felber
+ * @since 0.1
  */
 @Exclude
 final public class Context extends AbstractContext {

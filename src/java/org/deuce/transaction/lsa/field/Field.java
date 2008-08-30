@@ -6,6 +6,10 @@ import org.deuce.transform.Exclude;
 
 import sun.misc.Unsafe;
 
+/**
+ * @author Pascal Felber
+ * @since 0.1
+ */
 @Exclude
 public class Field {
 	final protected Object reference;

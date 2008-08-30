@@ -2,6 +2,10 @@ package org.deuce.benchmark.examples.intset;
 
 import org.deuce.*;
 
+/**
+ * @author Pascal Felber
+ * @since 0.1
+ */
 public class IntSetOOP implements IntSet {
 
 	private Node m_first;

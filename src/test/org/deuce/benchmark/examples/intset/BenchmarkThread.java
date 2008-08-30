@@ -2,6 +2,10 @@ package org.deuce.benchmark.examples.intset;
 
 import org.deuce.transform.Exclude;
 
+/**
+ * @author Pascal Felber
+ * @since 0.1
+ */
 @Exclude
 public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 	IntSet m_set;

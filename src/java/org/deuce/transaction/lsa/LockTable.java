@@ -5,6 +5,10 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 import org.deuce.transaction.TransactionException;
 import org.deuce.transform.Exclude;
 
+/**
+ * @author Pascal Felber
+ * @since 0.1
+ */
 @Exclude
 public class LockTable {
 
