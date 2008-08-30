@@ -3,7 +3,7 @@ package org.deuce.benchmark.examples.intset;
 import org.deuce.transform.Exclude;
 
 @Exclude
-public class BenchmarkThread extends benchmark.BenchmarkThread {
+public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 	IntSet m_set;
 	int m_range;
 	int m_nb_add;

@@ -5,7 +5,7 @@ import java.util.Random;
 import org.deuce.transform.Exclude;
 
 @Exclude
-public class Benchmark implements benchmark.Benchmark {
+public class Benchmark implements org.deuce.benchmark.Benchmark {
 
 	IntSet m_set;
 	int m_range = 1 << 16;
@@ -54,11 +54,11 @@ public class Benchmark implements benchmark.Benchmark {
 		System.out.println();
 	}
 
-	public benchmark.BenchmarkThread createThread(int i) {
+	public org.deuce.benchmark.BenchmarkThread createThread(int i) {
 		return new BenchmarkThread(m_set, m_range, m_rate);
 	}
 
-	public String stats(benchmark.BenchmarkThread[] threads) {
+	public String stats(org.deuce.benchmark.BenchmarkThread[] threads) {
 		int add = 0;
 		int remove = 0;
 		int contains = 0;
