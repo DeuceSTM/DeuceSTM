@@ -205,23 +205,6 @@ abstract public class AbstractContext
 		}
 	}
 
-	/**
-	 * Called before the transaction was started
-	 */
-	abstract protected void init();
-
-	/**
-	 * Called on commit
-	 * @return <code>true</code> on success 
-	 */
-	abstract public boolean commit();
-
-	/**
-	 * Called on rollback, rollback might be called more than once in a row.
-	 * But, can't be called after {@link #commit()} without an {@link #init()} call in between. 
-	 */
-	abstract public void rollback();
-
 	static public <T> T addReadAccess( Object obj, T value, long field, AbstractContext context) {
 		return context.addReadAccess(obj, value, field);
 	}
@@ -355,7 +338,26 @@ abstract public class AbstractContext
 	static public void addArrayWriteAccess( double[] arr, int index, double value, AbstractContext context) {
 		context.addWriteAccess(arr, value, DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index);
 	}
+	
+	/**
+	 * Called before the transaction was started
+	 */
+	abstract protected void init();
 
+	/**
+	 * Called on commit
+	 * @return <code>true</code> on success 
+	 */
+	abstract public boolean commit();
+
+	/**
+	 * Called on rollback, rollback might be called more than once in a row.
+	 * But, can't be called after {@link #commit()} without an {@link #init()} call in between. 
+	 */
+	abstract public void rollback();
+
+	/* Methods called on Read/Write event */
+	
 	abstract protected <T> T addReadAccess( Object obj, T value, long field);
 	abstract protected boolean addReadAccess( Object obj, boolean value, long field);
 	abstract protected byte addReadAccess( Object obj, byte value, long field);
