@@ -2,25 +2,30 @@ package org.deuce.transform.asm.type;
 
 import org.deuce.objectweb.asm.Opcodes;
 
-public class DoubleTypeCodeResolver implements TypeCodeResolver {
+public class DoubleTypeCodeResolver extends TypeCodeResolver {
 
-    public int loadCode() {
-	return Opcodes.DLOAD;
-    }
+	@Override
+	public int loadCode() {
+		return Opcodes.DLOAD;
+	}
 
-    public int returnCode() {
-	return Opcodes.DRETURN;
-    }
+	@Override
+	public int returnCode() {
+		return Opcodes.DRETURN;
+	}
 
-    public int storeCode() {
-	return Opcodes.DSTORE;
-    }
-    
-    public int nullValueCode() {
-	return Opcodes.DCONST_0;
-    }
+	@Override
+	public int storeCode() {
+		return Opcodes.DSTORE;
+	}
 
-    public int extendLocals() {
-	return 1;
-    }
+	@Override
+	public int nullValueCode() {
+		return Opcodes.DCONST_0;
+	}
+
+	@Override
+	public int extendLocals() {
+		return 1; // 64 bit
+	}
 }
