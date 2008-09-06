@@ -25,7 +25,7 @@ public class DoubleTypeCodeResolver extends TypeCodeResolver {
 	}
 
 	@Override
-	public int extendLocals() {
-		return 1; // 64 bit
+	public int localSize() {
+		return 2; // 64 bit
 	}
 }

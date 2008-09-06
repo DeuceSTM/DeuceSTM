@@ -69,7 +69,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		final int indexIndex = variablesSize; // i
 		final int contextIndex = indexIndex + 1; // context
 		final int resultIndex = returnReolver == null ? contextIndex : contextIndex + 1;
-		final int throwableIndex = resultIndex + (returnReolver == null ? 0 : returnReolver.extendLocals()) + 1;
+		final int throwableIndex = resultIndex + (returnReolver == null ? 1 : returnReolver.localSize());
 
 		Label l0 = new Label();
 		Label l1 = new Label();
@@ -97,7 +97,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		int local = isStatic ? 0 : 1;
 		for( int i=0 ; i < argumentReolvers.length ; ++i) { 
 			mv.visitVarInsn(argumentReolvers[i].loadCode(), local);
-			local += (argumentReolvers[i].extendLocals() + 1); // move to the next argument
+			local += argumentReolvers[i].localSize(); // move to the next argument
 		}
 		
 		mv.visitVarInsn(ALOAD, contextIndex); // load the context
@@ -257,8 +257,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 	private int variablesSize( TypeCodeResolver[] types, boolean isStatic) {
 		int i = isStatic ? 0 : 1;
 		for( TypeCodeResolver type : types) {
-			++i;
-			i += type.extendLocals();
+			i += type.localSize();
 		}
 		return i;
 	}
