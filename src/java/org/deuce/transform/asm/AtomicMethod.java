@@ -90,14 +90,14 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		// -------------- result = foo( context, ...)  --------------- 
 
 		mv.visitLabel(l0);
-		if( !isStatic) // load this id not static
+		if( !isStatic) // load this id if not static
 			mv.visitVarInsn(ALOAD, 0);
 
 		// load the rest of the arguments
 		int local = isStatic ? 0 : 1;
 		for( int i=0 ; i < argumentReolvers.length ; ++i) { 
 			mv.visitVarInsn(argumentReolvers[i].loadCode(), local);
-			local += argumentReolvers[i].extendLocals();
+			local += (argumentReolvers[i].extendLocals() + 1); // move to the next argument
 		}
 		
 		mv.visitVarInsn(ALOAD, contextIndex); // load the context
@@ -107,9 +107,8 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		else
 			mv.visitMethodInsn(INVOKEVIRTUAL, className, methodName, newMethod.getDescriptor()); // ... = foo( ...
 
-		if( returnReolver != null) {
+		if( returnReolver != null) 
 			mv.visitVarInsn(returnReolver.storeCode(), resultIndex); // result = ...
-		}
 
 		Label l4 = new Label();
 		mv.visitJumpInsn(GOTO, l4);
