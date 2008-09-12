@@ -97,12 +97,11 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 						throw (IOException)throwable;
 					return result;
 				}
-
-				commit = true;
 			}
 			else
 			{
 				context.rollback(); 
+				commit = true;
 			}
 		}
 		throw new TransactionException();
@@ -207,12 +206,11 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 						throw (IOException)throwable;
 					return result;
 				}
-
-				commit = true;
 			}
 			else
 			{
 				context.rollback(); 
+				commit = true;
 			}
 		 */
 		mv.visitLabel(l12); // if( commit )
@@ -248,18 +246,18 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 			mv.visitVarInsn(returnReolver.loadCode(), resultIndex); // return result;
 			mv.visitInsn(returnReolver.returnCode());
 		}
-
-		mv.visitLabel(l18); // commit = true;
-		mv.visitInsn(ICONST_1);
-		mv.visitVarInsn(ISTORE, commitIndex);
 		
-		Label l22 = new Label(); // context.rollback(); 
-		mv.visitJumpInsn(GOTO, l22);
-		mv.visitLabel(l16);
+		mv.visitJumpInsn(GOTO, l18);
+		
+		// else
+		mv.visitLabel(l16); // context.rollback(); 
 		mv.visitVarInsn(ALOAD, contextIndex);
 		mv.visitMethodInsn(INVOKEVIRTUAL, AbstractContext.ABSTRACT_CONTEXT_INTERNAL, "rollback", "()V");
 		
-		mv.visitLabel(l22);  // for( ... ; i>0 ; --i) 
+		mv.visitInsn(ICONST_1); // commit = true;
+		mv.visitVarInsn(ISTORE, commitIndex);
+		
+		mv.visitLabel(l18);  // for( ... ; i>0 ; --i) 
 		mv.visitIincInsn(indexIndex, -1);
 		mv.visitLabel(l10);
 		mv.visitVarInsn(ILOAD, indexIndex);
