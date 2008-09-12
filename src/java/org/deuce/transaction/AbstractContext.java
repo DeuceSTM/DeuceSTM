@@ -22,6 +22,8 @@ import org.deuce.transform.Exclude;
 @Exclude
 abstract public class AbstractContext
 {
+	final static public String ABSTRACT_CONTEXT_INTERNAL = Type.getInternalName(AbstractContext.class);
+	
 	final static private int BYTE_ARR_BASE = AddressUtil.arrayBaseOffset(byte[].class);
 	final static private int CHAR_ARR_BASE = AddressUtil.arrayBaseOffset(char[].class);
 	final static private int SHORT_ARR_BASE = AddressUtil.arrayBaseOffset(short[].class);
@@ -128,9 +130,7 @@ abstract public class AbstractContext
 	}
 
 	public static AbstractContext getInstance(){
-		AbstractContext context = THREAD_CONTEXT.get();
-		context.init();
-		return context;
+		return THREAD_CONTEXT.get();
 	}
 
 	public static String getWriteMethodDesc( String desc) {
@@ -342,7 +342,7 @@ abstract public class AbstractContext
 	/**
 	 * Called before the transaction was started
 	 */
-	abstract protected void init();
+	abstract public void init();
 
 	/**
 	 * Called on commit

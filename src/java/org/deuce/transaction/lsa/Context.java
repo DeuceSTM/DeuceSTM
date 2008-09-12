@@ -38,7 +38,7 @@ final public class Context extends AbstractContext {
 	}
 
 	@Override
-	protected void init() {
+	public void init() {
 		logger.fine("Init transaction.");
 		this.readSet.clear();
 		this.writeSet.clear();

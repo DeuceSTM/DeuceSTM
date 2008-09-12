@@ -36,7 +36,7 @@ final public class Context extends AbstractContext
 	}
 
 	@Override
-	protected void init(){
+	public void init(){
 		logger.fine("Init transaction.");
 		this.bloomFilter.clear();
 		this.readSet.clear(); // TODO reuse the same read set objects 

@@ -1,5 +1,8 @@
 package org.deuce.transform.asm;
 
+import java.io.IOException;
+
+import org.deuce.Atomic;
 import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.Attribute;
 import org.deuce.objectweb.asm.Label;
@@ -9,6 +12,7 @@ import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.AbstractContext;
+import org.deuce.transaction.TransactionException;
 import org.deuce.transform.asm.type.TypeCodeResolver;
 import org.deuce.transform.asm.type.TypeCodeResolverFactory;
 
@@ -63,32 +67,98 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		super.visitAttribute(attr);
 	}
 
+	/**
+	public static boolean foo(Object s) throws IOException{
+
+		Throwable throwable = null;
+		AbstractContext context = AbstractContext.getInstance();
+		boolean commit = true;
+		boolean result = true;
+		for( int i=10 ; i>0 ; --i)
+		{
+			context.init();
+			try
+			{
+				result = foo(s,context);
+			}
+			catch( TransactionException ex)
+			{
+				commit = false;
+			}
+			catch( Throwable ex)
+			{
+				throwable = ex;
+			}
+
+			if( commit )
+			{
+				if( context.commit()){
+					if( throwable != null)
+						throw (IOException)throwable;
+					return result;
+				}
+
+				commit = true;
+			}
+			else
+			{
+				context.rollback(); 
+			}
+		}
+		throw new TransactionException();
+
+	}
+	 */
 	@Override
 	public void visitCode() {
 
 		final int indexIndex = variablesSize; // i
 		final int contextIndex = indexIndex + 1; // context
-		final int resultIndex = returnReolver == null ? contextIndex : contextIndex + 1;
-		final int throwableIndex = resultIndex + (returnReolver == null ? 1 : returnReolver.localSize());
+		final int throwableIndex = contextIndex + 1;
+		final int commitIndex = throwableIndex + 1;
+		final int exceptionIndex = commitIndex + 1;
+		final int resultIndex = exceptionIndex + 1;
 
 		Label l0 = new Label();
 		Label l1 = new Label();
-		mv.visitTryCatchBlock(l0, l1, l1, null); // try{
-
-		mv.visitIntInsn(SIPUSH, retries); // for( int i =retries; ; ...) 
-		mv.visitVarInsn(ISTORE, indexIndex);
 		Label l2 = new Label();
-		mv.visitJumpInsn(GOTO, l2);
-
-		Label l3 = getContext(contextIndex); // AbstractContext context = AbstractContext.getInstance();
-
-		if( returnReolver != null) { // result = null;
-			mv.visitInsn(returnReolver.nullValueCode());
-			mv.visitVarInsn(returnReolver.storeCode(), resultIndex);
-		}
-
-		// -------------- result = foo( context, ...)  --------------- 
-
+		mv.visitTryCatchBlock(l0, l1, l2, TransactionException.TRANSACTION_EXCEPTION_INTERNAL);  // try{ 
+		Label l3 = new Label();
+		mv.visitTryCatchBlock(l0, l1, l3, Type.getInternalName( Throwable.class));  // try{
+		
+		Label l4 = new Label(); // Throwable throwable = null;
+		mv.visitLabel(l4);
+		mv.visitInsn(ACONST_NULL);
+		mv.visitVarInsn(ASTORE, throwableIndex);
+		
+		Label l5 = getContext(contextIndex); // AbstractContext context = AbstractContext.getInstance();
+			
+		Label l6 = new Label(); // boolean commit = true;
+		mv.visitLabel(l6);
+		mv.visitInsn(ICONST_1);
+		mv.visitVarInsn(ISTORE, commitIndex);
+		
+		Label l7 = new Label(); // boolean result = true;
+		mv.visitLabel(l7);
+		mv.visitInsn(ICONST_1);
+		mv.visitVarInsn(ISTORE, resultIndex);
+		
+		Label l8 = new Label(); // for( int i=10 ; ... ; ...)
+		mv.visitLabel(l8);
+		mv.visitIntInsn(BIPUSH, retries);
+		mv.visitVarInsn(ISTORE, indexIndex);
+		
+		Label l9 = new Label();
+		mv.visitLabel(l9);
+		Label l10 = new Label();
+		mv.visitJumpInsn(GOTO, l10);
+		
+		Label l11 = new Label(); // context.init();
+		mv.visitLabel(l11);
+		mv.visitVarInsn(ALOAD, contextIndex);
+		mv.visitMethodInsn(INVOKEVIRTUAL, AbstractContext.ABSTRACT_CONTEXT_INTERNAL, "init", "()V");
+		
+		/* result = foo( context, ...)  */ 
 		mv.visitLabel(l0);
 		if( !isStatic) // load this id if not static
 			mv.visitVarInsn(ALOAD, 0);
@@ -109,30 +179,68 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 
 		if( returnReolver != null) 
 			mv.visitVarInsn(returnReolver.storeCode(), resultIndex); // result = ...
-
-		Label l4 = new Label();
-		mv.visitJumpInsn(GOTO, l4);
+		
 		mv.visitLabel(l1);
-		mv.visitVarInsn(ASTORE, throwableIndex); // store the throwable
-		mv.visitVarInsn(ALOAD, contextIndex); // context.commit()
-		mv.visitMethodInsn(INVOKEVIRTUAL, "org/deuce/transaction/AbstractContext", "commit", "()Z");
-		Label l5 = new Label();
-		mv.visitJumpInsn(IFNE, l5); //if( !context.commit())
-		Label l6 = new Label();
-		mv.visitJumpInsn(GOTO, l6); // continue;
-		mv.visitLabel(l5);
-		mv.visitVarInsn(ALOAD, throwableIndex); // load the throwable for re-throw
+		Label l12 = new Label();
+		mv.visitJumpInsn(GOTO, l12);
+		mv.visitLabel(l2);
+		mv.visitVarInsn(ASTORE, exceptionIndex);
+		Label l13 = new Label();
+		mv.visitLabel(l13);
+		mv.visitInsn(ICONST_0);
+		mv.visitVarInsn(ISTORE, commitIndex);
+		Label l14 = new Label();
+		mv.visitLabel(l14);
+		mv.visitJumpInsn(GOTO, l12);
+		mv.visitLabel(l3);
+		mv.visitVarInsn(ASTORE, exceptionIndex);
+		Label l15 = new Label();
+		mv.visitLabel(l15);
+		mv.visitVarInsn(ALOAD, exceptionIndex);
+		mv.visitVarInsn(ASTORE, throwableIndex);
+		
+		/*
+		 * if( commit )
+			{
+				if( context.commit()){
+					if( throwable != null)
+						throw (IOException)throwable;
+					return result;
+				}
+
+				commit = true;
+			}
+			else
+			{
+				context.rollback(); 
+			}
+		 */
+		mv.visitLabel(l12); // if( commit )
+		mv.visitVarInsn(ILOAD, commitIndex);
+		Label l16 = new Label();
+		mv.visitJumpInsn(IFEQ, l16);
+		
+		Label l17 = new Label(); // if( context.commit())
+		mv.visitLabel(l17);
+		mv.visitVarInsn(ALOAD, contextIndex);
+		mv.visitMethodInsn(INVOKEVIRTUAL, AbstractContext.ABSTRACT_CONTEXT_INTERNAL, "commit", "()Z");
+		Label l18 = new Label();
+		mv.visitJumpInsn(IFEQ, l18);
+		
+		//		if( throwable != null)
+		//			throw throwable;
+		Label l19 = new Label();
+		mv.visitLabel(l19);
+		mv.visitVarInsn(ALOAD, throwableIndex);
+		Label l20 = new Label();
+		mv.visitJumpInsn(IFNULL, l20);
+		Label l21 = new Label();
+		mv.visitLabel(l21);
+		mv.visitVarInsn(ALOAD, throwableIndex);
 		mv.visitInsn(ATHROW);
-
-		mv.visitLabel(l4);
-		mv.visitVarInsn(ALOAD, contextIndex); // context.commit()
-		mv.visitMethodInsn(INVOKEVIRTUAL, "org/deuce/transaction/AbstractContext", "commit", "()Z");
-
-		Label l7 = new Label();
-		mv.visitJumpInsn(IFNE, l7); //if( !context.commit())
-		mv.visitJumpInsn(GOTO, l6);  // continue;
-
-		mv.visitLabel(l7);
+		
+		// return
+		mv.visitLabel(l20);
 		if( returnReolver == null) {
 			mv.visitInsn( RETURN); // return;
 		}
@@ -141,35 +249,58 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 			mv.visitInsn(returnReolver.returnCode());
 		}
 
-		mv.visitLabel(l6);
-		mv.visitIincInsn(indexIndex, -1); // for( ... ; ... ; --i)
-
-		// for( ... ; i>0 ...
-		mv.visitLabel(l2);
+		mv.visitLabel(l18); // commit = true;
+		mv.visitInsn(ICONST_1);
+		mv.visitVarInsn(ISTORE, commitIndex);
+		
+		Label l22 = new Label(); // context.rollback(); 
+		mv.visitJumpInsn(GOTO, l22);
+		mv.visitLabel(l16);
+		mv.visitVarInsn(ALOAD, contextIndex);
+		mv.visitMethodInsn(INVOKEVIRTUAL, AbstractContext.ABSTRACT_CONTEXT_INTERNAL, "rollback", "()V");
+		
+		mv.visitLabel(l22);  // for( ... ; i>0 ; --i) 
+		mv.visitIincInsn(indexIndex, -1);
+		mv.visitLabel(l10);
 		mv.visitVarInsn(ILOAD, indexIndex);
-		mv.visitJumpInsn(IFGT, l3);
-
+		mv.visitJumpInsn(IFGT, l11);
+		
 		// throw new TransactionException("Failed to commit ...");
-		throwTransactionException();
-
-		mv.visitMaxs(5 + variablesSize, throwableIndex + 1);
+		Label l23 = throwTransactionException();
+		
+		/* locals */
+		Label l24 = new Label();
+		mv.visitLabel(l24);
+		mv.visitLocalVariable("s", "Ljava/lang/Object;", null, l4, l24, 0);
+		mv.visitLocalVariable("throwable", "Ljava/lang/Throwable;", null, l5, l24, throwableIndex);
+		mv.visitLocalVariable("context", "Lorg/deuce/transaction/AbstractContext;", null, l6, l24, contextIndex);
+		mv.visitLocalVariable("commit", "Z", null, l7, l24, commitIndex);
+		mv.visitLocalVariable("result", "Z", null, l8, l24, resultIndex);
+		mv.visitLocalVariable("i", "I", null, l9, l23, indexIndex);
+		mv.visitLocalVariable("ex", "Lorg/deuce/transaction/TransactionException;", null, l13, l14, exceptionIndex);
+		mv.visitLocalVariable("ex", "Ljava/lang/Throwable;", null, l15, l12, exceptionIndex);
+		
+		mv.visitMaxs(5 + variablesSize, resultIndex + 2);
 		mv.visitEnd();
 	}
 
 	private Label getContext(final int contextIndex) {
-		Label l3 = new Label();
-		mv.visitLabel(l3); // AbstractContext context = AbstractContext.getInstance();
+		Label label = new Label();
+		mv.visitLabel(label); // AbstractContext context = AbstractContext.getInstance();
 		mv.visitMethodInsn(INVOKESTATIC, AbstractContext.ABSTRACT_CONTEXT_NAME, "getInstance", "()Lorg/deuce/transaction/AbstractContext;");
 		mv.visitVarInsn(ASTORE, contextIndex);
-		return l3;
+		return label;
 	}
 
-	private void throwTransactionException() {
+	private Label throwTransactionException() {
+		Label label = new Label();
+		mv.visitLabel(label);
 		mv.visitTypeInsn(NEW, "org/deuce/transaction/TransactionException");
 		mv.visitInsn(DUP);
 		mv.visitLdcInsn("Failed to commit the transaction in the defined retries.");
 		mv.visitMethodInsn(INVOKESPECIAL, "org/deuce/transaction/TransactionException", "<init>", "(Ljava/lang/String;)V");
 		mv.visitInsn(ATHROW);
+		return label;
 	}
 
 	@Override
