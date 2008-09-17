@@ -1,4 +1,4 @@
-package org.deuce.benchmark.examples.intset;
+package org.deuce.benchmark.intset;
 
 /**
  * @author Pascal Felber

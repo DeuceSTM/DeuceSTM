@@ -1,4 +1,4 @@
-package org.deuce.benchmark.examples.intset;
+package org.deuce.benchmark.intset;
 
 /**
  * @author Pascal Felber
@@ -8,8 +8,13 @@ public class Node {
 	private int m_value;
 	private Node m_next;
 
-	public Node(int value) {
+	public Node(int value, Node next) {
 		m_value = value;
+		m_next = next;
+	}
+
+	public Node(int value) {
+		this(value, null);
 	}
 
 	public void setValue(int value) {

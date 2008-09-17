@@ -1,4 +1,4 @@
-package org.deuce.benchmark.examples.intset;
+package org.deuce.benchmark.intset;
 
 import org.deuce.*;
 
@@ -23,14 +23,13 @@ public class IntSetOOP implements IntSet {
 
 		Node previous = m_first;
 		Node next = previous.getNext();
-		while (next.getValue() < value) {
+		int v;
+		while ((v = next.getValue()) < value) {
 			previous = next;
 			next = previous.getNext();
 		}
-		if (result = (next.getValue() != value)) {
-			Node n = new Node(value);
-			n.setNext(previous.getNext());
-			previous.setNext(n);
+		if (result = (v != value)) {
+			previous.setNext(new Node(value, next));
 		}
 
 		return result;
@@ -42,11 +41,12 @@ public class IntSetOOP implements IntSet {
 
 		Node previous = m_first;
 		Node next = previous.getNext();
-		while (next.getValue() < value) {
+		int v;
+		while ((v = next.getValue()) < value) {
 			previous = next;
 			next = previous.getNext();
 		}
-		if (result = (next.getValue() == value)) {
+		if (result = (v == value)) {
 			previous.setNext(next.getNext());
 		}
 
@@ -59,11 +59,12 @@ public class IntSetOOP implements IntSet {
 
 		Node previous = m_first;
 		Node next = previous.getNext();
-		while (next.getValue() < value) {
+		int v;
+		while ((v = next.getValue()) < value) {
 			previous = next;
 			next = previous.getNext();
 		}
-		result = (next.getValue() == value);
+		result = (v == value);
 
 		return result;
 	}

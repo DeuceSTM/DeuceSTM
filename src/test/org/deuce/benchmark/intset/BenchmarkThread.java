@@ -1,4 +1,4 @@
-package org.deuce.benchmark.examples.intset;
+package org.deuce.benchmark.intset;
 
 import org.deuce.transform.Exclude;
 
@@ -30,13 +30,14 @@ public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 		if (i < m_rate) {
 			if (m_write) {
 				m_last = s_random.nextInt(m_range);
-				m_set.add(m_last);
+				if (m_set.add(m_last))
+					m_write = false;
 				m_nb_add++;
 			} else {
 				m_set.remove(m_last);
 				m_nb_remove++;
+				m_write = true;
 			}
-			m_write = !m_write;
 		} else {
 			m_set.contains(s_random.nextInt(m_range));
 			m_nb_contains++;
