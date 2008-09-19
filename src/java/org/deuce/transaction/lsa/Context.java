@@ -33,7 +33,7 @@ final public class Context extends AbstractContext {
 	private int id;
 
 	public Context() {
-		// Unique identifier among active threads (could use Thread.currentThread().getId() but it is a long)
+		// Unique identifier among active threads
 		id = threadID.incrementAndGet();
 	}
 
@@ -159,7 +159,7 @@ final public class Context extends AbstractContext {
 
 		int hash = LockTable.hash(obj, field);
 
-		// Lock entry (might throw an exception upon abort)
+		// Lock entry (might throw an exception)
 		int timestamp = LockTable.lock(hash, id);
 
 		if (timestamp < 0) {
@@ -173,12 +173,13 @@ final public class Context extends AbstractContext {
 					w.setValue(value);
 					return;
 				}
-				if (w.getNext() == null) {
+				WriteFieldAccess next = w.getNext();
+				if (next == null) {
 					// We did not write this field (we must add it to read set)
 					w.setNext(new WriteFieldAccess(obj, field, type, value, hash, timestamp));
 					return;
 				}
-				w = w.getNext();
+				w = next;
 			}
 		}
 

@@ -20,9 +20,8 @@ public class LockTable {
 
 	public static int lock(int hash, int id) throws TransactionException {
 		assert hash <= MASK;
-		int lock = locks.get(hash);
-
 		while (true) {
+			int lock = locks.get(hash);
 			if ((lock & LOCK) != 0) {
 				if ((lock & LOCK) != id) {
 					// Already locked by other thread
@@ -43,7 +42,6 @@ public class LockTable {
 	public static int checkLock(int hash, int id) throws TransactionException {
 		assert hash <= MASK;
 		int lock = locks.get(hash);
-
 		if ((lock & LOCK) != 0) {
 			if ((lock & LOCK) != id) {
 				// Already locked by other thread
