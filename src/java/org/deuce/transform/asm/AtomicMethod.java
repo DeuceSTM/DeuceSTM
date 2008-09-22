@@ -1,8 +1,5 @@
 package org.deuce.transform.asm;
 
-import java.io.IOException;
-
-import org.deuce.Atomic;
 import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.Attribute;
 import org.deuce.objectweb.asm.Label;
@@ -18,7 +15,7 @@ import org.deuce.transform.asm.type.TypeCodeResolverFactory;
 
 public class AtomicMethod extends MethodAdapter implements Opcodes{
 
-	private int retries = 7; // TODO set default
+	private int retries = Integer.getInteger("org.deuce.transaction.retries", 10);
 	
 	final private String className;
 	final private String methodName;
