@@ -14,11 +14,5 @@ import java.lang.annotation.Target;
 @Target(METHOD)
 @Retention(CLASS)
 public @interface Atomic {
-	boolean abortOnException() default false;
 	int retries() default Integer.MAX_VALUE;
-	
-	
-	public static class Transaction{
-		public static void abort(){}
-	}
 }
