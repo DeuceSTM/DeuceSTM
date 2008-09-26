@@ -1,8 +1,13 @@
 package org.deuce.transform.asm.type;
 
 import org.deuce.objectweb.asm.Opcodes;
+import org.deuce.objectweb.asm.Type;
 
 public class LongTypeCodeResolver extends TypeCodeResolver {
+
+	public LongTypeCodeResolver(Type type) {
+		super(type);
+	}
 
 	@Override
 	public int loadCode() {

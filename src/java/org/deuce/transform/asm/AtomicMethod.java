@@ -134,10 +134,13 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		mv.visitInsn(ICONST_1);
 		mv.visitVarInsn(ISTORE, commitIndex);
 		
-		Label l7 = new Label(); // boolean result = true;
+		Label l7 = new Label(); // ... result = null;
 		mv.visitLabel(l7);
-		mv.visitInsn(ICONST_1);
-		mv.visitVarInsn(ISTORE, resultIndex);
+		if( returnReolver != null)
+		{
+			mv.visitInsn( returnReolver.nullValueCode());
+			mv.visitVarInsn( returnReolver.storeCode(), resultIndex);
+		}
 		
 		Label l8 = new Label(); // for( int i=10 ; ... ; ...)
 		mv.visitLabel(l8);
@@ -263,14 +266,15 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		// throw new TransactionException("Failed to commit ...");
 		Label l23 = throwTransactionException();
 		
-		/* locals */
+//		/* locals */
 		Label l24 = new Label();
 		mv.visitLabel(l24);
 		mv.visitLocalVariable("s", "Ljava/lang/Object;", null, l4, l24, 0);
 		mv.visitLocalVariable("throwable", "Ljava/lang/Throwable;", null, l5, l24, throwableIndex);
 		mv.visitLocalVariable("context", "Lorg/deuce/transaction/AbstractContext;", null, l6, l24, contextIndex);
 		mv.visitLocalVariable("commit", "Z", null, l7, l24, commitIndex);
-		mv.visitLocalVariable("result", "Z", null, l8, l24, resultIndex);
+		if( returnReolver != null)
+			mv.visitLocalVariable("result", returnReolver.toString(), null, l8, l24, resultIndex);
 		mv.visitLocalVariable("i", "I", null, l9, l23, indexIndex);
 		mv.visitLocalVariable("ex", "Lorg/deuce/transaction/TransactionException;", null, l13, l14, exceptionIndex);
 		mv.visitLocalVariable("ex", "Ljava/lang/Throwable;", null, l15, l12, exceptionIndex);
