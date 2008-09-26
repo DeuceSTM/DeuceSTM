@@ -47,7 +47,9 @@ public class DuplicateMethod extends MethodAdapter{
 	 */
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		if( owner.startsWith("java") || owner.startsWith("sun")) // TODO remove this limitation
+		if( owner.startsWith("java") || owner.startsWith("sun") || // TODO remove this limitation
+				name.contains("$")) // Syntactic 
+			
 		{
 			super.visitFieldInsn(opcode, owner, name, desc); // ... = foo( ...
 			return;
