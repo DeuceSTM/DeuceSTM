@@ -22,8 +22,6 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 		if (args.length > 0) {
 			if (args[0].equals("LinkedList"))
 				m_set = new IntSetLinkedList();
-			else if (args[0].equals("SkipList"))
-				m_set = new IntSetSkipList();
 			else
 				error = true;
 		} else
