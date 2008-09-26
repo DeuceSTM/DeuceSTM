@@ -1,6 +1,5 @@
 package org.deuce.benchmark;
 
-import java.util.*;
 import org.deuce.transform.Exclude;
 
 /**
@@ -12,11 +11,6 @@ abstract public class BenchmarkThread implements Runnable {
 
 	volatile private boolean m_end;
 	private int m_steps;
-	static protected Random s_random = new Random();
-
-	static public void initPRNG(long seed) {
-		s_random = new Random(seed);
-	}
 
 	public void end() {
 		m_end = true;

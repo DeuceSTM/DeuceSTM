@@ -12,7 +12,6 @@ public class Driver {
 	public static void main(String[] args) {
 		int nb_threads = 8;
 		int duration = 10000;
-		Long seed = null;
 		String benchmark = null;
 		boolean error = false;
 		int arg;
@@ -28,11 +27,6 @@ public class Driver {
 					duration = Integer.parseInt(args[arg]);
 				else
 					error = true;
-			} else if (args[arg].equals("-s")) {
-				if (++arg < args.length)
-					seed = new Long(args[arg]);
-				else
-					error = true;
 			} else
 				break;
 		}
@@ -45,12 +39,9 @@ public class Driver {
 			error = true;
 
 		if (error) {
-			System.out.println("Usage: java Driver [-n nb-threads] [-d duration-ms] [-s seed] benchmark [args...]");
+			System.out.println("Usage: java Driver [-n nb-threads] [-d duration-ms] benchmark [args...]");
 			System.exit(1);
 		}
-
-		if (seed != null)
-			BenchmarkThread.initPRNG(seed.longValue());
 
 		Benchmark b = null;
 		try {
@@ -65,7 +56,7 @@ public class Driver {
 
 		BenchmarkThread[] bt = new BenchmarkThread[nb_threads];
 		for (int i = 0; i < bt.length; i++)
-			bt[i] = b.createThread(i);
+			bt[i] = b.createThread(i, bt.length);
 
 		Thread[] t = new Thread[bt.length];
 		for (int i = 0; i < t.length; i++)

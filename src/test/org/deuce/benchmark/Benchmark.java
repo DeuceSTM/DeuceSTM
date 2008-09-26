@@ -11,7 +11,7 @@ public interface Benchmark {
 
 	public void init(String[] args);
 
-	public BenchmarkThread createThread(int i);
+	public BenchmarkThread createThread(int i, int nb);
 
 	public String stats(BenchmarkThread[] threads);
 }

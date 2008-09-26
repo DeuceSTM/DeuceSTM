@@ -20,8 +20,10 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 		int initial = 256;
 
 		if (args.length > 0) {
-			if (args[0].equals("OOP"))
-				m_set = new IntSetOOP();
+			if (args[0].equals("LinkedList"))
+				m_set = new IntSetLinkedList();
+			else if (args[0].equals("SkipList"))
+				m_set = new IntSetSkipList();
 			else
 				error = true;
 		} else
@@ -46,7 +48,7 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 				error = true;
 		}
 		if (error) {
-			System.out.println("Benchmark arguments: (NoAOP|AOP|OOP|RBTree|Skip) [-i initial-size] [-r range] [-w write-rate]");
+			System.out.println("Benchmark arguments: (LinkedList|SkipList|RBTree) [-i initial-size] [-r range] [-w write-rate]");
 			System.exit(1);
 		}
 		Random random = new Random();
@@ -58,7 +60,7 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 		System.out.println();
 	}
 
-	public org.deuce.benchmark.BenchmarkThread createThread(int i) {
+	public org.deuce.benchmark.BenchmarkThread createThread(int i, int nb) {
 		return new BenchmarkThread(m_set, m_range, m_rate);
 	}
 
