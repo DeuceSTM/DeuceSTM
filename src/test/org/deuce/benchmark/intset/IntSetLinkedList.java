@@ -49,7 +49,7 @@ public class IntSetLinkedList implements IntSet {
 
 	@Atomic
 	public boolean add(int value) {
-		boolean result = false;
+		boolean result;
 
 		Node previous = m_first;
 		Node next = previous.getNext();
@@ -67,7 +67,7 @@ public class IntSetLinkedList implements IntSet {
 
 	@Atomic
 	public boolean remove(int value) {
-		boolean result = false;
+		boolean result;
 
 		Node previous = m_first;
 		Node next = previous.getNext();
@@ -85,7 +85,7 @@ public class IntSetLinkedList implements IntSet {
 
 	@Atomic
 	public boolean contains(int value) {
-		boolean result = false;
+		boolean result;
 
 		Node previous = m_first;
 		Node next = previous.getNext();
