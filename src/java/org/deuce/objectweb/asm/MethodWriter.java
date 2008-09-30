@@ -1277,7 +1277,6 @@ class MethodWriter implements MethodVisitor {
                     e = e.next;
                 }
             }
-            this.maxStack = max;
 
             // visits all the frames that must be stored in the stack map
             Label l = labels;
@@ -1293,6 +1292,7 @@ class MethodWriter implements MethodVisitor {
                     int end = (k == null ? code.length : k.position) - 1;
                     // if non empty basic block
                     if (end >= start) {
+                        max = Math.max(max, 1);
                         // replaces instructions with NOP ... NOP ATHROW
                         for (int i = start; i < end; ++i) {
                             code.data[i] = Opcodes.NOP;
@@ -1307,6 +1307,8 @@ class MethodWriter implements MethodVisitor {
                 }
                 l = l.successor;
             }
+            
+            this.maxStack = max;
         } else if (compute == MAXS) {
             // completes the control flow graph with exception handler blocks
             Handler handler = firstHandler;
