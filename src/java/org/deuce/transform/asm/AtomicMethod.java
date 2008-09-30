@@ -15,7 +15,7 @@ import org.deuce.transform.asm.type.TypeCodeResolverFactory;
 
 public class AtomicMethod extends MethodAdapter implements Opcodes{
 
-	private int retries = Integer.getInteger("org.deuce.transaction.retries", 10);
+	private Integer retries = Integer.getInteger("org.deuce.transaction.retries", 10);
 	
 	final private String className;
 	final private String methodName;
@@ -144,7 +144,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		
 		Label l8 = new Label(); // for( int i=10 ; ... ; ...)
 		mv.visitLabel(l8);
-		mv.visitIntInsn(BIPUSH, retries);
+		mv.visitLdcInsn( retries);
 		mv.visitVarInsn(ISTORE, indexIndex);
 		
 		Label l9 = new Label();
@@ -266,10 +266,9 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		// throw new TransactionException("Failed to commit ...");
 		Label l23 = throwTransactionException();
 		
-//		/* locals */
+		/* locals */
 		Label l24 = new Label();
 		mv.visitLabel(l24);
-		mv.visitLocalVariable("s", "Ljava/lang/Object;", null, l4, l24, 0);
 		mv.visitLocalVariable("throwable", "Ljava/lang/Throwable;", null, l5, l24, throwableIndex);
 		mv.visitLocalVariable("context", "Lorg/deuce/transaction/AbstractContext;", null, l6, l24, contextIndex);
 		mv.visitLocalVariable("commit", "Z", null, l7, l24, commitIndex);
