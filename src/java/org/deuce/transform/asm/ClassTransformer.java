@@ -81,9 +81,9 @@ public class ClassTransformer extends ByteCodeVisitor{
 
 			MethodVisitor copyMethod =  super.visitMethod(access, name, newMethod.getDescriptor(),
 					signature, exceptions);
-			boolean isStatic = (access & Opcodes.ACC_STATIC) != 0;
+			
 			return new MethodTransformer( originalMethod, copyMethod, className,
-					name, desc, newMethod, isStatic);
+					access, name, desc, newMethod);
 			
 		}
 	}

@@ -1,10 +1,13 @@
 package org.deuce.transform.asm;
 
+import java.util.List;
+
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodAdapter;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
+import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.AbstractContext;
 import org.deuce.transform.util.Util;
@@ -20,10 +23,17 @@ public class DuplicateMethod extends MethodAdapter{
 	private final int argumentsSize;
 	
 	private boolean addContextToTable = false;
+	
+	private AnalyzerAdapter analyzerAdapter;
 
-	public DuplicateMethod(MethodVisitor mv, boolean isstatic, Method newMethod) {
+	public DuplicateMethod( MethodVisitor mv,
+			boolean isstatic, Method newMethod) {
 		super(mv);
 		this.argumentsSize = calcArgumentsSize( isstatic, newMethod); 
+	}
+	
+	public void setAnalyzer(AnalyzerAdapter analyzerAdapter) {
+		this.analyzerAdapter = analyzerAdapter;
 	}
 
 	@Override
@@ -107,12 +117,15 @@ public class DuplicateMethod extends MethodAdapter{
 		boolean load = false;
 		boolean store = false;
 		String desc = null;
+		String arrType = null;
 		switch( opcode) {
 		
 		case Opcodes.AALOAD:
-			// TODO handle Object[] arrays
-//			desc = AbstractContext.READ_ARRAY_METHOD_OBJ_DESC;
-//			load = true;
+			// handle Object[] arrays type, the type before the last is the array. 
+			// The substring removes the '[' from the array type
+			arrType = ((String)this.analyzerAdapter.stack.get(this.analyzerAdapter.stack.size() - 2)).substring(1);
+			desc = AbstractContext.READ_ARRAY_METHOD_OBJ_DESC;
+			load = true;
 			break;
 		case Opcodes.BALOAD:
 			desc = AbstractContext.READ_ARRAY_METHOD_BYTE_DESC;
@@ -182,9 +195,10 @@ public class DuplicateMethod extends MethodAdapter{
 			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
 			super.visitMethodInsn( Opcodes.INVOKESTATIC, AbstractContext.ABSTRACT_CONTEXT_NAME,
 					AbstractContext.READ_ARR_METHOD_NAME, desc);
-			// TODO handle Object[] arrays
-//			if( opcode == Opcodes.AALOAD) // non primitive
-//				super.visitTypeInsn( Opcodes.CHECKCAST, Type.getType(desc).getInternalName());
+
+			if( opcode == Opcodes.AALOAD){ // non primitive array need cast
+				super.visitTypeInsn( Opcodes.CHECKCAST, arrType);
+			}
 		}
 		else if( store)
 		{

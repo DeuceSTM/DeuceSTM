@@ -8,7 +8,9 @@ import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.Attribute;
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodVisitor;
+import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
+import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
 
 public class MethodTransformer implements MethodVisitor{
@@ -25,11 +27,18 @@ public class MethodTransformer implements MethodVisitor{
 	final private Method newMethod;
 
 	public MethodTransformer(MethodVisitor originalMethod, MethodVisitor copyMethod, 
-			String className, String methodName, String descriptor, Method newMethod, boolean isStatic) {
+			String className, int access, String methodName, String descriptor, Method newMethod) {
 		this.originalMethod = originalMethod;
 		this.newMethod = newMethod;
-		this.isStatic = isStatic;
-		this.copyMethod = new DuplicateMethod( copyMethod, isStatic, newMethod);
+		this.isStatic = (access & Opcodes.ACC_STATIC) != 0;
+		
+		// The AnalyzerAdapter delegates the call to the DuplicateMethod, while the DuplicateMethod uses
+		// the analyzer for stack state in the original method.
+		DuplicateMethod duplicateMethod = new DuplicateMethod( copyMethod, isStatic, newMethod);
+		AnalyzerAdapter analyzerAdapter = new AnalyzerAdapter( className, access, methodName, descriptor, duplicateMethod);
+		duplicateMethod.setAnalyzer( analyzerAdapter);
+		
+		this.copyMethod = analyzerAdapter;
 		this.className = className;
 		this.methodName = methodName;
 		this.descriptor = descriptor;
@@ -74,7 +83,6 @@ public class MethodTransformer implements MethodVisitor{
 	public void visitFrame(int type, int local, Object[] local2, int stack, Object[] stack2) {
 		originalMethod.visitFrame(type, local, local2, stack, stack2);
 		copyMethod.visitFrame(type, local, local2, stack, stack2);
-
 	}
 
 	public void visitIincInsn(int var, int increment) {
