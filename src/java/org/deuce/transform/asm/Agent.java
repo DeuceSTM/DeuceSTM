@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import org.deuce.reflection.UnsafeHolder;
 import org.deuce.transform.Exclude;
+import org.deuce.transform.util.IgnoreTree;
 
 /**
  * @author Guy Korland
@@ -22,7 +23,15 @@ import org.deuce.transform.Exclude;
 public class Agent implements ClassFileTransformer {
 	private static final Logger logger = Logger.getLogger("org.deuce.agent");
 	final private static boolean VERBOSE = Boolean.getBoolean("org.deuce.verbose");
-	final private static boolean globaleTxn = Boolean.getBoolean("org.deuce.transaction.global");
+	final private static boolean GLOBAL_TXN = Boolean.getBoolean("org.deuce.transaction.global");
+	final public static IgnoreTree IGNORE_TREE;
+	static
+	{
+		String property = System.getProperty("org.deuce.exclude");
+		if( property == null)
+			property = "java.*,sun.*,org.eclipse.*,org.junit.*,junit.*";
+		IGNORE_TREE = new IgnoreTree( property);
+	}
 
 	/*
 	 * @see java.lang.instrument.ClassFileTransformer#transform(java.lang.ClassLoader,
@@ -33,14 +42,14 @@ public class Agent implements ClassFileTransformer {
 			ProtectionDomain protectionDomain, byte[] classfileBuffer)
 	throws IllegalClassFormatException {
 		try {
-			if (loader == null || className.startsWith("sun")  || className.startsWith("java") ) // Don't transform classes from the boot classLoader.
+			if (loader == null || className.startsWith("$") || IGNORE_TREE.contains(className)) // Don't transform classes from the boot classLoader.
 				return classfileBuffer;
 
 			if (logger.isLoggable(Level.FINER))
 				logger.finer("Transforming: Class=" + className + " ClassLoader=" + loader);
 
 			ByteCodeVisitor cv;
-			if( globaleTxn)
+			if( GLOBAL_TXN)
 				cv = new org.deuce.transaction.global.ClassTransformer( className); 
 			else
 				cv = new org.deuce.transform.asm.ClassTransformer( className); 

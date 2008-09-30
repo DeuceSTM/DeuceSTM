@@ -40,7 +40,8 @@ public class DuplicateMethod extends MethodAdapter{
 	public void visitMethodInsn(int opcode, String owner, String name,
 			String desc) 
 	{
-		if( owner.startsWith("java") || owner.startsWith("sun"))
+	//if( owner.startsWith("java") || owner.startsWith("sun"))
+		if( Agent.IGNORE_TREE.contains( owner))
 		{
 			super.visitMethodInsn(opcode, owner, name, desc); // ... = foo( ...
 		}
@@ -57,7 +58,8 @@ public class DuplicateMethod extends MethodAdapter{
 	 */
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		if( owner.startsWith("java") || owner.startsWith("sun") || // TODO remove this limitation
+     	//if( owner.startsWith("java") || owner.startsWith("sun") || // TODO remove this limitation
+		if( Agent.IGNORE_TREE.contains( owner) || // TODO remove this limitation
 				name.contains("$")) // Syntactic 
 			
 		{

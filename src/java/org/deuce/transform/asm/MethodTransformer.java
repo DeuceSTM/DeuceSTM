@@ -12,11 +12,13 @@ import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
+import org.junit.Test;
 
 public class MethodTransformer implements MethodVisitor{
 
+	final static private String ATOMIC_DESCRIPTOR = Type.getDescriptor(Atomic.class);
+	
 	private MethodVisitor originalMethod;
-	private boolean atomic = false;
 
 	final private MethodVisitor copyMethod;
 	final private String className;
@@ -50,14 +52,18 @@ public class MethodTransformer implements MethodVisitor{
 	}
 
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-		atomic = Type.getDescriptor(Atomic.class).equals(desc);
-
-		if( atomic & !(originalMethod instanceof AtomicMethod))
+		
+		// FIXME we might saw other annotations before and we need to put it on the new AtomicMethod
+		// need to create an atomic method from the original method
+		if( ATOMIC_DESCRIPTOR.equals(desc) & !(originalMethod instanceof AtomicMethod))
 			originalMethod = new AtomicMethod( originalMethod, className, methodName,
 					descriptor, newMethod, isStatic);
 
-					return new MethodAnnotationVisitor( originalMethod.visitAnnotation(desc, visible),
-							copyMethod.visitAnnotation(desc, visible));
+		if( !desc.contains("org/junit")) // TODO find another way
+			return new MethodAnnotationVisitor( originalMethod.visitAnnotation(desc, visible),
+					copyMethod.visitAnnotation(desc, visible));
+		else	
+			return originalMethod.visitAnnotation(desc, visible);
 	}
 
 	public AnnotationVisitor visitAnnotationDefault() {
