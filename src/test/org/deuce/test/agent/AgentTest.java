@@ -8,16 +8,16 @@ package org.deuce.test.agent;
 
 import java.lang.reflect.Method;
 
+import org.deuce.transaction.AbstractContext;
 import org.deuce.transaction.tl2.Context;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * TODO	add Javadoc
+ * Check that duplicate methods are created with the right signutre. 
  *
- * @author	Guy
- * @version	1.0
- * @since	5.0
+ * @author	Guy Korland
+ * @since	0.3
  */
 public class AgentTest
 {
@@ -27,10 +27,8 @@ public class AgentTest
 	{
 		try
 		{
-//			MyClassLoader cl = new MyClassLoader();
-//			Class c = Class.forName(className)( .getName());
 			assertNotNull( CCC.class.getMethod("foo", Integer.TYPE, String.class));
-			assertNotNull( CCC.class.getMethod("foo__jstm", Integer.TYPE, String.class));
+			assertNotNull( CCC.class.getMethod("foo", Integer.TYPE, String.class, AbstractContext.class));
 		}
 		catch( Exception e)
 		{
@@ -43,10 +41,8 @@ public class AgentTest
 	{
 		try
 		{
-//			MyClassLoader cl = new MyClassLoader();
-//			Class c = cl.findClass( CCC.class.getName());
 			assertNotNull( CCC.class.getConstructor());
-			assertNotNull( CCC.class.getConstructor( Context.class));
+			assertNotNull( CCC.class.getConstructor( AbstractContext.class));
 		}
 		catch( Exception e)
 		{
@@ -59,10 +55,8 @@ public class AgentTest
 	{
 		try
 		{
-//			MyClassLoader cl = new MyClassLoader();
-//			Class c = cl.findClass( CCC.class.getName());
-			Method m = CCC.class.getMethod("foo__jstm", new Class[] { Integer.TYPE, String.class});
-			assertEquals( m.invoke(new CCC(), 4, "AAA"), "AAA"+4);
+			Method m = CCC.class.getMethod("foo", Integer.TYPE, String.class, AbstractContext.class);
+			assertEquals( m.invoke(new CCC(), 4, "AAA", new Context()), "AAA"+4);
 		}
 		catch( Exception e)
 		{
@@ -87,26 +81,4 @@ public class AgentTest
 			return y + x;
 		}
 	}
-
-//	public static class MyClassLoader extends ClassLoader {
-//
-//		@Override
-//		protected Class findClass(String name) throws ClassNotFoundException {
-//			ClassReader cr;
-//			try
-//			{
-//				cr = new ClassReader(name);
-//			}
-//			catch (IOException e)
-//			{
-//				throw new ClassNotFoundException( e.toString() ,e);
-//			}
-//			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-//			ClassVisitor cv = new Adapter(cw);
-//			cr.accept(cv, 0);
-//			byte[] b = cw.toByteArray();
-//			return defineClass(name, b, 0, b.length);
-//		}
-//	}
-
 }
