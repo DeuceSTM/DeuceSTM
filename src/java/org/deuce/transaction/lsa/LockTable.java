@@ -12,9 +12,10 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class LockTable {
 
-	final private static int ARRAYSIZE = (1 << 20); // 2^20
+	final private static int ARRAYSIZE = 1 << 20; // 2^20
 	final private static int MASK = ARRAYSIZE - 1;
 	final private static int LOCK = 1 << 31;
+	final private static int IDMASK = LOCK - 1;
 
 	final private static AtomicIntegerArray locks = new AtomicIntegerArray(ARRAYSIZE); // array 32-bit lock words
 
@@ -23,7 +24,7 @@ public class LockTable {
 		while (true) {
 			int lock = locks.get(hash);
 			if ((lock & LOCK) != 0) {
-				if ((lock & LOCK) != id) {
+				if ((lock & IDMASK) != id) {
 					// Already locked by other thread
 					throw new TransactionException("Fail on acquire lock (already locked).");
 				} else {
@@ -43,7 +44,7 @@ public class LockTable {
 		assert hash <= MASK;
 		int lock = locks.get(hash);
 		if ((lock & LOCK) != 0) {
-			if ((lock & LOCK) != id) {
+			if ((lock & IDMASK) != id) {
 				// Already locked by other thread
 				throw new TransactionException("Fail on check lock (already locked).");
 			} else {
