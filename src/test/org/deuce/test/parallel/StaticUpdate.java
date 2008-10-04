@@ -48,12 +48,10 @@ public class StaticUpdate {
 			threads[j] = new Thread(){
 				@Override
 				public void run(){
-					int[] results = new int[2];
 					for( int i=0; i<rounds ;++i)
 					{
 						try{
-							atomicSingleUpdate(results);
-//							Assert.assertEquals(results[0]+1, results[1]);
+							atomicSingleUpdate();
 						}
 						catch( TransactionException e)
 						{
@@ -89,21 +87,7 @@ public class StaticUpdate {
 	}
 	
 	@Atomic
-	private void atomicSingleUpdate(int[] results) {
-//		results[0] = intVar;
-		int i = intVar;
-		int j = intVar;
-		if( j != i)
-		{
-//			try {
-//				Thread.sleep(10);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-			int x = intVar;
-			System.out.println( i + " @@@@@@@@@@@@@@@@@@ " + j + " " + x);
-		}
+	private void atomicSingleUpdate() {
 		++intVar;
 //		longVar++;
 //		doubleVar++;
@@ -115,7 +99,6 @@ public class StaticUpdate {
 //    	doubleArrVar[0]++;
 //    	objectArrvar[0] = new Object();
 //    	stringArrvar[0] = new String("a");
-//    	results[1] = intVar;
 	}
 	
 //	@Test 
