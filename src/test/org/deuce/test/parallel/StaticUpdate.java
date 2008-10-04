@@ -88,7 +88,7 @@ public class StaticUpdate {
 	
 	@Atomic
 	private void atomicSingleUpdate() {
-		++intVar;
+		intVar++;
 //		longVar++;
 //		doubleVar++;
 //		objectVar = new Object();
