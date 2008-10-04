@@ -10,29 +10,29 @@ import org.junit.Test;
 
 public class StaticUpdate {
 
-	volatile private static int intVar;
-	private static long longVar;
-	private static double doubleVar;
+	private static int intVar;
+//	private static long longVar;
+//	private static double doubleVar;
 //	private static Object objectVar;
 //	private static String stringVar;
 	
-	private static int[] intArrVar;
-	private static long[] longArrVar;
-	private static double[] doubleArrVar;
+//	private static int[] intArrVar;
+//	private static long[] longArrVar;
+//	private static double[] doubleArrVar;
 //	private static Object[] objectArrvar;
 //	private static String[] stringArrvar;
 
 	@Before 
     public void setUp() { 
     	intVar = 0;
-    	longVar = 0;
-    	doubleVar = 0;
+//    	longVar = 0;
+//    	doubleVar = 0;
 //    	objectVar = null;
 //    	stringVar = null;
     	
-    	intArrVar = new int[1];
-    	longArrVar = new long[1];
-    	doubleArrVar = new double[1];
+//    	intArrVar = new int[1];
+//    	longArrVar = new long[1];
+//    	doubleArrVar = new double[1];
 //    	objectArrvar = new Object[1];
 //    	stringArrvar = new String[1];
 	}
