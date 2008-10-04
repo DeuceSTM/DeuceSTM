@@ -1,5 +1,6 @@
 package org.deuce.transform.asm;
 
+import org.deuce.Atomic;
 import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.Attribute;
 import org.deuce.objectweb.asm.Label;
@@ -15,7 +16,9 @@ import org.deuce.transform.asm.type.TypeCodeResolverFactory;
 
 public class AtomicMethod extends MethodAdapter implements Opcodes{
 
-	private Integer retries = Integer.getInteger("org.deuce.transaction.retries", 10);
+	final static public String ATOMIC_DESCRIPTOR = Type.getDescriptor(Atomic.class);
+	
+	private Integer retries = Integer.getInteger("org.deuce.transaction.retries", Integer.MAX_VALUE);
 	
 	final private String className;
 	final private String methodName;
@@ -24,7 +27,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 	final private boolean isStatic;
 	final private int variablesSize;
 	final private Method newMethod; 
-
+	
 	public AtomicMethod(MethodVisitor mv, String className, String methodName,
 			String descriptor, Method newMethod, boolean isStatic) {
 		super(mv);
@@ -43,10 +46,38 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		}
 		variablesSize = variablesSize( argumentReolvers, isStatic);
 	}
+	
 
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-		return super.visitAnnotation(desc, visible);
+		final AnnotationVisitor visitAnnotation = super.visitAnnotation(desc, visible);
+		if( AtomicMethod.ATOMIC_DESCRIPTOR.equals(desc)){
+			return new AnnotationVisitor(){
+				@Override
+				public void visit(String name, Object value) {
+					if( name.equals("retries"))
+						AtomicMethod.this.retries = (Integer)value;
+					visitAnnotation.visit(name, value);
+				}
+				@Override
+				public AnnotationVisitor visitAnnotation(String name, String desc) {
+					return visitAnnotation.visitAnnotation(name, desc);
+				}
+				@Override
+				public AnnotationVisitor visitArray(String name) {
+					return visitAnnotation.visitArray(name);
+				}
+				@Override
+				public void visitEnd() {
+					visitAnnotation.visitEnd();				
+				}
+				@Override
+				public void visitEnum(String name, String desc, String value) {
+					visitAnnotation.visitEnum(name, desc, value);
+				}
+			};
+		}
+		return visitAnnotation;
 	}
 
 	@Override

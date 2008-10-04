@@ -16,8 +16,6 @@ import org.junit.Test;
 
 public class MethodTransformer implements MethodVisitor{
 
-	final static private String ATOMIC_DESCRIPTOR = Type.getDescriptor(Atomic.class);
-	
 	private MethodVisitor originalMethod;
 
 	final private MethodVisitor copyMethod;
@@ -55,7 +53,7 @@ public class MethodTransformer implements MethodVisitor{
 		
 		// FIXME we might saw other annotations before and we need to put it on the new AtomicMethod
 		// need to create an atomic method from the original method
-		if( ATOMIC_DESCRIPTOR.equals(desc) & !(originalMethod instanceof AtomicMethod))
+		if( AtomicMethod.ATOMIC_DESCRIPTOR.equals(desc) & !(originalMethod instanceof AtomicMethod))
 			originalMethod = new AtomicMethod( originalMethod, className, methodName,
 					descriptor, newMethod, isStatic);
 
