@@ -1,7 +1,5 @@
 package org.deuce.transform.asm;
 
-import java.util.List;
-
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodAdapter;
 import org.deuce.objectweb.asm.MethodVisitor;
@@ -119,13 +117,15 @@ public class DuplicateMethod extends MethodAdapter{
 		boolean load = false;
 		boolean store = false;
 		String desc = null;
-		String arrType = null;
+		String arrayMemeberType = null;
 		switch( opcode) {
 		
 		case Opcodes.AALOAD:
 			// handle Object[] arrays type, the type before the last is the array. 
 			// The substring removes the '[' from the array type
-			arrType = ((String)this.analyzerAdapter.stack.get(this.analyzerAdapter.stack.size() - 2)).substring(1);
+			String arrayType = 
+				(String)this.analyzerAdapter.stack.get(this.analyzerAdapter.stack.size() - 2);
+			arrayMemeberType = arrayType.substring(2, arrayType.length()-1);
 			desc = AbstractContext.READ_ARRAY_METHOD_OBJ_DESC;
 			load = true;
 			break;
@@ -199,7 +199,7 @@ public class DuplicateMethod extends MethodAdapter{
 					AbstractContext.READ_ARR_METHOD_NAME, desc);
 
 			if( opcode == Opcodes.AALOAD){ // non primitive array need cast
-				super.visitTypeInsn( Opcodes.CHECKCAST, arrType);
+				super.visitTypeInsn( Opcodes.CHECKCAST, arrayMemeberType);
 			}
 		}
 		else if( store)

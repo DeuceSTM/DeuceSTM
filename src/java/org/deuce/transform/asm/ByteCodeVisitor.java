@@ -10,15 +10,14 @@ import org.deuce.objectweb.asm.ClassWriter;
  * @author Guy Korland
  * @since 1.0
  */
-abstract public class ByteCodeVisitor extends ClassAdapter{
+public class ByteCodeVisitor extends ClassAdapter{
 
 	protected final String className;
 
 	public ByteCodeVisitor( String className) {
 
-		super(null);
+		super(new ClassWriter( ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES));
 
-		this.cv = new ClassWriter( ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 		this.className = className;
 	}
 

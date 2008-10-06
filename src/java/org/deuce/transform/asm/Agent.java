@@ -48,6 +48,8 @@ public class Agent implements ClassFileTransformer {
 			if (logger.isLoggable(Level.FINER))
 				logger.finer("Transforming: Class=" + className + " ClassLoader=" + loader);
 
+			classfileBuffer = addFrames(className, classfileBuffer);
+			
 			ByteCodeVisitor cv;
 			if( GLOBAL_TXN)
 				cv = new org.deuce.transaction.global.ClassTransformer( className); 
@@ -72,6 +74,23 @@ public class Agent implements ClassFileTransformer {
 			logger.log( Level.SEVERE, "Fail on class transform: " + className, e);
 			return classfileBuffer;
 		}
+	}
+
+	/**
+	 * Reads the bytecode and calculate the frames, to support 1.5- code.
+	 * 
+	 * @param className class to manipluate 
+	 * @param classfileBuffer original byte code
+	 *  
+	 * @return bytecode with frames
+	 */
+	private byte[] addFrames(String className, byte[] classfileBuffer) {
+		
+		// TODO retrun the same bytecode if 1.6+ 
+		ByteCodeVisitor frameCompute = new ByteCodeVisitor( className);
+		frameCompute.visit( classfileBuffer);
+		classfileBuffer = frameCompute.toByteArray();
+		return classfileBuffer;
 	}
 
 	public static void premain(String agentArgs, Instrumentation inst) {
