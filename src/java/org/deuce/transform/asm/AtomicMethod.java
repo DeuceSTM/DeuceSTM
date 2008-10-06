@@ -53,25 +53,20 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		final AnnotationVisitor visitAnnotation = super.visitAnnotation(desc, visible);
 		if( AtomicMethod.ATOMIC_DESCRIPTOR.equals(desc)){
 			return new AnnotationVisitor(){
-				@Override
 				public void visit(String name, Object value) {
 					if( name.equals("retries"))
 						AtomicMethod.this.retries = (Integer)value;
 					visitAnnotation.visit(name, value);
 				}
-				@Override
 				public AnnotationVisitor visitAnnotation(String name, String desc) {
 					return visitAnnotation.visitAnnotation(name, desc);
 				}
-				@Override
 				public AnnotationVisitor visitArray(String name) {
 					return visitAnnotation.visitArray(name);
 				}
-				@Override
 				public void visitEnd() {
 					visitAnnotation.visitEnd();				
 				}
-				@Override
 				public void visitEnum(String name, String desc, String value) {
 					visitAnnotation.visitEnum(name, desc, value);
 				}
