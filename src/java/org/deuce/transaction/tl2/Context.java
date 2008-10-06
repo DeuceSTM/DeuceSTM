@@ -63,9 +63,8 @@ final public class Context extends AbstractContext
 			}
 		}
 		catch( TransactionException exception){
-			int unLockedCounter = 0;
 			for( WriteFieldAccess writeField : writeSet.keySet()){
-				if( unLockedCounter++ >= lockedCounter)
+				if( lockedCounter-- == 0)
 					break;
 				LockTable.unLock( writeField.hashCode());
 			}
