@@ -40,7 +40,7 @@ abstract public class Account {
 	}
 
 	@Atomic
-	static public void transfer(Account src, Account dst, int amount) throws OverdraftException {
+	static public void transfer(Account src, Account dst, float amount) throws OverdraftException {
 		dst.deposit(amount);
 		if (s_yield)
 			Thread.yield();
