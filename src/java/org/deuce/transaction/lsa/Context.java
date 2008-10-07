@@ -117,7 +117,6 @@ final public class Context extends AbstractContext {
 		while (true) {
 			// Check if the field is locked (may throw an exception)
 			int timestamp = LockTable.checkLock(hash, id);
-			value = Field.getValue(obj, field, type);
 
 			if (timestamp < 0) {
 				// We already own that lock
@@ -132,12 +131,19 @@ final public class Context extends AbstractContext {
 					w = w.getNext();
 					if (w == null) {
 						// We did not read this field (but no need to add it to read set)
-						return value;
+						return Field.getValue(obj, field, type);
 					}
 				}
 			}
 
-			if (timestamp <= endTime) {
+			while (timestamp <= endTime) {
+				value = Field.getValue(obj, field, type);
+				// Re-read timestamp (check for race)
+				int timestamp2 = LockTable.checkLock(hash, id);
+				if (timestamp != timestamp2) {
+					timestamp = timestamp2;
+					continue;
+				}
 				// We have read a valid value (in snapshot)
 				ReadFieldAccess read = new ReadFieldAccess(obj, field, hash, timestamp);
 				// Save to read set
@@ -149,8 +155,6 @@ final public class Context extends AbstractContext {
 			if (!extend()) {
 				throw new TransactionException("Fail on extend.");
 			}
-			// We need to re-read the value as a new version might have been written
-			value = Field.getValue(obj, field, type);
 		}
 	}
 
