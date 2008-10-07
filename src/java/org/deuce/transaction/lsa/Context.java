@@ -65,7 +65,7 @@ final public class Context extends AbstractContext {
 					w.writeField();
 					w = w.getNext();
 				} while (w != null);
-				LockTable.setAndReleaseLock(hash, lock);
+				LockTable.setAndReleaseLock(hash, newClock);
 			}
 		}
 		logger.fine("Commit successed.");
@@ -117,6 +117,7 @@ final public class Context extends AbstractContext {
 		while (true) {
 			// Check if the field is locked (may throw an exception)
 			int timestamp = LockTable.checkLock(hash, id);
+			value = Field.getValue(obj, field, type);
 
 			if (timestamp < 0) {
 				// We already own that lock
@@ -189,6 +190,7 @@ final public class Context extends AbstractContext {
 			for (ReadFieldAccess r : readSet) {
 				if (f.equals(r)) {
 					// Abort
+					LockTable.setAndReleaseLock(hash, timestamp);
 					throw new TransactionException("Fail on write (read previous version).");
 				}
 				// We delay validation until later (although we could already validate once here)

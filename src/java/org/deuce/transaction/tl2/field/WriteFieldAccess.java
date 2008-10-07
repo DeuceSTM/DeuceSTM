@@ -26,6 +26,9 @@ public class WriteFieldAccess extends ReadFieldAccess{
 		case BYTE:
 			unsafe.putByteVolatile(reference, field, (Byte)value);
 			break;
+		case BOOLEAN:
+			unsafe.putBooleanVolatile(reference, field, (Boolean)value);
+			break;
 		case CHAR:
 			unsafe.putCharVolatile(reference, field, (Character)value);
 			break;

@@ -23,7 +23,7 @@ public class Field {
 	@Override
 	public boolean equals(Object obj) {
 		Field other = (Field) obj;
-		return reference == other.reference && field == other.field;
+		return obj != null && reference == other.reference && field == other.field;
 	}
 
 	static public Object getValue(Object reference, long field, Type type) {
@@ -31,6 +31,8 @@ public class Field {
 		switch (type) {
 		case BYTE:
 			return unsafe.getByteVolatile(reference, field);
+		case BOOLEAN:
+			return unsafe.getBooleanVolatile(reference, field);
 		case CHAR:
 			return unsafe.getCharVolatile(reference, field);
 		case SHORT:
