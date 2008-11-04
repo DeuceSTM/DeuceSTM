@@ -2,6 +2,10 @@ package org.deuce.transaction.tl2.field;
 
 import org.deuce.transform.Exclude;
 
+/**
+ * Represents a base class for field write access.  
+ * @author Guy Koralnd
+ */
 @Exclude
 public class ReadFieldAccess{
 	final protected Object reference;
