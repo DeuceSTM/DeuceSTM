@@ -14,7 +14,7 @@ public class AddressUtil {
 	 * @return direct address
 	 */
 	public static long getAddress( Field field) {
-		if( (field.getModifiers() & Modifier.STATIC) != 0){
+		if( Modifier.isStatic(field.getModifiers())){
 			return UnsafeHolder.getUnsafe().staticFieldOffset(field);
 		}else{
 			return UnsafeHolder.getUnsafe().objectFieldOffset(field);
