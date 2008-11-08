@@ -13,11 +13,11 @@ import org.deuce.transform.Exclude;
  */
 @Exclude
 public class BloomFilter {
-
+	
 	final private static short BLOOM_FILTER_SIZE = 1 << 10; // the array length
-
-	final private byte[] bloomFilter = new byte[BLOOM_FILTER_SIZE];
-
+	final static private byte[] EMPTY_FILTER = new byte[BLOOM_FILTER_SIZE];
+	
+	private byte[] bloomFilter = new byte[BLOOM_FILTER_SIZE];
 
 	public boolean contains( int hash) {
 
@@ -38,6 +38,7 @@ public class BloomFilter {
 	}
 
 	public void clear() {
-		Arrays.fill( bloomFilter, (byte)0); // TODO check if can clear faster or even call new
+		 // TODO check if can clear faster or even call new
+		System.arraycopy(EMPTY_FILTER, 0, bloomFilter, 0, BLOOM_FILTER_SIZE);
 	}
 }
