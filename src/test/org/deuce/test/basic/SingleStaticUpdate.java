@@ -20,6 +20,7 @@ public class SingleStaticUpdate {
 	private static double[] doubleArrVar;
 	private static Object[] objectArrvar;
 	private static String[] stringArrvar;
+	private static boolean[][] booleanArrArrVar;
 	
     @Before 
     public void setUp() { 
@@ -34,23 +35,28 @@ public class SingleStaticUpdate {
     	doubleArrVar = new double[1];
     	objectArrvar = new Object[1];
     	stringArrvar = new String[1];
+    	
+    	booleanArrArrVar = new boolean[1][];
+    	booleanArrArrVar[0] = new boolean[1];
 	}
 	
 	@Test 
 	public void simpleAdd() {
 		atomicSingleUpdate();
 		
-		Assert.assertEquals(intVar, 1);
-		Assert.assertEquals(longVar, 1);
-		Assert.assertEquals(doubleVar, 1.0);
+		Assert.assertEquals(1, intVar);
+		Assert.assertEquals(1, longVar);
+		Assert.assertEquals(1.0, doubleVar);
 		Assert.assertNotNull(objectVar);
-		Assert.assertEquals(stringVar, "a");
+		Assert.assertEquals("a", stringVar);
 		
-		Assert.assertEquals(intArrVar[0], 1);
-		Assert.assertEquals(longArrVar[0], 1);
-		Assert.assertEquals(doubleArrVar[0], 1.0);
+		Assert.assertEquals(1, intArrVar[0]);
+		Assert.assertEquals(1, longArrVar[0]);
+		Assert.assertEquals(1.0, doubleArrVar[0]);
 		Assert.assertNotNull(objectArrvar[0]);
-		Assert.assertEquals(stringArrvar[0], "a");
+		Assert.assertEquals("a", stringArrvar[0]);
+		
+		Assert.assertEquals(booleanArrArrVar[0][0], true);
 		
 	}
 	
@@ -67,6 +73,7 @@ public class SingleStaticUpdate {
     	doubleArrVar[0]++;
     	objectArrvar[0] = new Object();
     	stringArrvar[0] = new String("a");
+    	booleanArrArrVar[0][0] = true;
 	}
 	
 	@Test 
