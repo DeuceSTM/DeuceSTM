@@ -83,7 +83,9 @@ final public class Context extends AbstractContext
 		int newClock = clock.incrementAndGet();
 
 		for( Map.Entry<WriteFieldAccess,WriteFieldAccess> writeEntry : writeSet.entrySet()){
-			WriteFieldAccess writeField = writeEntry.getKey();
+			
+			// Use the value and not the key since the key might hold hold key.
+			WriteFieldAccess writeField = writeEntry.getValue(); 
 			writeField.put(); // commit value to field
 			LockTable.setAndReleaseLock( writeField.hashCode(), newClock);
 			
