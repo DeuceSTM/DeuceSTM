@@ -9,11 +9,6 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class WriteFieldAccess extends ReadFieldAccess {
 
-	@Exclude
-	static public enum Type {
-		BYTE, BOOLEAN, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, OBJECT
-	}
-
 	final private Type type;
 	private Object value;
 	private WriteFieldAccess next;

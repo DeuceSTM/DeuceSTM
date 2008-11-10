@@ -8,9 +8,9 @@ import java.util.logging.Logger;
 import org.deuce.transaction.AbstractContext;
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.lsa.field.Field;
+import org.deuce.transaction.lsa.field.Field.Type;
 import org.deuce.transaction.lsa.field.ReadFieldAccess;
 import org.deuce.transaction.lsa.field.WriteFieldAccess;
-import org.deuce.transaction.lsa.field.WriteFieldAccess.Type;
 import org.deuce.transform.Exclude;
 
 /**
@@ -108,7 +108,7 @@ final public class Context extends AbstractContext {
 		return false;
 	}
 
-	public Object addReadAccess(Object obj, long field, Object value, Type type) {
+	public Object addReadAccess(Object obj, long field, Type type) {
 
 		logger.finest("Read access.");
 
@@ -137,7 +137,7 @@ final public class Context extends AbstractContext {
 			}
 
 			while (timestamp <= endTime) {
-				value = Field.getValue(obj, field, type);
+				Object value = Field.getValue(obj, field, type);
 				// Re-read timestamp (check for race)
 				int timestamp2 = LockTable.checkLock(hash, id);
 				if (timestamp != timestamp2) {
@@ -209,47 +209,47 @@ final public class Context extends AbstractContext {
 
 	@Override
 	public Object addReadAccess(Object obj, Object value, long field) {
-		return addReadAccess(obj, field, value, Type.OBJECT);
+		return addReadAccess(obj, field, Type.OBJECT);
 	}
 
 	@Override
 	public boolean addReadAccess(Object obj, boolean value, long field) {
-		return (Boolean) addReadAccess(obj, field, (Object) value, Type.BOOLEAN);
+		return (Boolean) addReadAccess(obj, field, Type.BOOLEAN);
 	}
 
 	@Override
 	public byte addReadAccess(Object obj, byte value, long field) {
-		return ((Number) addReadAccess(obj, field, (Object) value, Type.BYTE)).byteValue();
+		return ((Number) addReadAccess(obj, field, Type.BYTE)).byteValue();
 	}
 
 	@Override
 	public char addReadAccess(Object obj, char value, long field) {
-		return (Character) addReadAccess(obj, field, (Object) value, Type.CHAR);
+		return (Character) addReadAccess(obj, field, Type.CHAR);
 	}
 
 	@Override
 	public short addReadAccess(Object obj, short value, long field) {
-		return ((Number) addReadAccess(obj, field, (Object) value, Type.SHORT)).shortValue();
+		return ((Number) addReadAccess(obj, field, Type.SHORT)).shortValue();
 	}
 
 	@Override
 	public int addReadAccess(Object obj, int value, long field) {
-		return ((Number) addReadAccess(obj, field, (Object) value, Type.INT)).intValue();
+		return ((Number) addReadAccess(obj, field, Type.INT)).intValue();
 	}
 
 	@Override
 	public long addReadAccess(Object obj, long value, long field) {
-		return ((Number) addReadAccess(obj, field, (Object) value, Type.LONG)).longValue();
+		return ((Number) addReadAccess(obj, field, Type.LONG)).longValue();
 	}
 
 	@Override
 	public float addReadAccess(Object obj, float value, long field) {
-		return ((Number) addReadAccess(obj, field, (Object) value, Type.FLOAT)).floatValue();
+		return ((Number) addReadAccess(obj, field, Type.FLOAT)).floatValue();
 	}
 
 	@Override
 	public double addReadAccess(Object obj, double value, long field) {
-		return ((Number) addReadAccess(obj, field, (Object) value, Type.DOUBLE)).doubleValue();
+		return ((Number) addReadAccess(obj, field, Type.DOUBLE)).doubleValue();
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package org.deuce.transaction.lsa.field;
 
 import org.deuce.reflection.UnsafeHolder;
-import org.deuce.transaction.lsa.field.WriteFieldAccess.Type;
 import org.deuce.transform.Exclude;
 
 import sun.misc.Unsafe;
@@ -12,6 +11,12 @@ import sun.misc.Unsafe;
  */
 @Exclude
 public class Field {
+
+	@Exclude
+	static public enum Type {
+		BYTE, BOOLEAN, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, OBJECT
+	}
+
 	final protected Object reference;
 	final protected long field;
 
