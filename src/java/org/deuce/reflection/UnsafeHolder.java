@@ -13,15 +13,17 @@ public class UnsafeHolder {
 
 	final private static Logger logger = Logger.getLogger("org.deuce.reflection");
 
-	private static Unsafe unsafe;
+	final private static Unsafe unsafe;
 	static{
+		Unsafe unsafeValue = null;
 		try{
 			Field field = Unsafe.class.getDeclaredField("theUnsafe");
 			field.setAccessible(true);
-			unsafe = (Unsafe)field.get(null);
+			unsafeValue = (Unsafe)field.get(null);
 		}catch( Exception e){
 			logger.log(Level.SEVERE, "Fail to initialize Unsafe.", e);
 		}
+		unsafe = unsafeValue;
 	}
 
 	public static Unsafe getUnsafe() {
