@@ -3,16 +3,13 @@ package org.deuce.transform.asm;
 import java.util.HashMap;
 
 
-import org.deuce.Atomic;
 import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.Attribute;
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
-import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
-import org.junit.Test;
 
 public class MethodTransformer implements MethodVisitor{
 
