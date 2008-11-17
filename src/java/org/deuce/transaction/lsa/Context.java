@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-import org.deuce.transaction.AbstractContext;
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.lsa.field.Field;
 import org.deuce.transaction.lsa.field.Field.Type;
@@ -20,7 +19,7 @@ import org.deuce.transform.Exclude;
  * @since 0.1
  */
 @Exclude
-final public class Context extends AbstractContext {
+final public class Context implements org.deuce.transaction.Context {
 	final private static AtomicInteger clock = new AtomicInteger(0);
 	final private static AtomicInteger threadID = new AtomicInteger(0);
 	private static final Logger logger = Logger.getLogger("org.deuce.transaction.lsa");
@@ -37,7 +36,6 @@ final public class Context extends AbstractContext {
 		id = threadID.incrementAndGet();
 	}
 
-	@Override
 	public void init() {
 		logger.fine("Init transaction.");
 		this.readSet.clear();
@@ -45,7 +43,6 @@ final public class Context extends AbstractContext {
 		this.startTime = this.endTime = clock.get();
 	}
 
-	@Override
 	public boolean commit() {
 		logger.fine("Start to commit.");
 
@@ -72,7 +69,6 @@ final public class Context extends AbstractContext {
 		return true;
 	}
 
-	@Override
 	public void rollback() {
 		logger.fine("Start to rollback.");
 		// Release locks
@@ -207,93 +203,85 @@ final public class Context extends AbstractContext {
 		writeSet.put(hash, write);
 	}
 
-	@Override
 	public Object addReadAccess(Object obj, Object value, long field) {
 		return addReadAccess(obj, field, Type.OBJECT);
 	}
 
-	@Override
 	public boolean addReadAccess(Object obj, boolean value, long field) {
 		return (Boolean) addReadAccess(obj, field, Type.BOOLEAN);
 	}
 
-	@Override
 	public byte addReadAccess(Object obj, byte value, long field) {
 		return ((Number) addReadAccess(obj, field, Type.BYTE)).byteValue();
 	}
 
-	@Override
 	public char addReadAccess(Object obj, char value, long field) {
 		return (Character) addReadAccess(obj, field, Type.CHAR);
 	}
 
-	@Override
 	public short addReadAccess(Object obj, short value, long field) {
 		return ((Number) addReadAccess(obj, field, Type.SHORT)).shortValue();
 	}
 
-	@Override
 	public int addReadAccess(Object obj, int value, long field) {
 		return ((Number) addReadAccess(obj, field, Type.INT)).intValue();
 	}
 
-	@Override
 	public long addReadAccess(Object obj, long value, long field) {
 		return ((Number) addReadAccess(obj, field, Type.LONG)).longValue();
 	}
 
-	@Override
 	public float addReadAccess(Object obj, float value, long field) {
 		return ((Number) addReadAccess(obj, field, Type.FLOAT)).floatValue();
 	}
 
-	@Override
 	public double addReadAccess(Object obj, double value, long field) {
 		return ((Number) addReadAccess(obj, field, Type.DOUBLE)).doubleValue();
 	}
 
-	@Override
 	public void addWriteAccess(Object obj, Object value, long field) {
 		addWriteAccess(obj, field, value, Type.OBJECT);
 	}
 
-	@Override
 	public void addWriteAccess(Object obj, boolean value, long field) {
 		addWriteAccess(obj, field, (Object) value, Type.BOOLEAN);
 	}
 
-	@Override
 	public void addWriteAccess(Object obj, byte value, long field) {
 		addWriteAccess(obj, field, (Object) value, Type.BYTE);
 	}
 
-	@Override
 	public void addWriteAccess(Object obj, char value, long field) {
 		addWriteAccess(obj, field, (Object) value, Type.CHAR);
 	}
 
-	@Override
 	public void addWriteAccess(Object obj, short value, long field) {
 		addWriteAccess(obj, field, (Object) value, Type.SHORT);
 	}
 
-	@Override
 	public void addWriteAccess(Object obj, int value, long field) {
 		addWriteAccess(obj, field, (Object) value, Type.INT);
 	}
 
-	@Override
 	public void addWriteAccess(Object obj, long value, long field) {
 		addWriteAccess(obj, field, (Object) value, Type.LONG);
 	}
 
-	@Override
 	public void addWriteAccess(Object obj, float value, long field) {
 		addWriteAccess(obj, field, (Object) value, Type.FLOAT);
 	}
 
-	@Override
 	public void addWriteAccess(Object obj, double value, long field) {
 		addWriteAccess(obj, field, (Object) value, Type.DOUBLE);
+	}
+	
+	public void beforeReadAccess(Object obj, long field) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void beforeWriteAccess(Object obj, long field) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -9,7 +9,8 @@ import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.Method;
-import org.deuce.transaction.AbstractContext;
+import org.deuce.transaction.Context;
+import org.deuce.transaction.ContextDelegator;
 import org.deuce.transaction.TransactionException;
 import org.deuce.transform.asm.type.TypeCodeResolver;
 import org.deuce.transform.asm.type.TypeCodeResolverFactory;
@@ -94,7 +95,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 	public static boolean foo(Object s) throws IOException{
 
 		Throwable throwable = null;
-		AbstractContext context = AbstractContext.getInstance();
+		Context context = ContextDelegator.getInstance();
 		boolean commit = true;
 		boolean result = true;
 		for( int i=10 ; i>0 ; --i)
@@ -153,7 +154,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		mv.visitInsn(ACONST_NULL);
 		mv.visitVarInsn(ASTORE, throwableIndex);
 		
-		Label l5 = getContext(contextIndex); // AbstractContext context = AbstractContext.getInstance();
+		Label l5 = getContext(contextIndex); // Context context = ContextDelegator.getInstance();
 			
 		Label l6 = new Label(); // boolean commit = true;
 		mv.visitLabel(l6);
@@ -181,7 +182,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		Label l11 = new Label(); // context.init();
 		mv.visitLabel(l11);
 		mv.visitVarInsn(ALOAD, contextIndex);
-		mv.visitMethodInsn(INVOKEVIRTUAL, AbstractContext.ABSTRACT_CONTEXT_INTERNAL, "init", "()V");
+		mv.visitMethodInsn(INVOKEINTERFACE, Context.CONTEXT_INTERNAL, "init", "()V");
 		
 		/* result = foo( context, ...)  */ 
 		mv.visitLabel(l0);
@@ -247,7 +248,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		Label l17 = new Label(); // if( context.commit())
 		mv.visitLabel(l17);
 		mv.visitVarInsn(ALOAD, contextIndex);
-		mv.visitMethodInsn(INVOKEVIRTUAL, AbstractContext.ABSTRACT_CONTEXT_INTERNAL, "commit", "()Z");
+		mv.visitMethodInsn(INVOKEINTERFACE, Context.CONTEXT_INTERNAL, "commit", "()Z");
 		Label l18 = new Label();
 		mv.visitJumpInsn(IFEQ, l18);
 		
@@ -278,7 +279,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		// else
 		mv.visitLabel(l16); // context.rollback(); 
 		mv.visitVarInsn(ALOAD, contextIndex);
-		mv.visitMethodInsn(INVOKEVIRTUAL, AbstractContext.ABSTRACT_CONTEXT_INTERNAL, "rollback", "()V");
+		mv.visitMethodInsn(INVOKEINTERFACE, Context.CONTEXT_INTERNAL, "rollback", "()V");
 		
 		mv.visitInsn(ICONST_1); // commit = true;
 		mv.visitVarInsn(ISTORE, commitIndex);
@@ -296,7 +297,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		Label l24 = new Label();
 		mv.visitLabel(l24);
 		mv.visitLocalVariable("throwable", "Ljava/lang/Throwable;", null, l5, l24, throwableIndex);
-		mv.visitLocalVariable("context", "Lorg/deuce/transaction/AbstractContext;", null, l6, l24, contextIndex);
+		mv.visitLocalVariable("context", Context.CONTEXT_DESC, null, l6, l24, contextIndex);
 		mv.visitLocalVariable("commit", "Z", null, l7, l24, commitIndex);
 		if( returnReolver != null)
 			mv.visitLocalVariable("result", returnReolver.toString(), null, l8, l24, resultIndex);
@@ -310,8 +311,8 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 
 	private Label getContext(final int contextIndex) {
 		Label label = new Label();
-		mv.visitLabel(label); // AbstractContext context = AbstractContext.getInstance();
-		mv.visitMethodInsn(INVOKESTATIC, AbstractContext.ABSTRACT_CONTEXT_NAME, "getInstance", "()Lorg/deuce/transaction/AbstractContext;");
+		mv.visitLabel(label); // Context context = ContextDelegator.getInstance();
+		mv.visitMethodInsn(INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL, "getInstance", "()Lorg/deuce/transaction/Context;");
 		mv.visitVarInsn(ASTORE, contextIndex);
 		return label;
 	}

@@ -7,14 +7,13 @@ import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
-import org.deuce.transaction.AbstractContext;
+import org.deuce.transaction.Context;
+import org.deuce.transaction.ContextDelegator;
 import org.deuce.transform.util.Util;
 
 public class DuplicateMethod extends MethodAdapter{
 
-
 	final static public String LOCAL_VARIBALE_NAME = "__transactionContext__";
-	final static public String CONTEXT_DESCRIPTOR = Type.getDescriptor( AbstractContext.class);
 
 	private Label firstLabel;
 	private Label lastLabel;
@@ -56,11 +55,8 @@ public class DuplicateMethod extends MethodAdapter{
 	 */
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-     	//if( owner.startsWith("java") || owner.startsWith("sun") || // TODO remove this limitation
-		if( Agent.IGNORE_TREE.contains( owner) || // TODO remove this limitation
-				name.contains("$")) // Syntactic 
-			
-		{
+		if( Agent.IGNORE_TREE.contains( owner) || 
+				name.contains("$")){ // Syntactic TODO remove this limitation
 			super.visitFieldInsn(opcode, owner, name, desc); // ... = foo( ...
 			return;
 		}
@@ -70,8 +66,8 @@ public class DuplicateMethod extends MethodAdapter{
 			super.visitFieldInsn(opcode, owner, name, desc);
 			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
 			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, AbstractContext.ABSTRACT_CONTEXT_NAME,
-					AbstractContext.READ_METHOD_NAME, AbstractContext.getReadMethodDesc(desc));
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+					ContextDelegator.READ_METHOD_NAME, ContextDelegator.getReadMethodDesc(desc));
 			
 			Type type = Type.getType(desc);
 			if( type.getSort() >= Type.ARRAY) // non primitive
@@ -80,17 +76,17 @@ public class DuplicateMethod extends MethodAdapter{
 		case Opcodes.PUTFIELD:
 			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
 			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, AbstractContext.ABSTRACT_CONTEXT_NAME,
-					AbstractContext.WRITE_METHOD_NAME, AbstractContext.getWriteMethodDesc(desc));
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+					ContextDelegator.WRITE_METHOD_NAME, ContextDelegator.getWriteMethodDesc(desc));
 			break;
-		case Opcodes.GETSTATIC: // TODO check support for static fields
+		case Opcodes.GETSTATIC: // check support for static fields
 			super.visitFieldInsn(Opcodes.GETSTATIC, owner, 
 					StaticMethodTransformer.CLASS_BASE, "Ljava/lang/Object;");
 			super.visitFieldInsn(opcode, owner, name, desc);
 			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
 			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, AbstractContext.ABSTRACT_CONTEXT_NAME,
-					AbstractContext.READ_METHOD_NAME, AbstractContext.getReadMethodDesc(desc));
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+					ContextDelegator.READ_METHOD_NAME, ContextDelegator.getReadMethodDesc(desc));
 			
 			type = Type.getType(desc);
 			if( type.getSort() >= Type.ARRAY) // non primitive
@@ -101,8 +97,8 @@ public class DuplicateMethod extends MethodAdapter{
 					StaticMethodTransformer.CLASS_BASE, "Ljava/lang/Object;");
 			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
 			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, AbstractContext.ABSTRACT_CONTEXT_NAME,
-					AbstractContext.STATIC_WRITE_METHOD_NAME, AbstractContext.getStaticWriteMethodDesc(desc));
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+					ContextDelegator.STATIC_WRITE_METHOD_NAME, ContextDelegator.getStaticWriteMethodDesc(desc));
 			break;
 		default:
 			super.visitFieldInsn(opcode, owner, name, desc);
@@ -130,68 +126,68 @@ public class DuplicateMethod extends MethodAdapter{
 			else
 				arrayMemeberType = arrayType.substring(1, arrayType.length());
 			
-			desc = AbstractContext.READ_ARRAY_METHOD_OBJ_DESC;
+			desc = ContextDelegator.READ_ARRAY_METHOD_OBJ_DESC;
 			load = true;
 			break;
 		case Opcodes.BALOAD:
-			desc = AbstractContext.READ_ARRAY_METHOD_BYTE_DESC;
+			desc = ContextDelegator.READ_ARRAY_METHOD_BYTE_DESC;
 			load = true;
 			break;
 		case Opcodes.CALOAD:
-			desc = AbstractContext.READ_ARRAY_METHOD_CHAR_DESC;
+			desc = ContextDelegator.READ_ARRAY_METHOD_CHAR_DESC;
 			load = true;
 			break;
 		case Opcodes.SALOAD:
-			desc = AbstractContext.READ_ARRAY_METHOD_SHORT_DESC;
+			desc = ContextDelegator.READ_ARRAY_METHOD_SHORT_DESC;
 			load = true;
 			break;
 		case Opcodes.IALOAD:
-			desc = AbstractContext.READ_ARRAY_METHOD_INT_DESC;
+			desc = ContextDelegator.READ_ARRAY_METHOD_INT_DESC;
 			load = true;
 			break;
 		case Opcodes.LALOAD:
-			desc = AbstractContext.READ_ARRAY_METHOD_LONG_DESC;
+			desc = ContextDelegator.READ_ARRAY_METHOD_LONG_DESC;
 			load = true;
 			break;
 		case Opcodes.FALOAD:
-			desc = AbstractContext.READ_ARRAY_METHOD_FLOAT_DESC;
+			desc = ContextDelegator.READ_ARRAY_METHOD_FLOAT_DESC;
 			load = true;
 			break;
 		case Opcodes.DALOAD:
-			desc = AbstractContext.READ_ARRAY_METHOD_DOUBLE_DESC;
+			desc = ContextDelegator.READ_ARRAY_METHOD_DOUBLE_DESC;
 			load = true;
 			break;
 			
 		case Opcodes.AASTORE:
-			desc = AbstractContext.WRITE_ARRAY_METHOD_OBJ_DESC;
+			desc = ContextDelegator.WRITE_ARRAY_METHOD_OBJ_DESC;
 			store = true;
 			break;
 		case Opcodes.BASTORE:
-			desc = AbstractContext.WRITE_ARRAY_METHOD_BYTE_DESC;
+			desc = ContextDelegator.WRITE_ARRAY_METHOD_BYTE_DESC;
 			store = true;
 			break;
 		case Opcodes.CASTORE:
-			desc = AbstractContext.WRITE_ARRAY_METHOD_CHAR_DESC;
+			desc = ContextDelegator.WRITE_ARRAY_METHOD_CHAR_DESC;
 			store = true;
 			break;
 		case Opcodes.SASTORE:
-			desc = AbstractContext.WRITE_ARRAY_METHOD_SHORT_DESC;
+			desc = ContextDelegator.WRITE_ARRAY_METHOD_SHORT_DESC;
 			store = true;
 			break;
 		case Opcodes.IASTORE:
-			desc = AbstractContext.WRITE_ARRAY_METHOD_INT_DESC;
+			desc = ContextDelegator.WRITE_ARRAY_METHOD_INT_DESC;
 			store = true;
 			break;
 		case Opcodes.LASTORE:
-			desc = AbstractContext.WRITE_ARRAY_METHOD_LONG_DESC;
+			desc = ContextDelegator.WRITE_ARRAY_METHOD_LONG_DESC;
 			store = true;
 			break;
 		case Opcodes.FASTORE:
-			desc = AbstractContext.WRITE_ARRAY_METHOD_FLOAT_DESC;
+			desc = ContextDelegator.WRITE_ARRAY_METHOD_FLOAT_DESC;
 			store = true;
 			break;
 		case Opcodes.DASTORE:
-			desc = AbstractContext.WRITE_ARRAY_METHOD_DOUBLE_DESC;
+			desc = ContextDelegator.WRITE_ARRAY_METHOD_DOUBLE_DESC;
 			store = true;
 			break;
 		}
@@ -199,8 +195,8 @@ public class DuplicateMethod extends MethodAdapter{
 		if( load)
 		{
 			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, AbstractContext.ABSTRACT_CONTEXT_NAME,
-					AbstractContext.READ_ARR_METHOD_NAME, desc);
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+					ContextDelegator.READ_ARR_METHOD_NAME, desc);
 
 			if( opcode == Opcodes.AALOAD){ // non primitive array need cast
 				super.visitTypeInsn( Opcodes.CHECKCAST, arrayMemeberType);
@@ -209,8 +205,8 @@ public class DuplicateMethod extends MethodAdapter{
 		else if( store)
 		{
 			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, AbstractContext.ABSTRACT_CONTEXT_NAME,
-					AbstractContext.WRITE_ARR_METHOD_NAME, desc);
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+					ContextDelegator.WRITE_ARR_METHOD_NAME, desc);
 		}
 		else{
 			super.visitInsn(opcode);
@@ -243,7 +239,7 @@ public class DuplicateMethod extends MethodAdapter{
 		if( this.argumentsSize ==  index + 1 && !addContextToTable) 
 		{
 			addContextToTable = true;
-			super.visitLocalVariable(LOCAL_VARIBALE_NAME, CONTEXT_DESCRIPTOR, null,
+			super.visitLocalVariable(LOCAL_VARIBALE_NAME, Context.CONTEXT_DESC, null,
 					firstLabel, lastLabel, index);
 		}
 

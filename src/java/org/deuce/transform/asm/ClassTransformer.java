@@ -8,7 +8,7 @@ import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.Method;
-import org.deuce.transaction.AbstractContext;
+import org.deuce.transaction.Context;
 import org.deuce.transform.Exclude;
 import org.deuce.transform.util.Util;
 
@@ -107,7 +107,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 
 		Type[] newArguments = new Type[ arguments.length + 1];
 		System.arraycopy( arguments, 0, newArguments, 0, arguments.length);
-		newArguments[newArguments.length - 1] = AbstractContext.ABSTRACT_CONTEXT_TYPE; // add as a constant
+		newArguments[newArguments.length - 1] = Context.CONTEXT_TYPE; // add as a constant
 
 		Method newMethod = new Method( name, method.getReturnType(), newArguments);
 		return newMethod;
