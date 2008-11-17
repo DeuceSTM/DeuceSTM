@@ -1,13 +1,20 @@
 package org.deuce.transform.asm;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,38 +49,45 @@ public class Agent implements ClassFileTransformer {
 			ProtectionDomain protectionDomain, byte[] classfileBuffer)
 	throws IllegalClassFormatException {
 		try {
-			if (loader == null || className.startsWith("$") || IGNORE_TREE.contains(className)) // Don't transform classes from the boot classLoader.
-				return classfileBuffer;
-
-			if (logger.isLoggable(Level.FINER))
-				logger.finer("Transforming: Class=" + className + " ClassLoader=" + loader);
-
-			classfileBuffer = addFrames(className, classfileBuffer);
-			
-			ByteCodeVisitor cv;
-			if( GLOBAL_TXN)
-				cv = new org.deuce.transaction.global.ClassTransformer( className); 
-			else
-				cv = new org.deuce.transform.asm.ClassTransformer( className); 
-
-			byte[] bytecode = cv.visit(classfileBuffer);
-
-			if( VERBOSE){
-				try {
-					verbose(className, bytecode);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-
-			return bytecode;
+			// Don't transform classes from the boot classLoader.
+			if (loader != null)
+				return transform(className, classfileBuffer);
 		}
 		catch(Exception e) {
 			logger.log( Level.SEVERE, "Fail on class transform: " + className, e);
-			return classfileBuffer;
 		}
+		return classfileBuffer;
+	}
+	
+	private byte[] transform(String className, byte[] classfileBuffer)
+	throws IllegalClassFormatException {
+
+		if (className.startsWith("$") || IGNORE_TREE.contains(className)) 
+			return classfileBuffer;
+		
+		if (logger.isLoggable(Level.FINER))
+			logger.finer("Transforming: Class=" + className);
+
+		classfileBuffer = addFrames(className, classfileBuffer);
+
+		ByteCodeVisitor cv;
+		if( GLOBAL_TXN)
+			cv = new org.deuce.transaction.global.ClassTransformer( className); 
+		else
+			cv = new org.deuce.transform.asm.ClassTransformer( className); 
+
+		byte[] bytecode = cv.visit(classfileBuffer);
+
+		if( VERBOSE){
+			try {
+				verbose(className, bytecode);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return bytecode;
 	}
 
 	/**
@@ -93,12 +107,69 @@ public class Agent implements ClassFileTransformer {
 		return classfileBuffer;
 	}
 
-	public static void premain(String agentArgs, Instrumentation inst) {
+	public static void premain(String agentArgs, Instrumentation inst) throws Exception{
 		UnsafeHolder.getUnsafe();
 		logger.fine("Starting Duece agent");
 		inst.addTransformer(new Agent());
 	}
-
+	
+	/**
+	 * Used for offline instrumentation.
+	 * @param args input jar & output jar
+	 * e.g.: "C:\Java\jdk1.5.0_13\jre\lib\rt.jar" "C:\rt.jar"
+	 * @throws Exception
+	 */
+	public static void main(String[] args) throws Exception{
+		UnsafeHolder.getUnsafe();
+		logger.fine("Starting Duece translator");
+		
+		// TODO check args
+		Agent agent = new Agent();
+		agent.transformJar(args[0], args[1]);
+	}
+	
+	private void transformJar( String inFileName, String outFilename) throws IOException, IllegalClassFormatException {
+		
+		final int size = 4096;
+		byte[] buffer = new byte[size];
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(size);
+		
+		JarInputStream jarIS = new JarInputStream(new FileInputStream(inFileName));
+		JarOutputStream jarOS = new JarOutputStream(new FileOutputStream(outFilename));
+		String nextName = "";
+		try {
+			for (JarEntry nextJarEntry = jarIS.getNextJarEntry(); nextJarEntry != null;
+								nextJarEntry = jarIS.getNextJarEntry()) {
+				
+				baos.reset();
+				int read;
+				while ((read = jarIS.read(buffer, 0, size)) > 0) {
+					baos.write(buffer, 0, read);
+				}
+				byte[] byteArray = baos.toByteArray();
+				
+				nextName = nextJarEntry.getName();
+				if( nextName.endsWith(".class")){
+					byte[] transformed = transform( nextName, byteArray);
+					JarEntry transformedEntry = new JarEntry(nextName);
+					jarOS.putNextEntry( transformedEntry); 
+					jarOS.write(transformed);
+				}
+				else{
+					jarOS.putNextEntry( nextJarEntry);
+					jarOS.write(byteArray);
+				}
+			}
+		}
+		catch(Exception e){
+			logger.log(Level.SEVERE, "Failed to translate " + nextName, e);
+		}
+		finally {
+			jarIS.close();
+			jarOS.close();
+		}
+	}
+	
 	private void verbose(String className, byte[] bytecode) throws FileNotFoundException,
 	IOException {
 		File file = new File( "verbose");
