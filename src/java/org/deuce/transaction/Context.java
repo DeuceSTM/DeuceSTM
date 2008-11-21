@@ -26,8 +26,9 @@ public interface Context
 
 	/**
 	 * Called before the transaction was started
+	 * @param method atomic method started
 	 */
-	void init();
+	void init(String method);
 
 	/**
 	 * Called on commit

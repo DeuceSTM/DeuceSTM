@@ -43,7 +43,7 @@ final public class Context implements org.deuce.transaction.Context
 	}
 
 	
-	public void init(){
+	public void init(String method){
 		logger.fine("Init transaction.");
 		this.bloomFilter.clear();
 		this.readSet.clear(); // TODO reuse the same read set objects 
