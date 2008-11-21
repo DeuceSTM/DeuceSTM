@@ -53,7 +53,6 @@ public interface Context
 	float addReadAccess( Object obj, float value, long field);
 	double addReadAccess( Object obj, double value, long field);
 
-	void beforeWriteAccess( Object obj, long field);
 	void addWriteAccess( Object obj, Object value, long field);
 	void addWriteAccess( Object obj, boolean value, long field);
 	void addWriteAccess( Object obj, byte value, long field);

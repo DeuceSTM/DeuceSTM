@@ -276,12 +276,5 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 	
 	public void beforeReadAccess(Object obj, long field) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void beforeWriteAccess(Object obj, long field) {
-		// TODO Auto-generated method stub
-		
 	}
 }

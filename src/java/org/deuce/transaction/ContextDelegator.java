@@ -18,6 +18,9 @@ public class ContextDelegator {
 
 	final static public String CONTEXT_DELEGATOR_INTERNAL = Type.getInternalName(ContextDelegator.class);
 	
+	final static public String BEFORE_READ_METHOD_NAME = "beforeReadAccess";
+	final static public String BEFORE_READ_METHOD_DESC = "(Ljava/lang/Object;J" + Context.CONTEXT_DESC +")V";
+	
 	final static public String WRITE_METHOD_NAME = "addWriteAccess";
 	final static public String WRITE_ARR_METHOD_NAME = "addArrayWriteAccess";
 	final static public String STATIC_WRITE_METHOD_NAME = "addStaticWriteAccess";
@@ -229,10 +232,6 @@ public class ContextDelegator {
 	}
 	static public double addReadAccess( Object obj, double value, long field, Context context) {
 		return context.addReadAccess(obj, value, field);
-	}
-
-	static public void beforeWriteAccess( Object obj, long field, Context context) {
-		context.beforeReadAccess(obj, field);
 	}
 
 	static public void addWriteAccess( Object obj, Object value, long field, Context context) {
