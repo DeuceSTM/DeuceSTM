@@ -2,7 +2,6 @@ package org.deuce.transform.asm;
 
 import org.deuce.Atomic;
 import org.deuce.objectweb.asm.AnnotationVisitor;
-import org.deuce.objectweb.asm.Attribute;
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodAdapter;
 import org.deuce.objectweb.asm.MethodVisitor;
@@ -27,13 +26,15 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 	final private TypeCodeResolver[] argumentReolvers;
 	final private boolean isStatic;
 	final private int variablesSize;
-	final private Method newMethod; 
+	final private Method newMethod;
+	final private String descriptor; 
 	
 	public AtomicMethod(MethodVisitor mv, String className, String methodName,
 			String descriptor, Method newMethod, boolean isStatic) {
 		super(mv);
 		this.className = className;
 		this.methodName = methodName;
+		this.descriptor = descriptor;
 		this.newMethod = newMethod;
 		this.isStatic = isStatic;
 
@@ -57,6 +58,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 				public void visit(String name, Object value) {
 					if( name.equals("retries"))
 						AtomicMethod.this.retries = (Integer)value;
+					
 					visitAnnotation.visit(name, value);
 				}
 				public AnnotationVisitor visitAnnotation(String name, String desc) {
@@ -74,21 +76,6 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 			};
 		}
 		return visitAnnotation;
-	}
-
-	@Override
-	public AnnotationVisitor visitAnnotationDefault() {
-		return super.visitAnnotationDefault();
-	}
-
-	@Override
-	public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
-		return super.visitParameterAnnotation(parameter, desc, visible);
-	}
-
-	@Override
-	public void visitAttribute(Attribute attr) {
-		super.visitAttribute(attr);
 	}
 
 	/**
@@ -182,7 +169,8 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		Label l11 = new Label(); // context.init();
 		mv.visitLabel(l11);
 		mv.visitVarInsn(ALOAD, contextIndex);
-		mv.visitMethodInsn(INVOKEINTERFACE, Context.CONTEXT_INTERNAL, "init", "()V");
+		mv.visitLdcInsn(this.className + '#' + this.methodName + this.descriptor);
+		mv.visitMethodInsn(INVOKEINTERFACE, Context.CONTEXT_INTERNAL, "init", "(Ljava/lang/String;)V");
 		
 		/* result = foo( context, ...)  */ 
 		mv.visitLabel(l0);
@@ -305,7 +293,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		mv.visitLocalVariable("ex", "Lorg/deuce/transaction/TransactionException;", null, l13, l14, exceptionIndex);
 		mv.visitLocalVariable("ex", "Ljava/lang/Throwable;", null, l15, l12, exceptionIndex);
 		
-		mv.visitMaxs(5 + variablesSize, resultIndex + 2);
+		mv.visitMaxs(6 + variablesSize, resultIndex + 2);
 		mv.visitEnd();
 	}
 
