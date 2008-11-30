@@ -134,10 +134,7 @@ public class DuplicateMethod extends MethodAdapter{
 			// The substring removes the '[' from the array type
 			String arrayType = 
 				(String)this.analyzerAdapter.stack.get(this.analyzerAdapter.stack.size() - 2);
-			if( arrayType.charAt(arrayType.length() - 1) == ';')
-				arrayMemeberType = arrayType.substring(2, arrayType.length()-1);
-			else
-				arrayMemeberType = arrayType.substring(1, arrayType.length());
+			arrayMemeberType = getArrayMemberType( arrayType);
 			
 			desc = ContextDelegator.READ_ARRAY_METHOD_OBJ_DESC;
 			load = true;
@@ -287,5 +284,13 @@ public class DuplicateMethod extends MethodAdapter{
 			size += type.getSize();
 		}
 		return size;
+	}
+	
+	private String getArrayMemberType( String arrayType){
+		if( arrayType.charAt(arrayType.length() - 1) == ';' && // primitive array 
+				arrayType.charAt(1) != '[' ) // array of arrays  
+			return arrayType.substring(2, arrayType.length()-1);
+
+		return arrayType.substring(1, arrayType.length()); // array of Objects
 	}
 }
