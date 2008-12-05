@@ -6,8 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -23,6 +21,8 @@ import org.deuce.transform.Exclude;
 import org.deuce.transform.util.IgnoreTree;
 
 /**
+ * A java agent to dynamically instrument transactional supported classes/  
+ * 
  * @author Guy Korland
  * @since 1.0
  */
@@ -93,7 +93,7 @@ public class Agent implements ClassFileTransformer {
 	/**
 	 * Reads the bytecode and calculate the frames, to support 1.5- code.
 	 * 
-	 * @param className class to manipluate 
+	 * @param className class to manipulate 
 	 * @param classfileBuffer original byte code
 	 *  
 	 * @return bytecode with frames
