@@ -20,6 +20,14 @@ import org.deuce.transform.Exclude;
  */
 @Exclude
 final public class Context implements org.deuce.transaction.Context {
+	
+	// Failure transaction 
+	final private static TransactionException WRITE_FAILURE_EXCEPTION = 
+		new TransactionException("Fail on write (read previous version).");
+	
+	final private static TransactionException EXTEND_FAILURE_EXCEPTION =  
+		new TransactionException("Fail on extend.");
+	
 	final private static AtomicInteger clock = new AtomicInteger(0);
 	final private static AtomicInteger threadID = new AtomicInteger(0);
 	private static final Logger logger = Logger.getLogger("org.deuce.transaction.lsa");
@@ -149,7 +157,7 @@ final public class Context implements org.deuce.transaction.Context {
 
 			// Try to extend snapshot
 			if (!extend()) {
-				throw new TransactionException("Fail on extend.");
+				throw EXTEND_FAILURE_EXCEPTION;
 			}
 		}
 	}
@@ -191,7 +199,7 @@ final public class Context implements org.deuce.transaction.Context {
 				if (f.equals(r)) {
 					// Abort
 					LockTable.setAndReleaseLock(hash, timestamp);
-					throw new TransactionException("Fail on write (read previous version).");
+					throw WRITE_FAILURE_EXCEPTION;
 				}
 				// We delay validation until later (although we could already validate once here)
 			}

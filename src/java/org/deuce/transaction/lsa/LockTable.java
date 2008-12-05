@@ -12,6 +12,10 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class LockTable {
 
+	// Failure transaction 
+	final private static TransactionException FAILURE_EXCEPTION = 
+		new TransactionException("Fail on lock (already locked).");
+	
 	final private static int ARRAYSIZE = 1 << 20; // 2^20
 	final private static int MASK = ARRAYSIZE - 1;
 	final private static int LOCK = 1 << 31;
@@ -26,7 +30,7 @@ public class LockTable {
 			if ((lock & LOCK) != 0) {
 				if ((lock & IDMASK) != id) {
 					// Already locked by other thread
-					throw new TransactionException("Fail on acquire lock (already locked).");
+					throw FAILURE_EXCEPTION;
 				} else {
 					// We already own this lock
 					return -1;
@@ -46,7 +50,7 @@ public class LockTable {
 		if ((lock & LOCK) != 0) {
 			if ((lock & IDMASK) != id) {
 				// Already locked by other thread
-				throw new TransactionException("Fail on check lock (already locked).");
+				throw FAILURE_EXCEPTION;
 			} else {
 				// We already own this lock
 				return -1;
