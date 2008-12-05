@@ -112,7 +112,7 @@ public class ContextDelegator {
 					e.printStackTrace(); // TODO add logger
 				}
 			}
-			this.contextClass = Context.class;
+			this.contextClass = org.deuce.transaction.lsa.Context.class;
 		}
 
 		@Override
