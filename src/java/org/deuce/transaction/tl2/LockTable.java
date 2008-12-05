@@ -8,6 +8,9 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class LockTable {
 
+	// Failure transaction 
+	final private static TransactionException FAILURE_EXCEPTION = new TransactionException( "Faild on lock.");
+	
 	final private static int MASK = 0xFFFFF;
 	final private static int LOCK = 1 << 31;
 	final private static int UNLOCK = ~LOCK;
@@ -18,13 +21,13 @@ public class LockTable {
 		int lockIndex = hash & MASK;
 		int lock = locks.get(lockIndex); 
 		if( (lock & LOCK) != 0){ // FIXME check for self locking
-			throw new TransactionException( "Faild to lock field."); // TODO unlock all or spin lock
+			throw FAILURE_EXCEPTION; // TODO unlock all or spin lock
 		}
 
 		boolean isLocked = locks.compareAndSet(lockIndex, lock, lock | LOCK);
 
 		if( !isLocked)
-			throw new TransactionException( "Faild to lock field."); // TODO unlock all or spin lock
+			throw FAILURE_EXCEPTION;
 	}
 
 	public static void checkLock(int hash, int clock) {
@@ -32,7 +35,7 @@ public class LockTable {
 		int lock = locks.get(lockIndex);
 
 		if( clock < (lock & UNLOCK)) // check the clock without lock, TODO check if this is the best way
-			throw new TransactionException( "Fail on check lock.");
+			throw FAILURE_EXCEPTION;
 	}
 
 	public static void unLock( int hash){

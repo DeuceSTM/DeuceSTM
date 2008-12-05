@@ -20,4 +20,9 @@ public class TransactionException extends RuntimeException {
 
 	@Override 
 	public Throwable fillInStackTrace(){ return null;} // light exception with no stack trace
+	
+	@Override
+	public Throwable initCause(Throwable cause) {
+		throw new IllegalStateException("Can't set cause.");
+	}
 }
