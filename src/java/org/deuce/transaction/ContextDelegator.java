@@ -291,30 +291,46 @@ public class ContextDelegator {
 	}
 
 	static public <T> T addArrayReadAccess( T[] arr, int index, Context context) {
-		return context.addReadAccess(arr, arr[index], OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index);
+		int address = OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index;
+		context.beforeReadAccess(arr, address);
+		return context.addReadAccess(arr, arr[index], address);
 	}
 	static public byte addArrayReadAccess( byte[] arr, int index, Context context) {
-		return context.addReadAccess(arr, arr[index], BYTE_ARR_BASE + BYTE_ARR_SCALE*index);
+		int address = BYTE_ARR_BASE + BYTE_ARR_SCALE*index;
+		context.beforeReadAccess(arr, address);
+		return context.addReadAccess(arr, arr[index], address);
 	}
 	static public char addArrayReadAccess( char[] arr, int index, Context context) {
-		return context.addReadAccess(arr, arr[index], CHAR_ARR_BASE + CHAR_ARR_SCALE*index);
+		int address = CHAR_ARR_BASE + CHAR_ARR_SCALE*index;
+		context.beforeReadAccess(arr, address);
+		return context.addReadAccess(arr, arr[index], address);
 	}
 	static public short addArrayReadAccess( short[] arr, int index, Context context) {
-		return context.addReadAccess(arr, arr[index], SHORT_ARR_BASE + SHORT_ARR_SCALE*index);
+		int address = SHORT_ARR_BASE + SHORT_ARR_SCALE*index;
+		context.beforeReadAccess(arr, address);
+		return context.addReadAccess(arr, arr[index], address);
 	}
 	static public int addArrayReadAccess( int[] arr, int index, Context context) {
-		return context.addReadAccess(arr, arr[index], INT_ARR_BASE + INT_ARR_SCALE*index);
+		int address = INT_ARR_BASE + INT_ARR_SCALE*index;
+		context.beforeReadAccess(arr, address);
+		return context.addReadAccess(arr, arr[index], address);
 	}
 	static public long addArrayReadAccess( long[] arr, int index, Context context) {
-		return context.addReadAccess(arr, arr[index], LONG_ARR_BASE + LONG_ARR_SCALE*index);
+		int address = LONG_ARR_BASE + LONG_ARR_SCALE*index;
+		context.beforeReadAccess(arr, address);
+		return context.addReadAccess(arr, arr[index], address);
 	}
 	static public float addArrayReadAccess( float[] arr, int index, Context context) {
-		return context.addReadAccess(arr, arr[index], FLOAT_ARR_BASE + FLOAT_ARR_SCALE*index);
+		int address = FLOAT_ARR_BASE + FLOAT_ARR_SCALE*index;
+		context.beforeReadAccess(arr, address);
+		return context.addReadAccess(arr, arr[index], address);
 	}
 	static public double addArrayReadAccess( double[] arr, int index, Context context) {
-		return context.addReadAccess(arr, arr[index], DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index);
+		int address = DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index;
+		context.beforeReadAccess(arr, address);
+		return context.addReadAccess(arr, arr[index], address);
 	}
-
+	
 	static public <T> void addArrayWriteAccess( T[] arr,  int index, T value, Context context) {
 		context.addWriteAccess(arr, value, OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index);
 	}
