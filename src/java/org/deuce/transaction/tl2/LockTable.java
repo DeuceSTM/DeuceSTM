@@ -30,11 +30,20 @@ public class LockTable {
 			throw FAILURE_EXCEPTION;
 	}
 
-	public static void checkLock(int hash, int clock) {
+	public static int checkLock(int hash, int clock) {
 		int lockIndex = hash & MASK;
 		int lock = locks.get(lockIndex);
 
 		if( clock < (lock & UNLOCK)) // check the clock without lock, TODO check if this is the best way
+			throw FAILURE_EXCEPTION;
+		
+		return lock;
+	}
+	
+
+	public static void checkLock(int hash, int clock, int expected) {
+		int lock = checkLock( hash, clock);
+		if( lock != expected)
 			throw FAILURE_EXCEPTION;
 	}
 

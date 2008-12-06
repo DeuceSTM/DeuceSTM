@@ -30,13 +30,15 @@ import org.deuce.transform.Exclude;
 final public class Context implements org.deuce.transaction.Context
 {
 	final private static AtomicInteger clock = new AtomicInteger( 0);
-	private static final Logger logger = Logger.getLogger("org.deuce.transaction.tl2");
+	final private static Logger logger = Logger.getLogger("org.deuce.transaction.tl2");
 
 	final private ArrayList<ReadFieldAccess> readSet = new ArrayList<ReadFieldAccess>( 50);
 	final private HashMap<WriteFieldAccess,WriteFieldAccess> writeSet = new HashMap<WriteFieldAccess,WriteFieldAccess>( 50);
+	final private BloomFilter bloomFilter = new BloomFilter();
+	
 	private int localClock;
-
-	private BloomFilter bloomFilter = new BloomFilter();
+	private ReadFieldAccess lastRead = null;
+	private int lastReadLock;
 
 	public Context(){
 		this.localClock = clock.get();
@@ -79,7 +81,7 @@ final public class Context implements org.deuce.transaction.Context
 			return false;
 		}
 
-		int newClock = clock.incrementAndGet();
+		final int newClock = clock.incrementAndGet();
 
 		for( Map.Entry<WriteFieldAccess,WriteFieldAccess> writeEntry : writeSet.entrySet()){
 			
@@ -103,17 +105,16 @@ final public class Context implements org.deuce.transaction.Context
 
 		logger.finest("Read access.");
 
-		ReadFieldAccess read = new ReadFieldAccess( obj, field);
-		int hash = read.hashCode();
+		int hash = lastRead.hashCode();
 
 		// Check the read is still valid
-		LockTable.checkLock(hash, localClock);
+		LockTable.checkLock(hash, localClock, lastReadLock);
 
 		// Save to read set
-		readSet.add( read);
+		readSet.add( lastRead);
 		
 		// Check if it is already included in the write set
-		return bloomFilter.contains(hash) ? writeSet.get( read): null;
+		return bloomFilter.contains(hash) ? writeSet.get( lastRead): null;
 	}
 
 	private void addWriteAccess0( WriteFieldAccess write){
@@ -125,6 +126,17 @@ final public class Context implements org.deuce.transaction.Context
 
 		// Add to write set
 		writeSet.put( write, write);
+	}
+	
+	public void beforeReadAccess(Object obj, long field) {
+		
+		logger.finest("Before read access.");
+
+		lastRead = new ReadFieldAccess( obj, field);
+		int hash = lastRead.hashCode();
+
+		// Check the read is still valid
+		lastReadLock = LockTable.checkLock(hash, localClock);
 	}
 	
 	public Object addReadAccess( Object obj, Object value, long field){
@@ -235,8 +247,5 @@ final public class Context implements org.deuce.transaction.Context
 	
 	public void addWriteAccess(Object obj, double value, long field) {
 		addWriteAccess0( new DoubleWriteFieldAccess( value, obj, field));	
-	}
-	
-	public void beforeReadAccess(Object obj, long field) {
 	}
 }
