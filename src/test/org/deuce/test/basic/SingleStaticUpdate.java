@@ -80,15 +80,15 @@ public class SingleStaticUpdate {
 	public void simpleAddAndDec() {
 		atomicSingleUpdateAndDec();
 		
-		Assert.assertEquals(intVar, 0);
-		Assert.assertEquals(longVar, 0);
-		Assert.assertEquals(doubleVar, 0.0);
+		Assert.assertEquals(0,intVar);
+		Assert.assertEquals(0L,longVar);
+		Assert.assertEquals(0.0,doubleVar);
 		Assert.assertNull(objectVar);
 		Assert.assertNull(stringVar);
 		
-		Assert.assertEquals(intArrVar[0], 0);
-		Assert.assertEquals(longArrVar[0], 0);
-		Assert.assertEquals(doubleArrVar[0], 0.0);
+		Assert.assertEquals(0,intArrVar[0]);
+		Assert.assertEquals(0,longArrVar[0]);
+		Assert.assertEquals(0.0,doubleArrVar[0]);
 		Assert.assertNull(objectArrvar[0]);
 		Assert.assertNull(stringArrvar[0]);
 		
