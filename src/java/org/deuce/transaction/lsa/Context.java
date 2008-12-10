@@ -35,6 +35,9 @@ final public class Context implements org.deuce.transaction.Context {
 	final private ArrayList<ReadFieldAccess> readSet = new ArrayList<ReadFieldAccess>(1024);
 	final private HashMap<Integer, WriteFieldAccess> writeSet = new HashMap<Integer, WriteFieldAccess>(32);
 
+	private int readHash;
+	private int readLock;
+
 	private int startTime;
 	private int endTime;
 	private int id;
@@ -112,19 +115,22 @@ final public class Context implements org.deuce.transaction.Context {
 		return false;
 	}
 
+	public void beforeReadAccess(Object obj, long field) {
+		logger.finest("Before read access.");
+
+		readHash = LockTable.hash(obj, field);
+		// Check if the field is locked (may throw an exception)
+		readLock = LockTable.checkLock(readHash, id);
+	}
+
 	public Object addReadAccess(Object obj, long field, Type type) {
 
 		logger.finest("Read access.");
 
-		int hash = LockTable.hash(obj, field);
-
 		while (true) {
-			// Check if the field is locked (may throw an exception)
-			int timestamp = LockTable.checkLock(hash, id);
-
-			if (timestamp < 0) {
+			if (readLock < 0) {
 				// We already own that lock
-				WriteFieldAccess w = writeSet.get(hash);
+				WriteFieldAccess w = writeSet.get(readHash);
 				assert w != null;
 				Field f = new Field(obj, field);
 				while (true) {
@@ -135,21 +141,22 @@ final public class Context implements org.deuce.transaction.Context {
 					w = w.getNext();
 					if (w == null) {
 						// We did not read this field (but no need to add it to read set)
-						return Field.getValue(obj, field, type);
+						return null;
 					}
 				}
 			}
 
-			while (timestamp <= endTime) {
-				Object value = Field.getValue(obj, field, type);
+			Object value = null;
+			while (readLock <= endTime) {
 				// Re-read timestamp (check for race)
-				int timestamp2 = LockTable.checkLock(hash, id);
-				if (timestamp != timestamp2) {
-					timestamp = timestamp2;
+				int lock = LockTable.checkLock(readHash, id);
+				if (lock != readLock) {
+					readLock = lock;
+					value = Field.getValue(obj, field, type);
 					continue;
 				}
 				// We have read a valid value (in snapshot)
-				ReadFieldAccess read = new ReadFieldAccess(obj, field, hash, timestamp);
+				ReadFieldAccess read = new ReadFieldAccess(obj, field, readHash, lock);
 				// Save to read set
 				readSet.add(read);
 				return value;
@@ -212,39 +219,48 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	public Object addReadAccess(Object obj, Object value, long field) {
-		return addReadAccess(obj, field, Type.OBJECT);
+		Object v = addReadAccess(obj, field, Type.OBJECT);
+                return (v == null ? value : v);
 	}
 
 	public boolean addReadAccess(Object obj, boolean value, long field) {
-		return (Boolean) addReadAccess(obj, field, Type.BOOLEAN);
+		Object v = addReadAccess(obj, field, Type.BOOLEAN);
+                return (v == null ? value : (Boolean) v);
 	}
 
 	public byte addReadAccess(Object obj, byte value, long field) {
-		return ((Number) addReadAccess(obj, field, Type.BYTE)).byteValue();
+		Object v = addReadAccess(obj, field, Type.BYTE);
+                return (v == null ? value : ((Number) v).byteValue());
 	}
 
 	public char addReadAccess(Object obj, char value, long field) {
-		return (Character) addReadAccess(obj, field, Type.CHAR);
+		Object v = addReadAccess(obj, field, Type.CHAR);
+                return (v == null ? value : (Character) v);
 	}
 
 	public short addReadAccess(Object obj, short value, long field) {
-		return ((Number) addReadAccess(obj, field, Type.SHORT)).shortValue();
+		Object v = addReadAccess(obj, field, Type.SHORT);
+                return (v == null ? value : ((Number) v).shortValue());
 	}
 
 	public int addReadAccess(Object obj, int value, long field) {
-		return ((Number) addReadAccess(obj, field, Type.INT)).intValue();
+		Object v = addReadAccess(obj, field, Type.INT);
+                return (v == null ? value : ((Number) v).intValue());
 	}
 
 	public long addReadAccess(Object obj, long value, long field) {
-		return ((Number) addReadAccess(obj, field, Type.LONG)).longValue();
+		Object v = addReadAccess(obj, field, Type.LONG);
+                return (v == null ? value : ((Number) v).longValue());
 	}
 
 	public float addReadAccess(Object obj, float value, long field) {
-		return ((Number) addReadAccess(obj, field, Type.FLOAT)).floatValue();
+		Object v = addReadAccess(obj, field, Type.FLOAT);
+                return (v == null ? value : ((Number) v).floatValue());
 	}
 
 	public double addReadAccess(Object obj, double value, long field) {
-		return ((Number) addReadAccess(obj, field, Type.DOUBLE)).doubleValue();
+		Object v = addReadAccess(obj, field, Type.DOUBLE);
+                return (v == null ? value : ((Number) v).doubleValue());
 	}
 
 	public void addWriteAccess(Object obj, Object value, long field) {
@@ -281,8 +297,5 @@ final public class Context implements org.deuce.transaction.Context {
 
 	public void addWriteAccess(Object obj, double value, long field) {
 		addWriteAccess(obj, field, (Object) value, Type.DOUBLE);
-	}
-	
-	public void beforeReadAccess(Object obj, long field) {
 	}
 }
