@@ -43,7 +43,7 @@ public class LockTable {
 
 	public static void checkLock(int hash, int clock, int expected) {
 		int lock = checkLock( hash, clock);
-		if( lock != expected)
+		if( lock != expected || (lock & LOCK) != 0)
 			throw FAILURE_EXCEPTION;
 	}
 
