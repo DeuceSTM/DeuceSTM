@@ -36,6 +36,9 @@ final public class Context implements org.deuce.transaction.Context
 	final private HashMap<WriteFieldAccess,WriteFieldAccess> writeSet = new HashMap<WriteFieldAccess,WriteFieldAccess>( 50);
 	final private BloomFilter bloomFilter = new BloomFilter();
 	
+	//Used by the thread to mark locks it holds.
+	final private byte[] locksMarker = new byte[LockTable.LOCKS_SIZE /8 + 1];
+	
 	private int localClock;
 	private ReadFieldAccess lastRead = null;
 	private int lastReadLock;
@@ -64,7 +67,7 @@ final public class Context implements org.deuce.transaction.Context
 		try
 		{
 			for( WriteFieldAccess writeField : writeSet.keySet()){
-				LockTable.lock( writeField.hashCode());
+				LockTable.lock( writeField.hashCode(), locksMarker);
 				++lockedCounter;
 			}
 			for( ReadFieldAccess readField : readSet){
@@ -75,7 +78,7 @@ final public class Context implements org.deuce.transaction.Context
 			for( WriteFieldAccess writeField : writeSet.keySet()){
 				if( lockedCounter-- == 0)
 					break;
-				LockTable.unLock( writeField.hashCode());
+				LockTable.unLock( writeField.hashCode(),locksMarker);
 			}
 			logger.fine("Fail on commit.");
 			return false;
@@ -88,7 +91,7 @@ final public class Context implements org.deuce.transaction.Context
 			// Use the value and not the key since the key might hold hold key.
 			WriteFieldAccess writeField = writeEntry.getValue(); 
 			writeField.put(); // commit value to field
-			LockTable.setAndReleaseLock( writeField.hashCode(), newClock);
+			LockTable.setAndReleaseLock( writeField.hashCode(), newClock, locksMarker);
 			
 		}
 		logger.fine("Commit successed.");
