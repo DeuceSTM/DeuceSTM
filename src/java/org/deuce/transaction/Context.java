@@ -26,9 +26,9 @@ public interface Context
 
 	/**
 	 * Called before the transaction was started
-	 * @param method atomic method started
+	 * @param atomicBlockId a unique id for atomic block
 	 */
-	void init(String method);
+	void init(int atomicBlockId);
 
 	/**
 	 * Called on commit

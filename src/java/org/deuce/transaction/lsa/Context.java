@@ -47,7 +47,7 @@ final public class Context implements org.deuce.transaction.Context {
 		id = threadID.incrementAndGet();
 	}
 
-	public void init(String method) {
+	public void init(int atomicBlockId) {
 		logger.fine("Init transaction.");
 		this.readSet.clear();
 		this.writeSet.clear();

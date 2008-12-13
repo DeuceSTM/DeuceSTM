@@ -1,5 +1,7 @@
 package org.deuce.transform.asm;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.deuce.Atomic;
 import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.Label;
@@ -17,6 +19,7 @@ import org.deuce.transform.asm.type.TypeCodeResolverFactory;
 public class AtomicMethod extends MethodAdapter implements Opcodes{
 
 	final static public String ATOMIC_DESCRIPTOR = Type.getDescriptor(Atomic.class);
+	final static private AtomicInteger ATOMIC_BLOCK_COUNTER = new AtomicInteger(0);
 	
 	private Integer retries = Integer.getInteger("org.deuce.transaction.retries", Integer.MAX_VALUE);
 	
@@ -166,11 +169,11 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		Label l10 = new Label();
 		mv.visitJumpInsn(GOTO, l10);
 		
-		Label l11 = new Label(); // context.init();
+		Label l11 = new Label(); // context.init(atomicBlockId);
 		mv.visitLabel(l11);
 		mv.visitVarInsn(ALOAD, contextIndex);
-		mv.visitLdcInsn(this.className + '#' + this.methodName + this.descriptor);
-		mv.visitMethodInsn(INVOKEINTERFACE, Context.CONTEXT_INTERNAL, "init", "(Ljava/lang/String;)V");
+		mv.visitLdcInsn(ATOMIC_BLOCK_COUNTER.getAndIncrement());
+		mv.visitMethodInsn(INVOKEINTERFACE, Context.CONTEXT_INTERNAL, "init", "(I)V");
 		
 		/* result = foo( context, ...)  */ 
 		mv.visitLabel(l0);

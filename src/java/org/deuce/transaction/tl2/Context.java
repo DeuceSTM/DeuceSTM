@@ -39,6 +39,7 @@ final public class Context implements org.deuce.transaction.Context
 	//Used by the thread to mark locks it holds.
 	final private byte[] locksMarker = new byte[LockTable.LOCKS_SIZE /8 + 1];
 	
+	//Marked on beforeRead, used for the double lock check
 	private int localClock;
 	private ReadFieldAccess lastRead = null;
 	private int lastReadLock;
@@ -48,7 +49,7 @@ final public class Context implements org.deuce.transaction.Context
 	}
 
 	
-	public void init(String method){
+	public void init(int atomicBlockId){
 		logger.fine("Init transaction.");
 		this.bloomFilter.clear();
 		this.readSet.clear(); // TODO reuse the same read set objects 
@@ -106,7 +107,7 @@ final public class Context implements org.deuce.transaction.Context
 
 	private WriteFieldAccess addReadAccess0( Object obj, long field){
 
-		logger.finest("Read access.");
+//		logger.finest("Read access.");
 
 		int hash = lastRead.hashCode();
 
