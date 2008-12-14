@@ -20,20 +20,29 @@ import org.deuce.transform.Exclude;
  */
 @Exclude
 final public class Context implements org.deuce.transaction.Context {
-	
+
 	// Failure transaction 
-	final private static TransactionException WRITE_FAILURE_EXCEPTION = 
+	final private static TransactionException WRITE_FAILURE_EXCEPTION =
 		new TransactionException("Fail on write (read previous version).");
-	
-	final private static TransactionException EXTEND_FAILURE_EXCEPTION =  
+
+	final private static TransactionException EXTEND_FAILURE_EXCEPTION =
 		new TransactionException("Fail on extend.");
-	
+
+	final private static TransactionException READ_ONLY_FAILURE_EXCEPTION =
+		new TransactionException("Fail on write (read-only hint was set).");
+
 	final private static AtomicInteger clock = new AtomicInteger(0);
 	final private static AtomicInteger threadID = new AtomicInteger(0);
-	private static final Logger logger = Logger.getLogger("org.deuce.transaction.lsa");
+	final private static Logger logger = Logger.getLogger("org.deuce.transaction.lsa");
+
+	final private static boolean RO_HINT = Boolean.getBoolean("org.deuce.transaction.lsa.rohint");
 
 	final private ArrayList<ReadFieldAccess> readSet = new ArrayList<ReadFieldAccess>(1024);
 	final private HashMap<Integer, WriteFieldAccess> writeSet = new HashMap<Integer, WriteFieldAccess>(32);
+
+	// Keep per-thread read-only hints (uses more memory but faster)
+	private HashMap<Integer, Hint> readOnlyHints;
+	private Hint readOnly;
 
 	private int readHash;
 	private int readLock;
@@ -42,16 +51,42 @@ final public class Context implements org.deuce.transaction.Context {
 	private int endTime;
 	private int id;
 
+	@Exclude
+	static private class Hint {
+		private boolean status;
+
+		public Hint(boolean b) {
+			status = b;
+		}
+
+		public boolean get() {
+			return status;
+		}
+
+		public void set(boolean b) {
+			status = b;
+		}
+	}
+
 	public Context() {
 		// Unique identifier among active threads
 		id = threadID.incrementAndGet();
+		if (RO_HINT)
+			readOnlyHints = new HashMap<Integer, Hint>();
 	}
 
 	public void init(int atomicBlockId) {
 		logger.fine("Init transaction.");
-		this.readSet.clear();
-		this.writeSet.clear();
-		this.startTime = this.endTime = clock.get();
+		readSet.clear();
+		writeSet.clear();
+		startTime = endTime = clock.get();
+		if (RO_HINT) {
+			readOnly = readOnlyHints.get(atomicBlockId);
+			if (readOnly == null) {
+				readOnly = new Hint(true);
+				readOnlyHints.put(atomicBlockId, readOnly);
+			}
+		}
 	}
 
 	public boolean commit() {
@@ -124,7 +159,6 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	public Object addReadAccess(Object obj, long field, Type type) {
-
 		logger.finest("Read access.");
 
 		while (true) {
@@ -156,22 +190,29 @@ final public class Context implements org.deuce.transaction.Context {
 					continue;
 				}
 				// We have read a valid value (in snapshot)
-				ReadFieldAccess read = new ReadFieldAccess(obj, field, readHash, lock);
-				// Save to read set
-				readSet.add(read);
+				if (!(RO_HINT && readOnly.get())) {
+					ReadFieldAccess read = new ReadFieldAccess(obj, field, readHash, lock);
+					// Save to read set
+					readSet.add(read);
+				}
 				return value;
 			}
 
 			// Try to extend snapshot
-			if (!extend()) {
+			if ((RO_HINT && readOnly.get()) || !extend()) {
 				throw EXTEND_FAILURE_EXCEPTION;
 			}
 		}
 	}
 
 	private void addWriteAccess(Object obj, long field, Object value, Type type) {
-
 		logger.finer("Write access.");
+
+		if (RO_HINT && readOnly.get()) {
+			// Change hint to read-write
+			readOnly.set(false);
+			throw READ_ONLY_FAILURE_EXCEPTION;
+		}
 
 		int hash = LockTable.hash(obj, field);
 
@@ -220,47 +261,47 @@ final public class Context implements org.deuce.transaction.Context {
 
 	public Object addReadAccess(Object obj, Object value, long field) {
 		Object v = addReadAccess(obj, field, Type.OBJECT);
-                return (v == null ? value : v);
+		return (v == null ? value : v);
 	}
 
 	public boolean addReadAccess(Object obj, boolean value, long field) {
 		Object v = addReadAccess(obj, field, Type.BOOLEAN);
-                return (v == null ? value : (Boolean) v);
+		return (v == null ? value : (Boolean) v);
 	}
 
 	public byte addReadAccess(Object obj, byte value, long field) {
 		Object v = addReadAccess(obj, field, Type.BYTE);
-                return (v == null ? value : ((Number) v).byteValue());
+		return (v == null ? value : ((Number) v).byteValue());
 	}
 
 	public char addReadAccess(Object obj, char value, long field) {
 		Object v = addReadAccess(obj, field, Type.CHAR);
-                return (v == null ? value : (Character) v);
+		return (v == null ? value : (Character) v);
 	}
 
 	public short addReadAccess(Object obj, short value, long field) {
 		Object v = addReadAccess(obj, field, Type.SHORT);
-                return (v == null ? value : ((Number) v).shortValue());
+		return (v == null ? value : ((Number) v).shortValue());
 	}
 
 	public int addReadAccess(Object obj, int value, long field) {
 		Object v = addReadAccess(obj, field, Type.INT);
-                return (v == null ? value : ((Number) v).intValue());
+		return (v == null ? value : ((Number) v).intValue());
 	}
 
 	public long addReadAccess(Object obj, long value, long field) {
 		Object v = addReadAccess(obj, field, Type.LONG);
-                return (v == null ? value : ((Number) v).longValue());
+		return (v == null ? value : ((Number) v).longValue());
 	}
 
 	public float addReadAccess(Object obj, float value, long field) {
 		Object v = addReadAccess(obj, field, Type.FLOAT);
-                return (v == null ? value : ((Number) v).floatValue());
+		return (v == null ? value : ((Number) v).floatValue());
 	}
 
 	public double addReadAccess(Object obj, double value, long field) {
 		Object v = addReadAccess(obj, field, Type.DOUBLE);
-                return (v == null ? value : ((Number) v).doubleValue());
+		return (v == null ? value : ((Number) v).doubleValue());
 	}
 
 	public void addWriteAccess(Object obj, Object value, long field) {
