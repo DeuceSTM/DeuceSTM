@@ -18,6 +18,7 @@ import org.deuce.transaction.tl2.field.ObjectWriteFieldAccess;
 import org.deuce.transaction.tl2.field.ReadFieldAccess;
 import org.deuce.transaction.tl2.field.ShortWriteFieldAccess;
 import org.deuce.transaction.tl2.field.WriteFieldAccess;
+import org.deuce.transaction.tl2.util.BooleanArrayList;
 import org.deuce.transform.Exclude;
 
 /**
@@ -27,14 +28,23 @@ import org.deuce.transform.Exclude;
  * @since	1.0
  */
 @Exclude
-final public class Context implements org.deuce.transaction.Context
-{
+final public class Context implements org.deuce.transaction.Context{
+	
+	final private static TransactionException READ_ONLY_FAILURE_EXCEPTION =
+		new TransactionException("Fail on write (read-only hint was set).");
+	
 	final private static AtomicInteger clock = new AtomicInteger( 0);
 	final private static Logger logger = Logger.getLogger("org.deuce.transaction.tl2");
+	final private static boolean RO_HINT = Boolean.getBoolean("org.deuce.transaction.tl2.rohint");
+
 
 	final private ArrayList<ReadFieldAccess> readSet = new ArrayList<ReadFieldAccess>( 50);
 	final private HashMap<WriteFieldAccess,WriteFieldAccess> writeSet = new HashMap<WriteFieldAccess,WriteFieldAccess>( 50);
 	final private BloomFilter bloomFilter = new BloomFilter();
+	
+	final private BooleanArrayList readWriteMarkers = new BooleanArrayList();
+	private boolean readWriteHint = true;
+	private int atomicBlockId;
 	
 	//Used by the thread to mark locks it holds.
 	final private byte[] locksMarker = new byte[LockTable.LOCKS_SIZE /8 + 1];
@@ -44,24 +54,33 @@ final public class Context implements org.deuce.transaction.Context
 	private ReadFieldAccess lastRead = null;
 	private int lastReadLock;
 
+	
+
 	public Context(){
 		this.localClock = clock.get();
 	}
 
 	
 	public void init(int atomicBlockId){
+		
 		logger.fine("Init transaction.");
+		
 		this.bloomFilter.clear();
 		this.readSet.clear(); // TODO reuse the same read set objects 
 		this.writeSet.clear();
 		this.localClock = clock.get();
+		
+		if (RO_HINT) {
+			readWriteHint = readWriteMarkers.get(atomicBlockId);
+			this.atomicBlockId = atomicBlockId;
+		}
 	}
 
 	
 	public boolean commit(){
 		logger.fine("Start to commit.");
 
-        if (writeSet.isEmpty()) // if the writeSet is empty no need to lock a thing. 
+        if (writeSet.isEmpty() || !readWriteHint) // if the writeSet is empty no need to lock a thing. 
         	return true;
         		
 		int lockedCounter = 0;//used to count how many fields where locked if unlock is needed 
@@ -107,7 +126,7 @@ final public class Context implements org.deuce.transaction.Context
 
 	private WriteFieldAccess addReadAccess0( Object obj, long field){
 
-//		logger.finest("Read access.");
+		logger.finest("Read access.");
 
 		int hash = lastRead.hashCode();
 
@@ -115,7 +134,8 @@ final public class Context implements org.deuce.transaction.Context
 		LockTable.checkLock(hash, localClock, lastReadLock);
 
 		// Save to read set
-		readSet.add( lastRead);
+		if( readWriteHint)
+			readSet.add( lastRead);
 		
 		// Check if it is already included in the write set
 		return bloomFilter.contains(hash) ? writeSet.get( lastRead): null;
@@ -123,6 +143,13 @@ final public class Context implements org.deuce.transaction.Context
 
 	private void addWriteAccess0( WriteFieldAccess write){
 
+		// We have read a valid value (in snapshot)
+		if (!readWriteHint) {
+			// Change hint to read-write
+			readWriteMarkers.insert(atomicBlockId, true);
+			throw READ_ONLY_FAILURE_EXCEPTION;
+		}
+		
 		logger.finer("Write access.");
 
 		// Add to bloom filter
