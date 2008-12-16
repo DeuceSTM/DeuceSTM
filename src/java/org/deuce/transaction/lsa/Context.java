@@ -54,23 +54,6 @@ final public class Context implements org.deuce.transaction.Context {
 	private int endTime;
 	private int id;
 
-	@Exclude
-	static private class Hint {
-		private boolean status;
-
-		public Hint(boolean b) {
-			status = b;
-		}
-
-		public boolean get() {
-			return status;
-		}
-
-		public void set(boolean b) {
-			status = b;
-		}
-	}
-
 	public Context() {
 		// Unique identifier among active threads
 		id = threadID.incrementAndGet();
