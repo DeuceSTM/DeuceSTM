@@ -10,6 +10,7 @@ import org.deuce.transaction.lsa.field.Field;
 import org.deuce.transaction.lsa.field.Field.Type;
 import org.deuce.transaction.lsa.field.ReadFieldAccess;
 import org.deuce.transaction.lsa.field.WriteFieldAccess;
+import org.deuce.transaction.tl2.util.BooleanArrayList;
 import org.deuce.transform.Exclude;
 
 /**
@@ -36,13 +37,15 @@ final public class Context implements org.deuce.transaction.Context {
 	final private static Logger logger = Logger.getLogger("org.deuce.transaction.lsa");
 
 	final private static boolean RO_HINT = Boolean.getBoolean("org.deuce.transaction.lsa.rohint");
+	final private static boolean READ_LOCKED = Boolean.getBoolean("org.deuce.transaction.lsa.readlocked");
 
 	final private ArrayList<ReadFieldAccess> readSet = new ArrayList<ReadFieldAccess>(1024);
 	final private HashMap<Integer, WriteFieldAccess> writeSet = new HashMap<Integer, WriteFieldAccess>(32);
 
 	// Keep per-thread read-only hints (uses more memory but faster)
-	private HashMap<Integer, Hint> readOnlyHints;
-	private Hint readOnly;
+	final private BooleanArrayList readWriteMarkers = new BooleanArrayList();
+	private boolean readWriteHint = true;
+	private int atomicBlockId;
 
 	private int readHash;
 	private int readLock;
@@ -71,21 +74,16 @@ final public class Context implements org.deuce.transaction.Context {
 	public Context() {
 		// Unique identifier among active threads
 		id = threadID.incrementAndGet();
-		if (RO_HINT)
-			readOnlyHints = new HashMap<Integer, Hint>();
 	}
 
-	public void init(int atomicBlockId) {
+	public void init(int blockId) {
 		logger.fine("Init transaction.");
 		readSet.clear();
 		writeSet.clear();
 		startTime = endTime = clock.get();
 		if (RO_HINT) {
-			readOnly = readOnlyHints.get(atomicBlockId);
-			if (readOnly == null) {
-				readOnly = new Hint(true);
-				readOnlyHints.put(atomicBlockId, readOnly);
-			}
+			atomicBlockId = blockId;
+			readWriteHint = readWriteMarkers.get(atomicBlockId);
 		}
 	}
 
@@ -190,7 +188,7 @@ final public class Context implements org.deuce.transaction.Context {
 					continue;
 				}
 				// We have read a valid value (in snapshot)
-				if (!(RO_HINT && readOnly.get())) {
+				if (readWriteHint) {
 					ReadFieldAccess read = new ReadFieldAccess(obj, field, readHash, lock);
 					// Save to read set
 					readSet.add(read);
@@ -199,7 +197,7 @@ final public class Context implements org.deuce.transaction.Context {
 			}
 
 			// Try to extend snapshot
-			if ((RO_HINT && readOnly.get()) || !extend()) {
+			if (!(readWriteHint && extend())) {
 				throw EXTEND_FAILURE_EXCEPTION;
 			}
 		}
@@ -208,9 +206,9 @@ final public class Context implements org.deuce.transaction.Context {
 	private void addWriteAccess(Object obj, long field, Object value, Type type) {
 		logger.finer("Write access.");
 
-		if (RO_HINT && readOnly.get()) {
+		if (!readWriteHint) {
 			// Change hint to read-write
-			readOnly.set(false);
+			readWriteMarkers.insert(atomicBlockId, true);
 			throw READ_ONLY_FAILURE_EXCEPTION;
 		}
 
