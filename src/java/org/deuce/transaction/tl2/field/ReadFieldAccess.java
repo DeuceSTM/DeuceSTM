@@ -8,11 +8,17 @@ import org.deuce.transform.Exclude;
  */
 @Exclude
 public class ReadFieldAccess{
-	final protected Object reference;
-	final protected long field;
-	final private int hash;
+	protected Object reference;
+	protected long field;
+	private int hash;
 
+	public ReadFieldAccess(){}
+	
 	public ReadFieldAccess( Object reference, long field){
+		init(reference, field);
+	}
+	
+	public void init( Object reference, long field){
 		this.reference = reference;
 		this.field = field;
 		this.hash = hash(reference, field);
