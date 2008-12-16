@@ -1,4 +1,4 @@
-package org.deuce.transaction.tl2.util;
+package org.deuce.transaction.util;
 
 /**
  * Dynamic boolean array.

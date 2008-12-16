@@ -18,7 +18,7 @@ import org.deuce.transaction.tl2.field.ObjectWriteFieldAccess;
 import org.deuce.transaction.tl2.field.ReadFieldAccess;
 import org.deuce.transaction.tl2.field.ShortWriteFieldAccess;
 import org.deuce.transaction.tl2.field.WriteFieldAccess;
-import org.deuce.transaction.tl2.util.BooleanArrayList;
+import org.deuce.transaction.util.BooleanArrayList;
 import org.deuce.transform.Exclude;
 
 /**

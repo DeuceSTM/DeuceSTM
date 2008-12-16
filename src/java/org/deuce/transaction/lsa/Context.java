@@ -10,7 +10,7 @@ import org.deuce.transaction.lsa.field.Field;
 import org.deuce.transaction.lsa.field.Field.Type;
 import org.deuce.transaction.lsa.field.ReadFieldAccess;
 import org.deuce.transaction.lsa.field.WriteFieldAccess;
-import org.deuce.transaction.tl2.util.BooleanArrayList;
+import org.deuce.transaction.util.BooleanArrayList;
 import org.deuce.transform.Exclude;
 
 /**
