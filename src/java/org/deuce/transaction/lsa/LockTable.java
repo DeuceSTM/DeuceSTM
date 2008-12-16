@@ -13,7 +13,7 @@ import org.deuce.transform.Exclude;
 public class LockTable {
 
 	// Failure transaction 
-	final private static TransactionException FAILURE_EXCEPTION = 
+	final private static TransactionException FAILURE_EXCEPTION =
 		new TransactionException("Fail on lock (already locked).");
 	
 	final private static int ARRAYSIZE = 1 << 20; // 2^20
