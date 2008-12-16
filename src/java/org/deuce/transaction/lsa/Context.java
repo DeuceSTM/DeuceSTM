@@ -92,7 +92,7 @@ final public class Context implements org.deuce.transaction.Context {
 
 		if (!writeSet.isEmpty()) {
 			int newClock = clock.incrementAndGet();
-			if (newClock != startTime + 1 && !validate(newClock)) {
+			if (newClock != startTime + 1 && !validate()) {
 				rollback();
 				logger.fine("Fail on commit.");
 				return false;
@@ -100,8 +100,7 @@ final public class Context implements org.deuce.transaction.Context {
 			// Write values and release locks
 			for (WriteFieldAccess w : writeSet.values()) {
 				int hash = w.getHash();
-				int lock = w.getLock();
-				assert lock >= 0;
+				assert w.getLock() >= 0;
 				do {
 					w.writeField();
 					w = w.getNext();
@@ -123,11 +122,11 @@ final public class Context implements org.deuce.transaction.Context {
 		logger.fine("Rollback successed.");
 	}
 
-	private boolean validate(int timestamp) {
+	private boolean validate() {
 		try {
 			for (ReadFieldAccess r : readSet) {
 				// Throws an exception if validation fails
-				int lock = LockTable.checkLock(r.getHash(), timestamp);
+				int lock = LockTable.checkLock(r.getHash(), id);
 				if (lock >= 0 && lock != r.getLock()) {
 					// Other version: cannot validate
 					return false;
@@ -141,7 +140,7 @@ final public class Context implements org.deuce.transaction.Context {
 
 	private boolean extend() {
 		int now = clock.get();
-		if (validate(now)) {
+		if (validate()) {
 			endTime = now;
 			return true;
 		}
