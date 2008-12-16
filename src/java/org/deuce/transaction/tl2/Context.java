@@ -80,7 +80,7 @@ final public class Context implements org.deuce.transaction.Context{
 	public boolean commit(){
 		logger.fine("Start to commit.");
 
-        if (writeSet.isEmpty() || !readWriteHint) // if the writeSet is empty no need to lock a thing. 
+        if (writeSet.isEmpty()) // if the writeSet is empty no need to lock a thing. 
         	return true;
         		
 		int lockedCounter = 0;//used to count how many fields where locked if unlock is needed 
