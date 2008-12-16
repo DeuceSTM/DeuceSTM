@@ -166,13 +166,13 @@ final public class Context implements org.deuce.transaction.Context {
 				assert w != null;
 				Field f = new Field(obj, field);
 				while (true) {
-					// Check if we have already read that field
+					// Check if we have already written that field
 					if (f.equals(w)) {
 						return w.getValue();
 					}
 					w = w.getNext();
 					if (w == null) {
-						// We did not read this field (but no need to add it to read set)
+						// We did not write this field (but no need to add it to read set)
 						return null;
 					}
 				}
