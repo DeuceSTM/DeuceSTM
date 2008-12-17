@@ -1,20 +1,20 @@
-package org.deuce.transaction.lsa;
+package org.deuce.transaction.lsa64;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 import org.deuce.transaction.TransactionException;
-import org.deuce.transaction.lsa.field.Field;
-import org.deuce.transaction.lsa.field.Field.Type;
-import org.deuce.transaction.lsa.field.ReadFieldAccess;
-import org.deuce.transaction.lsa.field.WriteFieldAccess;
+import org.deuce.transaction.lsa64.field.Field;
+import org.deuce.transaction.lsa64.field.Field.Type;
+import org.deuce.transaction.lsa64.field.ReadFieldAccess;
+import org.deuce.transaction.lsa64.field.WriteFieldAccess;
 import org.deuce.transaction.util.BooleanArrayList;
 import org.deuce.transform.Exclude;
 
 /**
- * LSA implementation
+ * LSA implementation (64-bit locks)
  * 
  * @author Pascal Felber
  * @since 0.1
@@ -32,11 +32,12 @@ final public class Context implements org.deuce.transaction.Context {
 	final private static TransactionException READ_ONLY_FAILURE_EXCEPTION =
 		new TransactionException("Fail on write (read-only hint was set).");
 
-	final private static AtomicInteger clock = new AtomicInteger(0);
-	final private static AtomicInteger threadID = new AtomicInteger(0);
+	final private static AtomicLong clock = new AtomicLong(0);
+	final private static AtomicLong threadID = new AtomicLong(0);
 	final private static Logger logger = Logger.getLogger("org.deuce.transaction.lsa");
 
 	final private static boolean RO_HINT = Boolean.getBoolean("org.deuce.transaction.lsa.rohint");
+	final private static boolean READ_LOCKED = Boolean.getBoolean("org.deuce.transaction.lsa.readlocked");
 
 	final private ArrayList<ReadFieldAccess> readSet = new ArrayList<ReadFieldAccess>(1024);
 	final private HashMap<Integer, WriteFieldAccess> writeSet = new HashMap<Integer, WriteFieldAccess>(32);
@@ -47,11 +48,11 @@ final public class Context implements org.deuce.transaction.Context {
 	private int atomicBlockId;
 
 	private int readHash;
-	private int readLock;
+	private long readLock;
 
-	private int startTime;
-	private int endTime;
-	private int id;
+	private long startTime;
+	private long endTime;
+	private long id;
 
 	public Context() {
 		// Unique identifier among active threads
@@ -73,7 +74,7 @@ final public class Context implements org.deuce.transaction.Context {
 		logger.fine("Start to commit.");
 
 		if (!writeSet.isEmpty()) {
-			int newClock = clock.incrementAndGet();
+			long newClock = clock.incrementAndGet();
 			if (newClock != startTime + 1 && !validate()) {
 				rollback();
 				logger.fine("Fail on commit.");
@@ -108,7 +109,7 @@ final public class Context implements org.deuce.transaction.Context {
 		try {
 			for (ReadFieldAccess r : readSet) {
 				// Throws an exception if validation fails
-				int lock = LockTable.checkLock(r.getHash(), id);
+				long lock = LockTable.checkLock(r.getHash(), id);
 				if (lock >= 0 && lock != r.getLock()) {
 					// Other version: cannot validate
 					return false;
@@ -121,7 +122,7 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	private boolean extend() {
-		int now = clock.get();
+		long now = clock.get();
 		if (validate()) {
 			endTime = now;
 			return true;
@@ -162,7 +163,7 @@ final public class Context implements org.deuce.transaction.Context {
 			Object value = null;
 			while (readLock <= endTime) {
 				// Re-read timestamp (check for race)
-				int lock = LockTable.checkLock(readHash, id);
+				long lock = LockTable.checkLock(readHash, id);
 				if (lock != readLock) {
 					readLock = lock;
 					value = Field.getValue(obj, field, type);
@@ -196,7 +197,7 @@ final public class Context implements org.deuce.transaction.Context {
 		int hash = LockTable.hash(obj, field);
 
 		// Lock entry (might throw an exception)
-		int timestamp = LockTable.lock(hash, id);
+		long timestamp = LockTable.lock(hash, id);
 
 		if (timestamp < 0) {
 			// We already own that lock

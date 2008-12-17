@@ -1,0 +1,42 @@
+package org.deuce.transaction.lsa64.field;
+
+import org.deuce.transform.Exclude;
+
+/**
+ * @author Pascal Felber
+ * @since 0.1
+ */
+@Exclude
+public class WriteFieldAccess extends ReadFieldAccess {
+
+	final private Type type;
+	private Object value;
+	private WriteFieldAccess next;
+
+	public WriteFieldAccess(Object reference, long field, Type type, Object value, int hash, long lock) {
+		super(reference, field, hash, lock);
+		this.type = type;
+		this.value = value;
+		this.next = null;
+	}
+
+	public void setValue(Object value) {
+		this.value = value;
+	}
+
+	public Object getValue() {
+		return value;
+	}
+
+	public void setNext(WriteFieldAccess next) {
+		this.next = next;
+	}
+
+	public WriteFieldAccess getNext() {
+		return next;
+	}
+
+	public void writeField() {
+		Field.putValue(reference, field, value, type);
+	}
+}
