@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import org.deuce.transaction.TransactionException;
+import org.deuce.transaction.lsa.field.ReadSet;
 import org.deuce.transaction.lsa.field.Field;
 import org.deuce.transaction.lsa.field.Field.Type;
 import org.deuce.transaction.lsa.field.ReadFieldAccess;
@@ -38,7 +39,7 @@ final public class Context implements org.deuce.transaction.Context {
 
 	final private static boolean RO_HINT = Boolean.getBoolean("org.deuce.transaction.lsa.rohint");
 
-	final private ArrayList<ReadFieldAccess> readSet = new ArrayList<ReadFieldAccess>(1024);
+	final private ReadSet readSet = new ReadSet(1024);
 	final private HashMap<Integer, WriteFieldAccess> writeSet = new HashMap<Integer, WriteFieldAccess>(32);
 
 	// Keep per-thread read-only hints (uses more memory but faster)
@@ -74,7 +75,7 @@ final public class Context implements org.deuce.transaction.Context {
 
 		if (!writeSet.isEmpty()) {
 			int newClock = clock.incrementAndGet();
-			if (newClock != startTime + 1 && !validate()) {
+			if (newClock != startTime + 1 && !readSet.validate(id)) {
 				rollback();
 				logger.fine("Fail on commit.");
 				return false;
@@ -104,25 +105,9 @@ final public class Context implements org.deuce.transaction.Context {
 		logger.fine("Rollback successed.");
 	}
 
-	private boolean validate() {
-		try {
-			for (ReadFieldAccess r : readSet) {
-				// Throws an exception if validation fails
-				int lock = LockTable.checkLock(r.getHash(), id);
-				if (lock >= 0 && lock != r.getLock()) {
-					// Other version: cannot validate
-					return false;
-				}
-			}
-		} catch (TransactionException e) {
-			return false;
-		}
-		return true;
-	}
-
 	private boolean extend() {
 		int now = clock.get();
-		if (validate()) {
+		if (readSet.validate(id)) {
 			endTime = now;
 			return true;
 		}
@@ -170,9 +155,8 @@ final public class Context implements org.deuce.transaction.Context {
 				}
 				// We have read a valid value (in snapshot)
 				if (readWriteHint) {
-					ReadFieldAccess read = new ReadFieldAccess(obj, field, readHash, lock);
 					// Save to read set
-					readSet.add(read);
+					readSet.add(obj, field, readHash, lock);
 				}
 				return value;
 			}
@@ -221,15 +205,12 @@ final public class Context implements org.deuce.transaction.Context {
 
 		if (timestamp > endTime) {
 			// Handle write-after-read
-			Field f = new Field(obj, field);
-			for (ReadFieldAccess r : readSet) {
-				if (f.equals(r)) {
-					// Abort
-					LockTable.setAndReleaseLock(hash, timestamp);
-					throw WRITE_FAILURE_EXCEPTION;
-				}
-				// We delay validation until later (although we could already validate once here)
+			if (readSet.contains(obj, field)) {
+				// Abort
+				LockTable.setAndReleaseLock(hash, timestamp);
+				throw WRITE_FAILURE_EXCEPTION;
 			}
+			// We delay validation until later (although we could already validate once here)
 		}
 
 		// Create write set entry

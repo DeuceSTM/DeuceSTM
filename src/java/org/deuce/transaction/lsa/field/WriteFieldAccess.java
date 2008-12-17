@@ -9,12 +9,21 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class WriteFieldAccess extends ReadFieldAccess {
 
-	final private Type type;
+	private Type type;
 	private Object value;
 	private WriteFieldAccess next;
 
+	WriteFieldAccess() { }
+
 	public WriteFieldAccess(Object reference, long field, Type type, Object value, int hash, int lock) {
 		super(reference, field, hash, lock);
+		this.type = type;
+		this.value = value;
+		this.next = null;
+	}
+
+	public void init(Object reference, long field, Type type, Object value, int hash, int lock) {
+		super.init(reference, field, hash, lock);
 		this.type = type;
 		this.value = value;
 		this.next = null;

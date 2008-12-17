@@ -17,12 +17,27 @@ public class Field {
 		BYTE, BOOLEAN, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, OBJECT
 	}
 
-	final protected Object reference;
-	final protected long field;
+	protected Object reference;
+	protected long field;
+
+	Field() { }
 
 	public Field(Object reference, long field) {
 		this.reference = reference;
 		this.field = field;
+	}
+
+	public void init(Object reference, long field) {
+		this.reference = reference;
+		this.field = field;
+	}
+
+	public Object getReference() {
+		return reference;
+	}
+
+	public long getField() {
+		return field;
 	}
 
 	@Override
