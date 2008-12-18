@@ -7,7 +7,6 @@ import sun.misc.Unsafe;
 
 /**
  * @author Pascal Felber
- * @since 0.1
  */
 @Exclude
 public class Field {
@@ -15,20 +14,6 @@ public class Field {
 	@Exclude
 	static public enum Type {
 		BYTE, BOOLEAN, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, OBJECT
-	}
-
-	final protected Object reference;
-	final protected long field;
-
-	public Field(Object reference, long field) {
-		this.reference = reference;
-		this.field = field;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		Field other = (Field) obj;
-		return obj != null && reference == other.reference && field == other.field;
 	}
 
 	static public Object getValue(Object reference, long field, Type type) {

@@ -4,25 +4,37 @@ import org.deuce.transform.Exclude;
 
 /**
  * @author Pascal Felber
- * @since 0.1
  */
 @Exclude
-public class ReadFieldAccess extends Field {
+public class ReadFieldAccess {
+
+	private Object reference;
+	private long field;
 	private int hash;
 	private int lock;
 
-	ReadFieldAccess() { }
+	public ReadFieldAccess() { }
 
 	public ReadFieldAccess(Object reference, long field, int hash, int lock) {
-		super(reference, field);
+		this.reference = reference;
+		this.field = field;
 		this.hash = hash;
 		this.lock = lock;
 	}
 
 	public void init(Object reference, long field, int hash, int lock) {
-		super.init(reference, field);
+		this.reference = reference;
+		this.field = field;
 		this.hash = hash;
 		this.lock = lock;
+	}
+
+	public Object getReference() {
+		return reference;
+	}
+
+	public long getField() {
+		return field;
 	}
 
 	public int getHash() {

@@ -1,15 +1,13 @@
 package org.deuce.transaction.lsa64;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.lsa64.field.Field;
 import org.deuce.transaction.lsa64.field.Field.Type;
-import org.deuce.transaction.lsa64.field.ReadFieldAccess;
-import org.deuce.transaction.lsa64.field.WriteFieldAccess;
+import org.deuce.transaction.lsa64.ReadSet;
+import org.deuce.transaction.lsa64.WriteSet;
 import org.deuce.transaction.util.BooleanArrayList;
 import org.deuce.transform.Exclude;
 
@@ -17,7 +15,6 @@ import org.deuce.transform.Exclude;
  * LSA implementation (64-bit locks)
  * 
  * @author Pascal Felber
- * @since 0.1
  */
 @Exclude
 final public class Context implements org.deuce.transaction.Context {
@@ -39,8 +36,8 @@ final public class Context implements org.deuce.transaction.Context {
 	final private static boolean RO_HINT = Boolean.getBoolean("org.deuce.transaction.lsa.rohint");
 	final private static boolean READ_LOCKED = Boolean.getBoolean("org.deuce.transaction.lsa.readlocked");
 
-	final private ArrayList<ReadFieldAccess> readSet = new ArrayList<ReadFieldAccess>(1024);
-	final private HashMap<Integer, WriteFieldAccess> writeSet = new HashMap<Integer, WriteFieldAccess>(32);
+	final private ReadSet readSet = new ReadSet(1024);
+	final private WriteSet writeSet = new WriteSet(32);
 
 	// Keep per-thread read-only hints (uses more memory but faster)
 	final private BooleanArrayList readWriteMarkers = new BooleanArrayList();
@@ -72,24 +69,15 @@ final public class Context implements org.deuce.transaction.Context {
 
 	public boolean commit() {
 		logger.fine("Start to commit.");
-
 		if (!writeSet.isEmpty()) {
 			long newClock = clock.incrementAndGet();
-			if (newClock != startTime + 1 && !validate()) {
+			if (newClock != startTime + 1 && !readSet.validate(id)) {
 				rollback();
 				logger.fine("Fail on commit.");
 				return false;
 			}
 			// Write values and release locks
-			for (WriteFieldAccess w : writeSet.values()) {
-				int hash = w.getHash();
-				assert w.getLock() >= 0;
-				do {
-					w.writeField();
-					w = w.getNext();
-				} while (w != null);
-				LockTable.setAndReleaseLock(hash, newClock);
-			}
+			writeSet.commit(newClock);
 		}
 		logger.fine("Commit successed.");
 		return true;
@@ -98,32 +86,13 @@ final public class Context implements org.deuce.transaction.Context {
 	public void rollback() {
 		logger.fine("Start to rollback.");
 		// Release locks
-		for (WriteFieldAccess w : writeSet.values()) {
-			assert w.getLock() >= 0;
-			LockTable.setAndReleaseLock(w.getHash(), w.getLock());
-		}
+		writeSet.rollback();
 		logger.fine("Rollback successed.");
-	}
-
-	private boolean validate() {
-		try {
-			for (ReadFieldAccess r : readSet) {
-				// Throws an exception if validation fails
-				long lock = LockTable.checkLock(r.getHash(), id);
-				if (lock >= 0 && lock != r.getLock()) {
-					// Other version: cannot validate
-					return false;
-				}
-			}
-		} catch (TransactionException e) {
-			return false;
-		}
-		return true;
 	}
 
 	private boolean extend() {
 		long now = clock.get();
-		if (validate()) {
+		if (readSet.validate(id)) {
 			endTime = now;
 			return true;
 		}
@@ -144,20 +113,7 @@ final public class Context implements org.deuce.transaction.Context {
 		while (true) {
 			if (readLock < 0) {
 				// We already own that lock
-				WriteFieldAccess w = writeSet.get(readHash);
-				assert w != null;
-				Field f = new Field(obj, field);
-				while (true) {
-					// Check if we have already written that field
-					if (f.equals(w)) {
-						return w.getValue();
-					}
-					w = w.getNext();
-					if (w == null) {
-						// We did not write this field (but no need to add it to read set)
-						return null;
-					}
-				}
+				return writeSet.get(readHash, obj, field);
 			}
 
 			Object value = null;
@@ -171,9 +127,8 @@ final public class Context implements org.deuce.transaction.Context {
 				}
 				// We have read a valid value (in snapshot)
 				if (readWriteHint) {
-					ReadFieldAccess read = new ReadFieldAccess(obj, field, readHash, lock);
 					// Save to read set
-					readSet.add(read);
+					readSet.add(obj, field, readHash, lock);
 				}
 				return value;
 			}
@@ -201,42 +156,21 @@ final public class Context implements org.deuce.transaction.Context {
 
 		if (timestamp < 0) {
 			// We already own that lock
-			WriteFieldAccess w = writeSet.get(hash);
-			Field f = new Field(obj, field);
-			while (true) {
-				// Check if we have already written that field
-				if (f.equals(w)) {
-					// Update written value
-					w.setValue(value);
-					return;
-				}
-				WriteFieldAccess next = w.getNext();
-				if (next == null) {
-					// We did not write this field (we must add it to read set)
-					w.setNext(new WriteFieldAccess(obj, field, type, value, hash, timestamp));
-					return;
-				}
-				w = next;
-			}
+			writeSet.append(hash, obj, field, value, type);
 		}
 
 		if (timestamp > endTime) {
 			// Handle write-after-read
-			Field f = new Field(obj, field);
-			for (ReadFieldAccess r : readSet) {
-				if (f.equals(r)) {
-					// Abort
-					LockTable.setAndReleaseLock(hash, timestamp);
-					throw WRITE_FAILURE_EXCEPTION;
-				}
-				// We delay validation until later (although we could already validate once here)
+			if (readSet.contains(obj, field)) {
+				// Abort
+				LockTable.setAndReleaseLock(hash, timestamp);
+				throw WRITE_FAILURE_EXCEPTION;
 			}
+			// We delay validation until later (although we could already validate once here)
 		}
 
-		// Create write set entry
-		WriteFieldAccess write = new WriteFieldAccess(obj, field, type, value, hash, timestamp);
 		// Add to write set
-		writeSet.put(hash, write);
+		writeSet.add(hash, obj, field, value, type, timestamp);
 	}
 
 	public Object addReadAccess(Object obj, Object value, long field) {

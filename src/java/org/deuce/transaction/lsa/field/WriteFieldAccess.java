@@ -1,29 +1,21 @@
 package org.deuce.transaction.lsa.field;
 
+import org.deuce.transaction.lsa.field.Field;
+import org.deuce.transaction.lsa.field.Field.Type;
 import org.deuce.transform.Exclude;
 
 /**
  * @author Pascal Felber
- * @since 0.1
  */
 @Exclude
 public class WriteFieldAccess extends ReadFieldAccess {
 
-	private Type type;
+	final private Type type;
 	private Object value;
 	private WriteFieldAccess next;
 
-	WriteFieldAccess() { }
-
 	public WriteFieldAccess(Object reference, long field, Type type, Object value, int hash, int lock) {
 		super(reference, field, hash, lock);
-		this.type = type;
-		this.value = value;
-		this.next = null;
-	}
-
-	public void init(Object reference, long field, Type type, Object value, int hash, int lock) {
-		super.init(reference, field, hash, lock);
 		this.type = type;
 		this.value = value;
 		this.next = null;
@@ -46,6 +38,6 @@ public class WriteFieldAccess extends ReadFieldAccess {
 	}
 
 	public void writeField() {
-		Field.putValue(reference, field, value, type);
+		Field.putValue(getReference(), getField(), value, type);
 	}
 }

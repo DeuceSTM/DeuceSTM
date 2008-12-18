@@ -7,7 +7,6 @@ import org.deuce.transform.Exclude;
 
 /**
  * @author Pascal Felber
- * @since 0.1
  */
 @Exclude
 public class LockTable {

@@ -7,13 +7,12 @@ import org.deuce.transform.Exclude;
 
 /**
  * @author Pascal Felber
- * @since 0.1
  */
 @Exclude
 public class LockTable {
 
 	// Failure transaction 
-	final private static TransactionException FAILURE_EXCEPTION = 
+	final private static TransactionException FAILURE_EXCEPTION =
 		new TransactionException("Fail on lock (already locked).");
 	
 	final private static int ARRAYSIZE = 1 << 20; // 2^20
@@ -50,7 +49,7 @@ public class LockTable {
 		long lock = locks.get(hash);
 		if ((lock & LOCK) != 0) {
 			if ((lock & IDMASK) != id) {
-			// Already locked by other thread
+				// Already locked by other thread
 				throw FAILURE_EXCEPTION;
 			} else {
 				// We already own this lock

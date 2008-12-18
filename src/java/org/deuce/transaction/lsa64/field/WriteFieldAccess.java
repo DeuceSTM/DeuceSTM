@@ -1,10 +1,11 @@
 package org.deuce.transaction.lsa64.field;
 
+import org.deuce.transaction.lsa64.field.Field;
+import org.deuce.transaction.lsa64.field.Field.Type;
 import org.deuce.transform.Exclude;
 
 /**
  * @author Pascal Felber
- * @since 0.1
  */
 @Exclude
 public class WriteFieldAccess extends ReadFieldAccess {
@@ -37,6 +38,6 @@ public class WriteFieldAccess extends ReadFieldAccess {
 	}
 
 	public void writeField() {
-		Field.putValue(reference, field, value, type);
+		Field.putValue(getReference(), getField(), value, type);
 	}
 }
