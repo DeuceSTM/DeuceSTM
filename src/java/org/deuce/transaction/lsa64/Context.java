@@ -19,7 +19,6 @@ import org.deuce.transform.Exclude;
 @Exclude
 final public class Context implements org.deuce.transaction.Context {
 
-	// Failure transaction 
 	final private static TransactionException WRITE_FAILURE_EXCEPTION =
 		new TransactionException("Fail on write (read previous version).");
 
@@ -157,6 +156,7 @@ final public class Context implements org.deuce.transaction.Context {
 		if (timestamp < 0) {
 			// We already own that lock
 			writeSet.append(hash, obj, field, value, type);
+			return;
 		}
 
 		if (timestamp > endTime) {

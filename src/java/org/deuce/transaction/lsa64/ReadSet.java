@@ -74,7 +74,7 @@ public class ReadSet {
 	}
 
 	private void initArray(int fromIndex) {
-		for (int i = 0; i < entries.length; i++)
+		for (int i = fromIndex; i < entries.length; i++)
 			entries[i] = new ReadFieldAccess();
 	}
 }
