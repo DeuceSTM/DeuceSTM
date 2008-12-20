@@ -17,7 +17,9 @@ public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 	int m_max;
 	int m_read_frequency;
 	int m_write_frequency;
-	int m_transfers;
+	int m_nb_transfers;
+	int m_nb_reads;
+	int m_nb_writes;
 	Random m_random;
 
 	BenchmarkThread(int id, int nb, Account[] accounts, int max, int read_frequency, int write_frequency) {
@@ -27,19 +29,23 @@ public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 		m_max = max;
 		m_read_frequency = read_frequency;
 		m_write_frequency = write_frequency;
-		m_transfers = 0;
+		m_nb_transfers = m_nb_reads = m_nb_writes = 0;
 		m_random = new Random();
 	}
 
-	protected void step() {
+	protected void step(int phase) {
 		int i = m_random.nextInt(100);
 
 		if (i < m_read_frequency) {
 			// Compute total of all accounts (read-all transaction)
 			Account.computeTotal(m_accounts);
+			if (phase == Benchmark.TEST_PHASE)
+				m_nb_reads++;
 		} else if (i < m_read_frequency + m_write_frequency) {
 			// Add 0% interest (write-all transaction)
 			Account.addInterest(m_accounts, 0);
+			if (phase == Benchmark.TEST_PHASE)
+				m_nb_writes++;
 		} else {
 			int amount = m_random.nextInt(m_max) + 1;
 			Account src;
@@ -54,14 +60,15 @@ public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 
 			try {
 				Account.transfer(src, dst, amount);
-				m_transfers++;
+				if (phase == Benchmark.TEST_PHASE)
+					m_nb_transfers++;
 			} catch (OverdraftException e) {
 				System.err.println("Overdraft: " + e.getMessage());
 			}
 		}
 	}
 
-	public String stats() {
-		return "SUCCESS=" + m_transfers;
+	public String getStats() {
+		return "T=" + m_nb_transfers + ", R=" + m_nb_reads + ", W=" + m_nb_writes;
 	}
 }

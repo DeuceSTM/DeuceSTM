@@ -12,6 +12,7 @@ public class Driver {
 	public static void main(String[] args) {
 		int nb_threads = 8;
 		int duration = 10000;
+		int warmup = 2000;
 		String benchmark = null;
 		boolean error = false;
 		int arg;
@@ -27,6 +28,11 @@ public class Driver {
 					duration = Integer.parseInt(args[arg]);
 				else
 					error = true;
+			} else if (args[arg].equals("-w")) {
+				if (++arg < args.length)
+					warmup = Integer.parseInt(args[arg]);
+				else
+					error = true;
 			} else
 				break;
 		}
@@ -39,7 +45,7 @@ public class Driver {
 			error = true;
 
 		if (error) {
-			System.out.println("Usage: java Driver [-n nb-threads] [-d duration-ms] benchmark [args...]");
+			System.out.println("Usage: java Driver [-n nb-threads] [-d duration-ms] [-w warmup-ms] benchmark [args...]");
 			System.exit(1);
 		}
 
@@ -65,21 +71,36 @@ public class Driver {
 		System.out.print("Starting threads...");
 		for (int i = 0; i < t.length; i++) {
 			System.out.print(" " + i);
+			bt[i].setPhase(Benchmark.WARMUP_PHASE);
 			t[i].start();
 		}
 		System.out.println();
 
-		long start = System.currentTimeMillis();
+		long wstart = System.currentTimeMillis();
+		try {
+			Thread.sleep(warmup);
+		} catch (InterruptedException e) {
+		}
+		long wend = System.currentTimeMillis();
+
+		System.out.print("End of warmup phase...");
+		for (int i = 0; i < bt.length; i++) {
+			System.out.print(" " + i);
+			bt[i].setPhase(Benchmark.TEST_PHASE);
+		}
+		System.out.println();
+
+		long tstart = System.currentTimeMillis();
 		try {
 			Thread.sleep(duration);
 		} catch (InterruptedException e) {
 		}
-		long end = System.currentTimeMillis();
+		long tend = System.currentTimeMillis();
 
-		System.out.print("Stopping threads...");
+		System.out.print("End of test phase...");
 		for (int i = 0; i < bt.length; i++) {
 			System.out.print(" " + i);
-			bt[i].end();
+			bt[i].setPhase(Benchmark.SHUTDOWN_PHASE);
 		}
 		System.out.println();
 
@@ -97,11 +118,12 @@ public class Driver {
 			steps += bt[i].getSteps();
 
 		System.out.println("RESULTS:\n");
-		System.out.println("  Test duration (ms) = " + (end - start));
-		System.out.println("  Nb iterations      = " + steps);
-		System.out.println("  Stats              = " + b.stats(bt));
+		System.out.println("  Warmup duration (ms) = " + (wend - wstart));
+		System.out.println("  Test duration (ms)   = " + (tend - tstart));
+		System.out.println("  Nb iterations        = " + steps);
+		System.out.println("  Stats                = " + b.getStats(bt));
 		for (int i = 0; i < bt.length; i++)
 			System.out.println("    " + i + " : " + bt[i].getSteps() +
-					" (" + bt[i].stats() + ")");
+					" (" + bt[i].getStats() + ")");
 	}
 }

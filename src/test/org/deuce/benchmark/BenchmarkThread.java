@@ -9,11 +9,16 @@ import org.deuce.transform.Exclude;
 @Exclude
 abstract public class BenchmarkThread implements Runnable {
 
-	volatile private boolean m_end;
+	volatile private int m_phase;
 	private int m_steps;
 
-	public void end() {
-		m_end = true;
+	public void BenchmarkThread() {
+		m_phase = Benchmark.WARMUP_PHASE;
+		m_steps = 0;
+	}
+
+	public void setPhase(int phase) {
+		m_phase = phase;
 	}
 
 	public int getSteps() {
@@ -21,15 +26,16 @@ abstract public class BenchmarkThread implements Runnable {
 	}
 
 	public void run() {
-		m_end = false;
-		m_steps = 0;
-		while (!m_end) {
-			step();
+		while (m_phase == Benchmark.WARMUP_PHASE) {
+			step(Benchmark.WARMUP_PHASE);
+		}
+		while (m_phase == Benchmark.TEST_PHASE) {
+			step(Benchmark.TEST_PHASE);
 			m_steps++;
 		}
 	}
 
-	abstract protected void step();
+	abstract protected void step(int phase);
 
-	abstract public String stats();
+	abstract public String getStats();
 }

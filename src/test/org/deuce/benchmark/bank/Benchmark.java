@@ -80,7 +80,7 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 		return new BenchmarkThread(i, nb, m_accounts, m_max, m_read_frequency, m_write_frequency);
 	}
 
-	public String stats(org.deuce.benchmark.BenchmarkThread[] threads) {
+	public String getStats(org.deuce.benchmark.BenchmarkThread[] threads) {
 		int total = 0;
 		StringBuffer sb = new StringBuffer();
 		sb.append(" [");
@@ -89,6 +89,15 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 			sb.append(" " + i + "=" + m_accounts[i].getBalance());
 		}
 		sb.append(" ]");
-		return "TOTAL=" + total + sb.toString();
+		int transfers = 0;
+		int reads = 0;
+		int writes = 0;
+		for (int i = 0; i < threads.length; i++) {
+			transfers += ((BenchmarkThread)threads[i]).m_nb_transfers;
+			reads += ((BenchmarkThread)threads[i]).m_nb_reads;
+			writes += ((BenchmarkThread)threads[i]).m_nb_writes;
+		}
+
+		return "T=" + transfers + ", R=" + reads + ", W=" + writes + ", TOTAL=" + total + sb.toString();
 	}
 }

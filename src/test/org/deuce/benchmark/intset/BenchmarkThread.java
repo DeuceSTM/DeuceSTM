@@ -29,26 +29,29 @@ public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 		m_random = new Random();
 	}
 
-	protected void step() {
+	protected void step(int phase) {
 		int i = m_random.nextInt(100);
 		if (i < m_rate) {
 			if (m_write) {
 				m_last = m_random.nextInt(m_range);
 				if (m_set.add(m_last))
 					m_write = false;
-				m_nb_add++;
+				if (phase == Benchmark.TEST_PHASE)
+					m_nb_add++;
 			} else {
 				m_set.remove(m_last);
-				m_nb_remove++;
+				if (phase == Benchmark.TEST_PHASE)
+					m_nb_remove++;
 				m_write = true;
 			}
 		} else {
 			m_set.contains(m_random.nextInt(m_range));
-			m_nb_contains++;
+			if (phase == Benchmark.TEST_PHASE)
+				m_nb_contains++;
 		}
 	}
 	
-	public String stats() {
+	public String getStats() {
 		return "A=" + m_nb_add + ", R=" + m_nb_remove + ", C=" + m_nb_contains;
 	}
 }

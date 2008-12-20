@@ -64,7 +64,7 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 		return new BenchmarkThread(m_set, m_range, m_rate);
 	}
 
-	public String stats(org.deuce.benchmark.BenchmarkThread[] threads) {
+	public String getStats(org.deuce.benchmark.BenchmarkThread[] threads) {
 		int add = 0;
 		int remove = 0;
 		int contains = 0;
