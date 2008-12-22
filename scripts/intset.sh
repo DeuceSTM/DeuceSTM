@@ -4,8 +4,8 @@
 # java="java"
 java="java -verbose:gc -Xmx1g -Xms1g -XXaggressive"
 
-warmup = 2000
-duration = 10000
+warmup=2000
+duration=10000
 
 for r in 1 2 3; do
 for b in LinkedList SkipList; do
