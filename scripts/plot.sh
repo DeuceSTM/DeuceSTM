@@ -1,10 +1,5 @@
 #!/bin/sh
 
-rm -f logs/threads
-for t in 1 2 4 8 12 16; do
-echo $t >> logs/threads
-done
-
 for b in LinkedList SkipList; do
 for i in 256 4096 16384; do
 for w in 0 20 50; do
@@ -37,7 +32,7 @@ echo -n "plot " >> ${g}
 
 for c in lock tl2.Context lsa.Context lsa.Context.ro lsa64.Context lsa64.Context.ro; do
     data=logs/intset-${b}-${c}-i${i}-w${w}.data
-    echo -n "\"${data}\" using 1:($2/$3) title \"${c}\" with lines" >> ${g}
+    echo -n "\"${data}\" using 1:(\$2/\$3) title \"${c}\" with lines" >> ${g}
     j=`expr ${j} \- 1`
     if [ ${j} -gt 0 ]; then
         echo ", \\" >> ${g}
