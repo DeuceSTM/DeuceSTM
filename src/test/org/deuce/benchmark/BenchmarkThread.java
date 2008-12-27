@@ -12,7 +12,7 @@ abstract public class BenchmarkThread implements Runnable {
 	volatile private int m_phase;
 	private int m_steps;
 
-	public void BenchmarkThread() {
+	public BenchmarkThread() {
 		m_phase = Benchmark.WARMUP_PHASE;
 		m_steps = 0;
 	}
