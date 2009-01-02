@@ -9,7 +9,7 @@
 				<fileset dir="classes" />
 				<manifest>
 					<attribute name="Implementation-Vendor" value="deuce.org" />
-					<attribute name="Implementation-Version" value="0.4"/>
+					<attribute name="Implementation-Version" value="0.7"/>
 					<attribute name="Premain-Class" value="org.deuce.transform.asm.Agent" />
 					<attribute name="Can-Redefine-Classes" value="true"/>
 					<attribute name="Can-Retransform-Classes" value="true"/>
