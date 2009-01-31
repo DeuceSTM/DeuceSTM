@@ -92,7 +92,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 	public void visitEnd() {
 		if( !exclude & !visitclinit) {
 			visitclinit = true;
-			MethodVisitor method = visitMethod(8, "<clinit>", "()V", null, null);
+			MethodVisitor method = visitMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
 			method.visitCode();
 			method.visitInsn(Opcodes.RETURN);
 			method.visitMaxs(100, 100); // TODO set the right value
