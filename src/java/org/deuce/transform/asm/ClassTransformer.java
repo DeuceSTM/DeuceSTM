@@ -69,7 +69,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 		if( name.equals("<clinit>")) {
 			visitclinit = true;
 
-			int fieldAccess = Opcodes.ACC_FINAL | Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
+			int fieldAccess = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
 			super.visitField( fieldAccess, StaticMethodTransformer.CLASS_BASE,
 					Type.getDescriptor(Object.class), null, null);
 
