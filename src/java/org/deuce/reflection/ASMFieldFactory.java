@@ -1,9 +1,5 @@
 package org.deuce.reflection;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
 import org.deuce.objectweb.asm.ClassVisitor;
 import org.deuce.objectweb.asm.ClassWriter;
 import org.deuce.objectweb.asm.MethodVisitor;
@@ -15,9 +11,6 @@ import org.deuce.objectweb.asm.Type;
  */
 public class ASMFieldFactory 
 {
-
-	final private static String CLASS_POSTFIX_NAME = "DeuceField";
-
 	private interface MethodBuilder{
 		void createGetMethod(ClassWriter cw);
 		void createSetMethod(ClassWriter cw);
