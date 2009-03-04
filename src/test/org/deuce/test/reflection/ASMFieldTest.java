@@ -15,6 +15,7 @@ import org.deuce.reflection.IntField;
 import org.deuce.reflection.LongField;
 import org.deuce.reflection.ObjectField;
 import org.deuce.reflection.ShortField;
+import org.deuce.transform.asm.Loader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,8 +34,7 @@ public class ASMFieldTest extends TestCase
 	@Test
 	public void testFieldAccess() throws Exception
     {
-		ObjectField objectField = (ObjectField) newInstance("org.deuce.test.reflection.ASMFieldTest$MyClass$DeuceAccess0",
-				ASMFieldFactory.getObjectField( Type.getInternalName( MyClass.class), "getField", "setField"));
+		ObjectField objectField = ASMFieldFactory.getObjectField( MyClass.class, "getField", "setField");
 		MyClass mc = new MyClass();
 		Object value = new Object();
 		objectField.set(mc, value);
@@ -49,8 +49,7 @@ public class ASMFieldTest extends TestCase
 	@Test
 	public void testBoolenaFieldAccess() throws Exception
     {
-		BooleanField objectField = (BooleanField) newInstance("org.deuce.test.reflection.ASMFieldTest$MyClass$DeuceAccess1",
-				ASMFieldFactory.getBooleanField(Type.getInternalName( MyClass.class), "getBooleanField", "setBooleanField"));
+		BooleanField objectField = ASMFieldFactory.getBooleanField( MyClass.class, "getBooleanField", "setBooleanField");
 		MyClass mc = new MyClass();
 		objectField.set(mc, true);
 		boolean get = objectField.get(mc);
@@ -63,8 +62,7 @@ public class ASMFieldTest extends TestCase
 	@Test
 	public void testByteFieldAccess() throws Exception
     {
-		ByteField objectField = (ByteField) newInstance("org.deuce.test.reflection.ASMFieldTest$MyClass$DeuceAccess2",
-				ASMFieldFactory.getByteField(Type.getInternalName( MyClass.class), "getByteField", "setByteField"));
+		ByteField objectField = ASMFieldFactory.getByteField( MyClass.class, "getByteField", "setByteField");
 		MyClass mc = new MyClass();
 		objectField.set(mc, (byte)12);
 		byte get = objectField.get(mc);
@@ -77,8 +75,7 @@ public class ASMFieldTest extends TestCase
 	@Test
 	public void testCharFieldAccess() throws Exception
     {
-		CharField objectField = (CharField) newInstance("org.deuce.test.reflection.ASMFieldTest$MyClass$DeuceAccess3",
-				ASMFieldFactory.getCharField(Type.getInternalName( MyClass.class), "getCharField", "setCharField"));
+		CharField objectField = ASMFieldFactory.getCharField( MyClass.class, "getCharField", "setCharField");
 		MyClass mc = new MyClass();
 		objectField.set(mc, 'c');
 		char get = objectField.get(mc);
@@ -91,8 +88,7 @@ public class ASMFieldTest extends TestCase
 	@Test
 	public void testShortFieldAccess() throws Exception
     {
-		ShortField objectField = (ShortField) newInstance("org.deuce.test.reflection.ASMFieldTest$MyClass$DeuceAccess4",
-				ASMFieldFactory.getShortField(Type.getInternalName( MyClass.class), "getShortField", "setShortField"));
+		ShortField objectField = ASMFieldFactory.getShortField( MyClass.class, "getShortField", "setShortField");
 		MyClass mc = new MyClass();
 		objectField.set(mc, (short)2342);
 		short get = objectField.get(mc);
@@ -106,8 +102,7 @@ public class ASMFieldTest extends TestCase
 	@Test
 	public void testIntFieldAccess() throws Exception
     {
-		IntField objectField = (IntField) newInstance("org.deuce.test.reflection.ASMFieldTest$MyClass$DeuceAccess5",
-				ASMFieldFactory.getIntField(Type.getInternalName( MyClass.class), "getIntField", "setIntField"));
+		IntField objectField = ASMFieldFactory.getIntField( MyClass.class, "getIntField", "setIntField");
 		MyClass mc = new MyClass();
 		objectField.set(mc, 1234);
 		int get = objectField.get(mc);
@@ -120,8 +115,7 @@ public class ASMFieldTest extends TestCase
 	@Test
 	public void testLongFieldAccess() throws Exception
     {
-		LongField objectField = (LongField) newInstance("org.deuce.test.reflection.ASMFieldTest$MyClass$DeuceAccess6",
-				ASMFieldFactory.getLongField(Type.getInternalName( MyClass.class), "getLongField", "setLongField"));
+		LongField objectField =  ASMFieldFactory.getLongField( MyClass.class, "getLongField", "setLongField");
 		MyClass mc = new MyClass();
 		objectField.set(mc, 134234234234324L);
 		long get = objectField.get(mc);
@@ -134,8 +128,7 @@ public class ASMFieldTest extends TestCase
 	@Test
 	public void testFloatFieldAccess() throws Exception
     {
-		FloatField objectField = (FloatField) newInstance("org.deuce.test.reflection.ASMFieldTest$MyClass$DeuceAccess7",
-				ASMFieldFactory.getFloatField(Type.getInternalName( MyClass.class), "getFloatField", "setFloatField"));
+		FloatField objectField = ASMFieldFactory.getFloatField( MyClass.class, "getFloatField", "setFloatField");
 		MyClass mc = new MyClass();
 		objectField.set(mc, 1.343f);
 		float get = objectField.get(mc);
@@ -148,8 +141,7 @@ public class ASMFieldTest extends TestCase
 	@Test
 	public void testDoubleFieldAccess() throws Exception
     {
-		DoubleField objectField = (DoubleField) newInstance("org.deuce.test.reflection.ASMFieldTest$MyClass$DeuceAccess8",
-				ASMFieldFactory.getDoubleField(Type.getInternalName( MyClass.class), "getDoubleField", "setDoubleField"));
+		DoubleField objectField = ASMFieldFactory.getDoubleField( MyClass.class, "getDoubleField", "setDoubleField");
 		MyClass mc = new MyClass();
 		objectField.set(mc, 12.4234453432);
 		double get = objectField.get(mc);
@@ -235,10 +227,9 @@ public class ASMFieldTest extends TestCase
 	    
 	}
 	
-	private static Object newInstance(String className, byte[] b) throws Exception 
+	private static Object newInstance(String className, Class clzz) throws Exception 
 	{
-		Class defineClass = new MYClassLoader().defineClass(className, b);
-		return defineClass.newInstance();
+		return clzz.newInstance();
 	}
 	
 	static private class MYClassLoader extends ClassLoader{

@@ -1,48 +1,60 @@
 package org.deuce.reflection;
 
+import java.util.WeakHashMap;
+
 import org.deuce.objectweb.asm.ClassVisitor;
 import org.deuce.objectweb.asm.ClassWriter;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
+import org.deuce.transform.asm.Loader;
 
 /**
- * Creates ASM created classes that represents that provides fast fields "reflection" mechanism. 
+ * Creates ASM created classes that represents that provides fast fields
+ * "reflection" mechanism.
  */
-public class ASMFieldFactory 
-{
-	private interface MethodBuilder{
-		void createGetMethod(ClassWriter cw);
-		void createSetMethod(ClassWriter cw);
+public class ASMFieldFactory {
+	
+	
+	private static long index = 0;
+	final private static WeakHashMap<ClassLoader, Loader> loaderMap = new WeakHashMap<ClassLoader, Loader>(); 
+	
+	
+	private interface MethodBuilder {
+		void createGetMethod(ClassWriter cw, String owener);
+
+		void createSetMethod(ClassWriter cw, String owener);
+
 		String[] getInterfaces();
 	}
 
-	public static byte[] getBooleanField(final String declaringClass, final String getAccessor, final String setAccessor){
+	public static BooleanField getBooleanField(final Class declaringClass, final String getAccessor,
+			final String setAccessor) {
 
-		final String[] interfaces = new String[]{ Type.getInternalName(BooleanField.class)}; 
+		final String[] interfaces = new String[] { Type.getInternalName(BooleanField.class) };
 
-		return getField( declaringClass, new MethodBuilder(){
+		return (BooleanField) createFieldAccessor(declaringClass, new MethodBuilder() {
 
-			public void createGetMethod(ClassWriter cw) {
+			public void createGetMethod(ClassWriter cw, String owener) {
 
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "get", "(Ljava/lang/Object;)Z", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, getAccessor, "(L" + declaringClass + ";)Z");
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, getAccessor, "(L" + owener + ";)Z");
 				mv.visitInsn(Opcodes.IRETURN);
 				mv.visitMaxs(1, 2);
 				mv.visitEnd();
 
 			}
 
-			public void createSetMethod(ClassWriter cw) {
+			public void createSetMethod(ClassWriter cw, String owener) {
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "set", "(Ljava/lang/Object;Z)V", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
 				mv.visitVarInsn(Opcodes.ILOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, setAccessor, "(L" + declaringClass + ";Z)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, setAccessor, "(L" + owener + ";Z)V");
 				mv.visitInsn(Opcodes.RETURN);
 				mv.visitMaxs(2, 3);
 				mv.visitEnd();
@@ -54,34 +66,34 @@ public class ASMFieldFactory
 			}
 		});
 	}
-	
 
-	public static byte[] getByteField(final String declaringClass, final String getAccessor, final String setAccessor){
+	public static ByteField getByteField(final Class declaringClass, final String getAccessor,
+			final String setAccessor) {
 
-		final String[] interfaces = new String[]{ Type.getInternalName(ByteField.class)}; 
+		final String[] interfaces = new String[] { Type.getInternalName(ByteField.class) };
 
-		return getField( declaringClass, new MethodBuilder(){
+		return (ByteField) createFieldAccessor(declaringClass, new MethodBuilder() {
 
-			public void createGetMethod(ClassWriter cw) {
+			public void createGetMethod(ClassWriter cw, String owener) {
 
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "get", "(Ljava/lang/Object;)B", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, getAccessor, "(L" + declaringClass + ";)B");
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, getAccessor, "(L" + owener + ";)B");
 				mv.visitInsn(Opcodes.IRETURN);
 				mv.visitMaxs(1, 2);
 				mv.visitEnd();
 
 			}
 
-			public void createSetMethod(ClassWriter cw) {
+			public void createSetMethod(ClassWriter cw, String owener) {
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "set", "(Ljava/lang/Object;B)V", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
 				mv.visitVarInsn(Opcodes.ILOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, setAccessor, "(L" + declaringClass + ";B)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, setAccessor, "(L" + owener + ";B)V");
 				mv.visitInsn(Opcodes.RETURN);
 				mv.visitMaxs(2, 3);
 				mv.visitEnd();
@@ -93,33 +105,33 @@ public class ASMFieldFactory
 			}
 		});
 	}
-	
-	public static byte[] getCharField(final String declaringClass, final String getAccessor, final String setAccessor){
 
-		final String[] interfaces = new String[]{ Type.getInternalName(CharField.class)}; 
+	public static CharField getCharField(final Class declaringClass, final String getAccessor, final String setAccessor) {
 
-		return getField( declaringClass, new MethodBuilder(){
+		final String[] interfaces = new String[] { Type.getInternalName(CharField.class) };
 
-			public void createGetMethod(ClassWriter cw) {
+		return (CharField) createFieldAccessor(declaringClass, new MethodBuilder() {
+
+			public void createGetMethod(ClassWriter cw, String owener) {
 
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "get", "(Ljava/lang/Object;)C", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, getAccessor, "(L" + declaringClass + ";)C");
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, getAccessor, "(L" + owener + ";)C");
 				mv.visitInsn(Opcodes.IRETURN);
 				mv.visitMaxs(1, 2);
 				mv.visitEnd();
 
 			}
 
-			public void createSetMethod(ClassWriter cw) {
+			public void createSetMethod(ClassWriter cw, String owener) {
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "set", "(Ljava/lang/Object;C)V", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
 				mv.visitVarInsn(Opcodes.ILOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, setAccessor, "(L" + declaringClass + ";C)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, setAccessor, "(L" + owener + ";C)V");
 				mv.visitInsn(Opcodes.RETURN);
 				mv.visitMaxs(2, 3);
 				mv.visitEnd();
@@ -131,33 +143,34 @@ public class ASMFieldFactory
 			}
 		});
 	}
-	
-	public static byte[] getShortField(final String declaringClass, final String getAccessor, final String setAccessor){
 
-		final String[] interfaces = new String[]{ Type.getInternalName(ShortField.class)}; 
+	public static ShortField getShortField(final Class declaringClass, final String getAccessor,
+			final String setAccessor) {
 
-		return getField( declaringClass, new MethodBuilder(){
+		final String[] interfaces = new String[] { Type.getInternalName(ShortField.class) };
 
-			public void createGetMethod(ClassWriter cw) {
+		return (ShortField) createFieldAccessor(declaringClass, new MethodBuilder() {
+
+			public void createGetMethod(ClassWriter cw, String owener) {
 
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "get", "(Ljava/lang/Object;)S", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, getAccessor, "(L" + declaringClass + ";)S");
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, getAccessor, "(L" + owener + ";)S");
 				mv.visitInsn(Opcodes.IRETURN);
 				mv.visitMaxs(1, 2);
 				mv.visitEnd();
 
 			}
 
-			public void createSetMethod(ClassWriter cw) {
+			public void createSetMethod(ClassWriter cw, String owener) {
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "set", "(Ljava/lang/Object;S)V", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
 				mv.visitVarInsn(Opcodes.ILOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, setAccessor, "(L" + declaringClass + ";S)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, setAccessor, "(L" + owener + ";S)V");
 				mv.visitInsn(Opcodes.RETURN);
 				mv.visitMaxs(2, 3);
 				mv.visitEnd();
@@ -169,33 +182,33 @@ public class ASMFieldFactory
 			}
 		});
 	}
-	
-	public static byte[] getIntField(final String declaringClass, final String getAccessor, final String setAccessor){
 
-		final String[] interfaces = new String[]{ Type.getInternalName(IntField.class)}; 
+	public static IntField getIntField(final Class declaringClass, final String getAccessor, final String setAccessor) {
 
-		return getField( declaringClass, new MethodBuilder(){
+		final String[] interfaces = new String[] { Type.getInternalName(IntField.class) };
 
-			public void createGetMethod(ClassWriter cw) {
+		return (IntField) createFieldAccessor(declaringClass, new MethodBuilder() {
+
+			public void createGetMethod(ClassWriter cw, String owener) {
 
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "get", "(Ljava/lang/Object;)I", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, getAccessor, "(L" + declaringClass + ";)I");
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, getAccessor, "(L" + owener + ";)I");
 				mv.visitInsn(Opcodes.IRETURN);
 				mv.visitMaxs(1, 2);
 				mv.visitEnd();
 
 			}
 
-			public void createSetMethod(ClassWriter cw) {
+			public void createSetMethod(ClassWriter cw, String owener) {
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "set", "(Ljava/lang/Object;I)V", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
 				mv.visitVarInsn(Opcodes.ILOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, setAccessor, "(L" + declaringClass + ";I)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, setAccessor, "(L" + owener + ";I)V");
 				mv.visitInsn(Opcodes.RETURN);
 				mv.visitMaxs(2, 3);
 				mv.visitEnd();
@@ -207,33 +220,33 @@ public class ASMFieldFactory
 			}
 		});
 	}
-	
-	public static byte[] getLongField(final String declaringClass, final String getAccessor, final String setAccessor){
 
-		final String[] interfaces = new String[]{ Type.getInternalName(LongField.class)}; 
+	public static LongField getLongField(final Class declaringClass, final String getAccessor, final String setAccessor) {
 
-		return getField( declaringClass, new MethodBuilder(){
+		final String[] interfaces = new String[] { Type.getInternalName(LongField.class) };
 
-			public void createGetMethod(ClassWriter cw) {
+		return (LongField) createFieldAccessor(declaringClass, new MethodBuilder() {
+
+			public void createGetMethod(ClassWriter cw, String owener) {
 
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "get", "(Ljava/lang/Object;)J", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, getAccessor, "(L" + declaringClass + ";)J");
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, getAccessor, "(L" + owener + ";)J");
 				mv.visitInsn(Opcodes.LRETURN);
 				mv.visitMaxs(2, 2);
 				mv.visitEnd();
 
 			}
 
-			public void createSetMethod(ClassWriter cw) {
+			public void createSetMethod(ClassWriter cw, String owener) {
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "set", "(Ljava/lang/Object;J)V", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
 				mv.visitVarInsn(Opcodes.LLOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, setAccessor, "(L" + declaringClass + ";J)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, setAccessor, "(L" + owener + ";J)V");
 				mv.visitInsn(Opcodes.RETURN);
 				mv.visitMaxs(3, 4);
 				mv.visitEnd();
@@ -245,33 +258,34 @@ public class ASMFieldFactory
 			}
 		});
 	}
-	
-	public static byte[] getFloatField(final String declaringClass, final String getAccessor, final String setAccessor){
 
-		final String[] interfaces = new String[]{ Type.getInternalName(FloatField.class)}; 
+	public static FloatField getFloatField(final Class declaringClass, final String getAccessor,
+			final String setAccessor) {
 
-		return getField( declaringClass, new MethodBuilder(){
+		final String[] interfaces = new String[] { Type.getInternalName(FloatField.class) };
 
-			public void createGetMethod(ClassWriter cw) {
+		return (FloatField) createFieldAccessor(declaringClass, new MethodBuilder() {
+
+			public void createGetMethod(ClassWriter cw, String owener) {
 
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "get", "(Ljava/lang/Object;)F", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, getAccessor, "(L" + declaringClass + ";)F");
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, getAccessor, "(L" + owener + ";)F");
 				mv.visitInsn(Opcodes.FRETURN);
 				mv.visitMaxs(1, 2);
 				mv.visitEnd();
 
 			}
 
-			public void createSetMethod(ClassWriter cw) {
+			public void createSetMethod(ClassWriter cw, String owener) {
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "set", "(Ljava/lang/Object;F)V", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
 				mv.visitVarInsn(Opcodes.FLOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, setAccessor, "(L" + declaringClass + ";F)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, setAccessor, "(L" + owener + ";F)V");
 				mv.visitInsn(Opcodes.RETURN);
 				mv.visitMaxs(2, 3);
 				mv.visitEnd();
@@ -283,33 +297,34 @@ public class ASMFieldFactory
 			}
 		});
 	}
-	
-	public static byte[] getDoubleField(final String declaringClass, final String getAccessor, final String setAccessor){
 
-		final String[] interfaces = new String[]{ Type.getInternalName(DoubleField.class)}; 
+	public static DoubleField getDoubleField(final Class declaringClass, final String getAccessor,
+			final String setAccessor) {
 
-		return getField( declaringClass, new MethodBuilder(){
+		final String[] interfaces = new String[] { Type.getInternalName(DoubleField.class) };
 
-			public void createGetMethod(ClassWriter cw) {
+		return (DoubleField) createFieldAccessor(declaringClass, new MethodBuilder() {
+
+			public void createGetMethod(ClassWriter cw, String owener) {
 
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "get", "(Ljava/lang/Object;)D", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, getAccessor, "(L" + declaringClass + ";)D");
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, getAccessor, "(L" + owener + ";)D");
 				mv.visitInsn(Opcodes.DRETURN);
 				mv.visitMaxs(2, 2);
 				mv.visitEnd();
 
 			}
 
-			public void createSetMethod(ClassWriter cw) {
+			public void createSetMethod(ClassWriter cw, String owener) {
 				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "set", "(Ljava/lang/Object;D)V", null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
 				mv.visitVarInsn(Opcodes.DLOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, setAccessor, "(L" + declaringClass + ";D)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, setAccessor, "(L" + owener + ";D)V");
 				mv.visitInsn(Opcodes.RETURN);
 				mv.visitMaxs(3, 4);
 				mv.visitEnd();
@@ -321,33 +336,38 @@ public class ASMFieldFactory
 			}
 		});
 	}
-	
-	public static byte[] getObjectField(final String declaringClass, final String getAccessor, final String setAccessor){
 
-		final String[] interfaces = new String[]{ Type.getInternalName( ObjectField.class)}; 
+	public static ObjectField getObjectField(final Class declaringClass, final String getAccessor,
+			final String setAccessor) {
 
-		return getField( declaringClass, new MethodBuilder(){
+		final String[] interfaces = new String[] { Type.getInternalName(ObjectField.class) };
 
-			public void createGetMethod(ClassWriter cw) {
+		return (ObjectField) createFieldAccessor(declaringClass, new MethodBuilder() {
 
-				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "get", "(Ljava/lang/Object;)Ljava/lang/Object;", null, null);
+			public void createGetMethod(ClassWriter cw, String owener) {
+
+				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "get", "(Ljava/lang/Object;)Ljava/lang/Object;",
+						null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, getAccessor, "(L" + declaringClass + ";)Ljava/lang/Object;");
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, getAccessor, "(L" + owener
+						+ ";)Ljava/lang/Object;");
 				mv.visitInsn(Opcodes.ARETURN);
 				mv.visitMaxs(2, 2);
 				mv.visitEnd();
 
 			}
 
-			public void createSetMethod(ClassWriter cw) {
-				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "set", "(Ljava/lang/Object;Ljava/lang/Object;)V", null, null);
+			public void createSetMethod(ClassWriter cw, String owener) {
+				MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "set", "(Ljava/lang/Object;Ljava/lang/Object;)V",
+						null, null);
 				mv.visitCode();
 				mv.visitVarInsn(Opcodes.ALOAD, 1);
-				mv.visitTypeInsn(Opcodes.CHECKCAST, declaringClass);
+				mv.visitTypeInsn(Opcodes.CHECKCAST, owener);
 				mv.visitVarInsn(Opcodes.ALOAD, 2);
-				mv.visitMethodInsn(Opcodes.INVOKESTATIC, declaringClass, setAccessor, "(L" + declaringClass + ";Ljava/lang/Object;)V");
+				mv.visitMethodInsn(Opcodes.INVOKESTATIC, owener, setAccessor, "(L" + owener
+						+ ";Ljava/lang/Object;)V");
 				mv.visitInsn(Opcodes.RETURN);
 				mv.visitMaxs(3, 4);
 				mv.visitEnd();
@@ -360,27 +380,38 @@ public class ASMFieldFactory
 		});
 	}
 
-	private static int index = 0;
-	private static synchronized byte[] getField(String declaringClass, MethodBuilder builder)
-	{
-		String className = declaringClass + "$DeuceAccess" + (index++);
+	
 
-		String classInternalName = className.replace('.', '/'); // build internal name for ASM
+	private static synchronized Object createFieldAccessor(Class declaringClass, MethodBuilder builder) {
+		
+		String owner = Type.getInternalName(declaringClass);
+		
+		String className = "org/deuce/DeuceClass" + (index++);
 
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-		cw.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, classInternalName,
-				null, "java/lang/Object", builder.getInterfaces());
-
+		cw.visit(Opcodes.V1_5, Opcodes.ACC_PUBLIC, className, null, "java/lang/Object", builder.getInterfaces());
+		
 		createConstructor(cw);
-		builder.createGetMethod(cw);
-		builder.createSetMethod(cw);
+		builder.createGetMethod(cw,owner);
+		builder.createSetMethod(cw,owner);
 		cw.visitEnd();
 
-		return cw.toByteArray();
+		ClassLoader classLoader = declaringClass.getClassLoader();
+		Loader loader = loaderMap.get(classLoader);
+		if( loader == null){
+			loader = new Loader(classLoader);
+			loaderMap.put(classLoader, loader);
+		}
+		
+		Class defineClass = loader.defineClass(className.replace('/', '.'), cw.toByteArray());
+		try {
+			return defineClass.newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	private static void createConstructor(ClassVisitor cw) 
-	{
+	private static void createConstructor(ClassVisitor cw) {
 		MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
 		mv.visitCode();
 		mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -390,5 +421,11 @@ public class ASMFieldFactory
 		mv.visitEnd();
 	}
 
+	//	
+	// Loader loader = classLoadersHolder.get(classLoader);
+	// if( classLoader == null){
+	// loader = new Loader(loader);
+	// classLoadersHolder.put(class loader);
+	// }
 
 }
