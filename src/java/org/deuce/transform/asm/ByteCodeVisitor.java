@@ -4,6 +4,7 @@ import org.deuce.objectweb.asm.ClassAdapter;
 import org.deuce.objectweb.asm.ClassReader;
 import org.deuce.objectweb.asm.ClassWriter;
 import org.deuce.objectweb.asm.MethodVisitor;
+import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.commons.JSRInlinerAdapter;
 
 
@@ -22,12 +23,26 @@ public class ByteCodeVisitor extends ClassAdapter{
 	}
 
 	protected final String className;
+	protected boolean isInterface;
 
 	public ByteCodeVisitor( String className) {
 
 		super(new ClassWriter( ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES));
 
 		this.className = className;
+	}
+	
+	@Override
+	public void visit(
+			final int version,
+			final int access,
+			final String name,
+			final String signature,
+			final String superName,
+			final String[] interfaces)
+	{
+		isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
+		super.visit(version, access, name, signature, superName, interfaces);
 	}
 
 	public byte[] toByteArray() {

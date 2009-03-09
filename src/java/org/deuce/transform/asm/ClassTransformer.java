@@ -69,23 +69,24 @@ public class ClassTransformer extends ByteCodeVisitor{
 		if( name.equals("<clinit>")) {
 			visitclinit = true;
 
+			if( isInterface){
+				return originalMethod;
+			}
+			
 			int fieldAccess = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
 			super.visitField( fieldAccess, StaticMethodTransformer.CLASS_BASE,
 					Type.getDescriptor(Object.class), null, null);
 
 			return new StaticMethodTransformer( originalMethod, fields, className, staticField);
 		}
-		else
-		{
-			Method newMethod = createNewMethod(name, desc);
+		Method newMethod = createNewMethod(name, desc);
 
-			MethodVisitor copyMethod =  super.visitMethod(access, name, newMethod.getDescriptor(),
-					signature, exceptions);
+		MethodVisitor copyMethod =  super.visitMethod(access, name, newMethod.getDescriptor(),
+				signature, exceptions);
+
+		return new MethodTransformer( originalMethod, copyMethod, className,
+				access, name, desc, newMethod);
 			
-			return new MethodTransformer( originalMethod, copyMethod, className,
-					access, name, desc, newMethod);
-			
-		}
 	}
 
 	@Override
