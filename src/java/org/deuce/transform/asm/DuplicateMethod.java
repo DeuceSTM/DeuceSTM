@@ -62,7 +62,7 @@ public class DuplicateMethod extends MethodAdapter{
 		}
 		switch( opcode) {
 		case Opcodes.GETFIELD:  //	ALOAD 0: this (stack status)
-			addBeforeReadCall(owner, name, ContextDelegator.BEFORE_READ_METHOD_NAME);
+			addBeforeReadCall(owner, name);
 			
 			super.visitInsn(Opcodes.DUP);
 			super.visitFieldInsn(opcode, owner, name, desc);
@@ -85,7 +85,7 @@ public class DuplicateMethod extends MethodAdapter{
 			super.visitFieldInsn(Opcodes.GETSTATIC, owner, 
 					StaticMethodTransformer.CLASS_BASE, "Ljava/lang/Object;");
 			
-			addBeforeReadCall(owner, name, ContextDelegator.BEFORE_READ_METHOD_NAME);
+			addBeforeReadCall(owner, name);
 			
 			super.visitFieldInsn(opcode, owner, name, desc);
 			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
@@ -110,12 +110,12 @@ public class DuplicateMethod extends MethodAdapter{
 		}
 	}
 
-	private void addBeforeReadCall(String owner, String name, String beforeMethod) {
+	private void addBeforeReadCall(String owner, String name) {
 		super.visitInsn(Opcodes.DUP);
 		super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
 		super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
 		super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
-				beforeMethod, ContextDelegator.BEFORE_READ_METHOD_DESC);
+				ContextDelegator.BEFORE_READ_METHOD_NAME, ContextDelegator.BEFORE_READ_METHOD_DESC);
 	}
 	
 	/**
