@@ -11,16 +11,12 @@ import org.deuce.*;
 public class IntSetSkipList implements IntSet {
 
 	public class Node {
-		private int m_value;
-		private Node[] m_forward;
+		final private int m_value;
+		final private Node[] m_forward;
 
 		public Node(int level, int value) {
 			m_value = value;
 			m_forward = new Node[level + 1];
-		}
-
-		public void setValue(int value) {
-			m_value = value;
 		}
 
 		public int getValue() {
