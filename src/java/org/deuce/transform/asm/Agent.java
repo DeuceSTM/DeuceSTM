@@ -100,7 +100,7 @@ public class Agent implements ClassFileTransformer {
 	 */
 	private byte[] addFrames(String className, byte[] classfileBuffer) {
 		
-		// TODO retrun the same bytecode if 1.6+ 
+		// TODO return the same bytecode if 1.6+ 
 		ByteCodeVisitor frameCompute = new ByteCodeVisitor( className);
 		frameCompute.visit( classfileBuffer);
 		classfileBuffer = frameCompute.toByteArray();
