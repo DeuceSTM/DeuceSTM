@@ -33,16 +33,19 @@ public class ByteCodeVisitor extends ClassAdapter{
 	}
 	
 	@Override
-	public void visit(
-			final int version,
-			final int access,
-			final String name,
-			final String signature,
-			final String superName,
-			final String[] interfaces)
-	{
+	public void visit(final int version, final int access, final String name,
+			final String signature, final String superName,
+			final String[] interfaces) {
 		isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
 		super.visit(version, access, name, signature, superName, interfaces);
+	}
+	
+	/**
+	 * Creates a new method without and additions.
+	 */
+	public MethodVisitor createMethod( int access, String name, String desc,
+			String signature, String[] exceptions) {
+		return super.visitMethod(access, name, desc, signature, exceptions);
 	}
 
 	public byte[] toByteArray() {
@@ -53,5 +56,9 @@ public class ByteCodeVisitor extends ClassAdapter{
 		ClassReader cr = new ClassReader(bytes);
 		cr.accept(this, ClassReader.EXPAND_FRAMES);
 		return this.toByteArray();
+	}
+	
+	public String getClassName() {
+		return className;
 	}
 }

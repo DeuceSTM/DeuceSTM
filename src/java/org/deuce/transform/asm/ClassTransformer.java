@@ -19,6 +19,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 	private boolean visitclinit = false;
 	final private LinkedList<Field> fields = new LinkedList<Field>();
 	private Field staticField = null;
+	final private AccessorsAdder accessorsAdder = new AccessorsAdder(this); 
 
 	public ClassTransformer( String className){
 		super( className);
@@ -45,6 +46,9 @@ public class ClassTransformer extends ByteCodeVisitor{
 		if( exclude)
 			return fieldVisitor;
 
+		accessorsAdder.addGetter(access, name, desc);
+		accessorsAdder.addSetter(access, name, desc);
+		
 		String addressFieldName = Util.getAddressField( name);
 		int fieldAccess = Opcodes.ACC_FINAL | Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
 

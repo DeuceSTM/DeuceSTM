@@ -23,9 +23,12 @@ public class DuplicateMethod extends MethodAdapter{
 	
 	private AnalyzerAdapter analyzerAdapter;
 
-	public DuplicateMethod( MethodVisitor mv,
+	private final String className;
+
+	public DuplicateMethod( String className, MethodVisitor mv,
 			boolean isstatic, Method newMethod) {
 		super(mv);
+		this.className = className;
 		this.argumentsSize = calcArgumentsSize( isstatic, newMethod); 
 	}
 	
@@ -60,50 +63,34 @@ public class DuplicateMethod extends MethodAdapter{
 			super.visitFieldInsn(opcode, owner, name, desc); // ... = foo( ...
 			return;
 		}
+		final Type type = Type.getType(desc);
 		switch( opcode) {
 		case Opcodes.GETFIELD:  //	ALOAD 0: this (stack status)
-			addBeforeReadCall(owner, name);
 			
-			super.visitInsn(Opcodes.DUP);
-			super.visitFieldInsn(opcode, owner, name, desc);
-			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
 			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
-					ContextDelegator.READ_METHOD_NAME, ContextDelegator.getReadMethodDesc(desc));
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, className,
+					(name +AccessorsAdder.GETTER_ENDING), AccessorsAdder.instanceGetterDesc(type, className));
 			
-			Type type = Type.getType(desc);
-			if( type.getSort() >= Type.ARRAY) // non primitive
-				super.visitTypeInsn( Opcodes.CHECKCAST, Type.getType(desc).getInternalName());
 			break;
 		case Opcodes.PUTFIELD:
-			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
+			
 			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
-					ContextDelegator.WRITE_METHOD_NAME, ContextDelegator.getWriteMethodDesc(desc));
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, className,
+					(name +AccessorsAdder.SETTER_ENDING), AccessorsAdder.instanceSetterDesc(type, className));
+			
 			break;
 		case Opcodes.GETSTATIC: // check support for static fields
-			super.visitFieldInsn(Opcodes.GETSTATIC, owner, 
-					StaticMethodTransformer.CLASS_BASE, "Ljava/lang/Object;");
 			
-			addBeforeReadCall(owner, name);
-			
-			super.visitFieldInsn(opcode, owner, name, desc);
-			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
 			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
-					ContextDelegator.READ_METHOD_NAME, ContextDelegator.getReadMethodDesc(desc));
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, className,
+					(name +AccessorsAdder.GETTER_ENDING), AccessorsAdder.staticGetterDesc(type));
 			
-			type = Type.getType(desc);
-			if( type.getSort() >= Type.ARRAY) // non primitive
-				super.visitTypeInsn( Opcodes.CHECKCAST, Type.getType(desc).getInternalName());
 			break;
 		case Opcodes.PUTSTATIC:
-			super.visitFieldInsn(Opcodes.GETSTATIC, owner, 
-					StaticMethodTransformer.CLASS_BASE, "Ljava/lang/Object;");
-			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
+			
 			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
-					ContextDelegator.STATIC_WRITE_METHOD_NAME, ContextDelegator.getStaticWriteMethodDesc(desc));
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, className,
+					(name +AccessorsAdder.SETTER_ENDING), AccessorsAdder.staticSetterDesc(type));
 			break;
 		default:
 			super.visitFieldInsn(opcode, owner, name, desc);

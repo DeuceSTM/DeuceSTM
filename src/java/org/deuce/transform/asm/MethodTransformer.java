@@ -31,7 +31,7 @@ public class MethodTransformer implements MethodVisitor{
 		
 		// The AnalyzerAdapter delegates the call to the DuplicateMethod, while the DuplicateMethod uses
 		// the analyzer for stack state in the original method.
-		DuplicateMethod duplicateMethod = new DuplicateMethod( copyMethod, isStatic, newMethod);
+		DuplicateMethod duplicateMethod = new DuplicateMethod( className, copyMethod, isStatic, newMethod);
 		AnalyzerAdapter analyzerAdapter = new AnalyzerAdapter( className, access, methodName, descriptor, duplicateMethod);
 		duplicateMethod.setAnalyzer( analyzerAdapter);
 		

@@ -129,8 +129,7 @@ public class ContextDelegator {
 		return THREAD_CONTEXT.get();
 	}
 
-	public static String getWriteMethodDesc( String desc) {
-		Type type = Type.getType(desc);
+	public static String getWriteMethodDesc( Type type) {
 		switch( type.getSort()) {
 		case Type.BOOLEAN:
 			return WRITE_METHOD_BOOLEAN_DESC;
@@ -153,8 +152,7 @@ public class ContextDelegator {
 		}
 	}
 
-	public static String getStaticWriteMethodDesc( String desc) {
-		Type type = Type.getType(desc);
+	public static String getStaticWriteMethodDesc( Type type) {
 		switch( type.getSort()) {
 		case Type.BOOLEAN:
 			return STATIC_WRITE_METHOD_BOOLEAN_DESC;
@@ -177,8 +175,7 @@ public class ContextDelegator {
 		}
 	}
 
-	public static String getReadMethodDesc( String desc) {
-		Type type = Type.getType(desc);
+	public static String getReadMethodDesc( Type type) {
 		switch( type.getSort()) {
 		case Type.BOOLEAN:
 			return READ_METHOD_BOOLEAN_DESC;
