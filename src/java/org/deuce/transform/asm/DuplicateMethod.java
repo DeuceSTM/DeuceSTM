@@ -9,7 +9,6 @@ import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.Context;
 import org.deuce.transaction.ContextDelegator;
-import org.deuce.transform.util.Util;
 
 public class DuplicateMethod extends MethodAdapter{
 
@@ -97,14 +96,6 @@ public class DuplicateMethod extends MethodAdapter{
 		}
 	}
 
-	private void addBeforeReadCall(String owner, String name) {
-		super.visitInsn(Opcodes.DUP);
-		super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
-		super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-		super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
-				ContextDelegator.BEFORE_READ_METHOD_NAME, ContextDelegator.BEFORE_READ_METHOD_DESC);
-	}
-	
 	/**
 	 * Adds for each array cell visited a call to the context
 	 */
