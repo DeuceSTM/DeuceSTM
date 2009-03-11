@@ -1,5 +1,7 @@
 package org.deuce.transform.asm;
 
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.deuce.objectweb.asm.AnnotationVisitor;
@@ -21,16 +23,33 @@ public class ClassTransformer extends ByteCodeVisitor{
 	private Field staticField = null;
 	final private AccessorsAdder accessorsAdder = new AccessorsAdder(this); 
 
+	final static private String EXCLUDE_DESC = Type.getDescriptor(Exclude.class);
+	final static private String ANNOTATION_NAME = Type.getInternalName(Annotation.class);
+
 	public ClassTransformer( String className){
 		super( className);
 	}
-	
+
+	@Override
+	public void visit(final int version, final int access, final String name,
+			final String signature, final String superName, final String[] interfaces) {
+		
+		for(String inter : interfaces){
+			if( inter.equals(ANNOTATION_NAME)){
+				exclude = true;
+				break;
+			}
+
+		}
+		super.visit(version, access, name, signature, superName, interfaces);
+	}
+
 	/**
 	 * Checks if the class is marked as {@link Exclude @Exclude}
 	 */
 	@Override
 	public AnnotationVisitor visitAnnotation( String desc, boolean visible) {
-		exclude = exclude ? exclude : Type.getDescriptor(Exclude.class).equals(desc);
+		exclude = exclude ? exclude : EXCLUDE_DESC.equals(desc);
 		return super.visitAnnotation(desc, visible);
 	}
 
@@ -48,7 +67,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 
 		accessorsAdder.addGetter(access, name, desc);
 		accessorsAdder.addSetter(access, name, desc);
-		
+
 		String addressFieldName = Util.getAddressField( name);
 		int fieldAccess = Opcodes.ACC_FINAL | Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
 
@@ -76,7 +95,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 			if( isInterface){
 				return originalMethod;
 			}
-			
+
 			int fieldAccess = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
 			super.visitField( fieldAccess, StaticMethodTransformer.CLASS_BASE,
 					Type.getDescriptor(Object.class), null, null);
@@ -90,7 +109,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 
 		return new MethodTransformer( originalMethod, copyMethod, className,
 				access, name, desc, newMethod);
-			
+
 	}
 
 	@Override
@@ -105,7 +124,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 		}
 		super.visitEnd();
 	}
-	
+
 	public static Method createNewMethod(String name, String desc) {
 		Method method = new Method( name, desc);
 		Type[] arguments = method.getArgumentTypes();
@@ -114,7 +133,6 @@ public class ClassTransformer extends ByteCodeVisitor{
 		System.arraycopy( arguments, 0, newArguments, 0, arguments.length);
 		newArguments[newArguments.length - 1] = Context.CONTEXT_TYPE; // add as a constant
 
-		Method newMethod = new Method( name, method.getReturnType(), newArguments);
-		return newMethod;
+		return new Method( name, method.getReturnType(), newArguments);
 	}
 }
