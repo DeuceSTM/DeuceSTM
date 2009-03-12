@@ -1,7 +1,6 @@
 package org.deuce.transaction.tl2;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.tl2.field.BooleanWriteFieldAccess;
