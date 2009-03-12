@@ -27,7 +27,6 @@ import org.deuce.transform.Exclude;
 final public class Context implements org.deuce.transaction.Context{
 	
 	final private static AtomicInteger clock = new AtomicInteger( 0);
-	final private static Logger logger = Logger.getLogger("org.deuce.transaction.tl2");
 
 	final private ReadSet readSet = new ReadSet();
 	final private WriteSet writeSet = new WriteSet();
@@ -45,15 +44,12 @@ final public class Context implements org.deuce.transaction.Context{
 	
 	public void init(int atomicBlockId){
 		
-		logger.fine("Init transaction.");
-		
 		this.readSet.clear(); 
 		this.writeSet.clear();
 		this.localClock = clock.get();		
 	}
 	
 	public boolean commit(){
-		logger.fine("Start to commit.");
 
         if (writeSet.isEmpty()) // if the writeSet is empty no need to lock a thing. 
         	return true;
@@ -73,7 +69,6 @@ final public class Context implements org.deuce.transaction.Context{
 					break;
 				LockTable.unLock( writeField.hashCode(),locksMarker);
 			}
-			logger.fine("Fail on commit.");
 			return false;
 		}
 
@@ -83,17 +78,13 @@ final public class Context implements org.deuce.transaction.Context{
 			writeField.put(); // commit value to field
 			LockTable.setAndReleaseLock( writeField.hashCode(), newClock, locksMarker);
 		}
-		logger.fine("Commit successed.");
 		return true;
 	}
 	
 	public void rollback(){
-		logger.fine("Start to rollback.");
 	}
 
 	private WriteFieldAccess addReadAccess0( Object obj, long field){
-
-		logger.finest("Read access.");
 
 		int hash = readSet.getCurrent().hashCode();
 
@@ -106,15 +97,11 @@ final public class Context implements org.deuce.transaction.Context{
 
 	private void addWriteAccess0( WriteFieldAccess write){
 
-		logger.finer("Write access.");
-
 		// Add to write set
 		writeSet.put( write);
 	}
 	
 	public void beforeReadAccess(Object obj, long field) {
-		
-		logger.finest("Before read access.");
 		
 		ReadFieldAccess next = readSet.getNext();
 		next.init(obj, field);
