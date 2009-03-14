@@ -1,7 +1,6 @@
 package org.deuce.transaction.lsa64;
 
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
 
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.lsa64.field.Field;
@@ -30,10 +29,8 @@ final public class Context implements org.deuce.transaction.Context {
 
 	final private static AtomicLong clock = new AtomicLong(0);
 	final private static AtomicLong threadID = new AtomicLong(0);
-	final private static Logger logger = Logger.getLogger("org.deuce.transaction.lsa");
 
 	final private static boolean RO_HINT = Boolean.getBoolean("org.deuce.transaction.lsa.rohint");
-	final private static boolean READ_LOCKED = Boolean.getBoolean("org.deuce.transaction.lsa.readlocked");
 
 	final private ReadSet readSet = new ReadSet(1024);
 	final private WriteSet writeSet = new WriteSet(32);
@@ -56,7 +53,6 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	public void init(int blockId) {
-		logger.fine("Init transaction.");
 		readSet.clear();
 		writeSet.clear();
 		startTime = endTime = clock.get();
@@ -67,26 +63,21 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	public boolean commit() {
-		logger.fine("Start to commit.");
 		if (!writeSet.isEmpty()) {
 			long newClock = clock.incrementAndGet();
 			if (newClock != startTime + 1 && !readSet.validate(id)) {
 				rollback();
-				logger.fine("Fail on commit.");
 				return false;
 			}
 			// Write values and release locks
 			writeSet.commit(newClock);
 		}
-		logger.fine("Commit successed.");
 		return true;
 	}
 
 	public void rollback() {
-		logger.fine("Start to rollback.");
 		// Release locks
 		writeSet.rollback();
-		logger.fine("Rollback successed.");
 	}
 
 	private boolean extend() {
@@ -99,16 +90,12 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	public void beforeReadAccess(Object obj, long field) {
-		logger.finest("Before read access.");
-
 		readHash = LockTable.hash(obj, field);
 		// Check if the field is locked (may throw an exception)
 		readLock = LockTable.checkLock(readHash, id);
 	}
 
 	public Object addReadAccess(Object obj, long field, Type type) {
-		logger.finest("Read access.");
-
 		while (true) {
 			if (readLock < 0) {
 				// We already own that lock
@@ -140,8 +127,6 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	private void addWriteAccess(Object obj, long field, Object value, Type type) {
-		logger.finer("Write access.");
-
 		if (!readWriteHint) {
 			// Change hint to read-write
 			readWriteMarkers.insert(atomicBlockId, true);

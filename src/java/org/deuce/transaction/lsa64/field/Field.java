@@ -20,23 +20,23 @@ public class Field {
 		Unsafe unsafe = UnsafeHolder.getUnsafe();
 		switch (type) {
 		case BYTE:
-			return unsafe.getByteVolatile(reference, field);
+			return unsafe.getByte(reference, field);
 		case BOOLEAN:
-			return unsafe.getBooleanVolatile(reference, field);
+			return unsafe.getBoolean(reference, field);
 		case CHAR:
-			return unsafe.getCharVolatile(reference, field);
+			return unsafe.getChar(reference, field);
 		case SHORT:
-			return unsafe.getShortVolatile(reference, field);
+			return unsafe.getShort(reference, field);
 		case INT:
-			return unsafe.getIntVolatile(reference, field);
+			return unsafe.getInt(reference, field);
 		case LONG:
-			return unsafe.getLongVolatile(reference, field);
+			return unsafe.getLong(reference, field);
 		case FLOAT:
-			return unsafe.getFloatVolatile(reference, field);
+			return unsafe.getFloat(reference, field);
 		case DOUBLE:
-			return unsafe.getDoubleVolatile(reference, field);
+			return unsafe.getDouble(reference, field);
 		case OBJECT:
-			return unsafe.getObjectVolatile(reference, field);
+			return unsafe.getObject(reference, field);
 		}
 		return null;
 	}
@@ -45,31 +45,31 @@ public class Field {
 		Unsafe unsafe = UnsafeHolder.getUnsafe();
 		switch (type) {
 		case BYTE:
-			unsafe.putByteVolatile(reference, field, (Byte) value);
+			unsafe.putByte(reference, field, (Byte) value);
 			break;
 		case BOOLEAN:
-			unsafe.putBooleanVolatile(reference, field, (Boolean) value);
+			unsafe.putBoolean(reference, field, (Boolean) value);
 			break;
 		case CHAR:
-			unsafe.putCharVolatile(reference, field, (Character) value);
+			unsafe.putChar(reference, field, (Character) value);
 			break;
 		case SHORT:
-			unsafe.putShortVolatile(reference, field, (Short) value);
+			unsafe.putShort(reference, field, (Short) value);
 			break;
 		case INT:
-			unsafe.putIntVolatile(reference, field, (Integer) value);
+			unsafe.putInt(reference, field, (Integer) value);
 			break;
 		case LONG:
-			unsafe.putLongVolatile(reference, field, (Long) value);
+			unsafe.putLong(reference, field, (Long) value);
 			break;
 		case FLOAT:
-			unsafe.putFloatVolatile(reference, field, (Float) value);
+			unsafe.putFloat(reference, field, (Float) value);
 			break;
 		case DOUBLE:
-			unsafe.putDoubleVolatile(reference, field, (Double) value);
+			unsafe.putDouble(reference, field, (Double) value);
 			break;
 		case OBJECT:
-			unsafe.putObjectVolatile(reference, field, value);
+			unsafe.putObject(reference, field, value);
 			break;
 		}
 	}

@@ -15,7 +15,7 @@ public class FloatWriteFieldAccess extends WriteFieldAccess {
 
 	@Override
 	public void put() {
-		UnsafeHolder.getUnsafe().putFloatVolatile(reference, field, value);
+		UnsafeHolder.getUnsafe().putFloat(reference, field, value);
 	}
 
 	public float getValue() {

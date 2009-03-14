@@ -15,7 +15,7 @@ public class LongWriteFieldAccess extends WriteFieldAccess {
 
 	@Override
 	public void put() {
-		UnsafeHolder.getUnsafe().putLongVolatile(reference, field, value);
+		UnsafeHolder.getUnsafe().putLong(reference, field, value);
 	}
 
 	public long getValue() {

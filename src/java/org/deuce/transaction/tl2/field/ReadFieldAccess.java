@@ -1,5 +1,6 @@
 package org.deuce.transaction.tl2.field;
 
+import org.deuce.transaction.tl2.LockTable;
 import org.deuce.transform.Exclude;
 
 /**
@@ -21,7 +22,7 @@ public class ReadFieldAccess{
 	public void init( Object reference, long field){
 		this.reference = reference;
 		this.field = field;
-		this.hash = hash(reference, field);
+		this.hash = hash(reference, field) & LockTable.MASK;
 	}
 
 	@Override

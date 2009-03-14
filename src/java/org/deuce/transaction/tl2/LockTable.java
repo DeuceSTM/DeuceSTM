@@ -11,7 +11,7 @@ public class LockTable {
 	// Failure transaction 
 	final private static TransactionException FAILURE_EXCEPTION = new TransactionException( "Faild on lock.");
 	final public static int LOCKS_SIZE = 1<<20; // amount of locks - TODO add system property
-	final private static int MASK = 0xFFFFF;
+	final public static int MASK = 0xFFFFF;
 	final private static int LOCK = 1 << 31;
 	final private static int UNLOCK = ~LOCK;
 	
@@ -20,8 +20,7 @@ public class LockTable {
 
 	final private static AtomicIntegerArray locks =  new AtomicIntegerArray(LOCKS_SIZE); // array of 2^20 entries of 32-bit lock words
 
-	public static void lock( int hash, byte[] contextLocks) throws TransactionException{
-		final int lockIndex = hash & MASK;
+	public static void lock( int lockIndex, byte[] contextLocks) throws TransactionException{
 		final int lock = locks.get(lockIndex); 
 		final int selfLockIndex = lockIndex>>>DIVIDE_8;
 		final byte selfLockByte = contextLocks[selfLockIndex];
@@ -41,8 +40,7 @@ public class LockTable {
 		contextLocks[selfLockIndex] |= selfLockBit; //mark in self locks
 	}
 
-	public static int checkLock(int hash, int clock) {
-		int lockIndex = hash & MASK;
+	public static int checkLock(int lockIndex, int clock) {
 		int lock = locks.get(lockIndex);
 
 		if( clock < (lock & UNLOCK)) // check the clock without lock, TODO check if this is the best way
@@ -52,14 +50,13 @@ public class LockTable {
 	}
 	
 
-	public static void checkLock(int hash, int clock, int expected) {
-		int lock = checkLock( hash, clock);
+	public static void checkLock(int lockIndex, int clock, int expected) {
+		int lock = checkLock( lockIndex, clock);
 		if( lock != expected || (lock & LOCK) != 0)
 			throw FAILURE_EXCEPTION;
 	}
 
-	public static void unLock( int hash, byte[] contextLocks){
-		int lockIndex = hash & MASK;
+	public static void unLock( int lockIndex, byte[] contextLocks){
 		int lockedValue = locks.get( lockIndex);
 		int unlockedValue = lockedValue & UNLOCK;
 		locks.set(lockIndex, unlockedValue);

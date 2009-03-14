@@ -15,7 +15,7 @@ public class ByteWriteFieldAccess extends WriteFieldAccess {
 
 	@Override
 	public void put() {
-		UnsafeHolder.getUnsafe().putByteVolatile(reference, field, value);
+		UnsafeHolder.getUnsafe().putByte(reference, field, value);
 	}
 
 	public byte getValue() {

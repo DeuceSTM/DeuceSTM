@@ -15,7 +15,7 @@ public class CharWriteFieldAccess extends WriteFieldAccess {
 
 	@Override
 	public void put() {
-		UnsafeHolder.getUnsafe().putCharVolatile(reference, field, value);
+		UnsafeHolder.getUnsafe().putChar(reference, field, value);
 	}
 
 	public char getValue() {

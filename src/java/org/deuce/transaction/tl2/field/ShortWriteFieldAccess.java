@@ -15,7 +15,7 @@ public class ShortWriteFieldAccess extends WriteFieldAccess {
 
 	@Override
 	public void put() {
-		UnsafeHolder.getUnsafe().putShortVolatile(reference, field, value);
+		UnsafeHolder.getUnsafe().putShort(reference, field, value);
 	}
 
 	public short getValue() {

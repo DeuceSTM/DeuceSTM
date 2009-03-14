@@ -15,7 +15,7 @@ public class DoubleWriteFieldAccess extends WriteFieldAccess {
 
 	@Override
 	public void put() {
-		UnsafeHolder.getUnsafe().putDoubleVolatile(reference, field, value);
+		UnsafeHolder.getUnsafe().putDouble(reference, field, value);
 	}
 
 	public double getValue() {

@@ -15,7 +15,7 @@ public class ObjectWriteFieldAccess extends WriteFieldAccess {
 
 	@Override
 	public void put() {
-		UnsafeHolder.getUnsafe().putObjectVolatile(reference, field, value);
+		UnsafeHolder.getUnsafe().putObject(reference, field, value);
 	}
 
 	public Object getValue() {
