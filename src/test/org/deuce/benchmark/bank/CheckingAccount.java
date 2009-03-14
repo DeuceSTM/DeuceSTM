@@ -6,7 +6,7 @@ package org.deuce.benchmark.bank;
  */
 public class CheckingAccount extends Account {
 
-	private String m_name;
+	final private String m_name;
 	private float m_balance;
 
 	public CheckingAccount() {

@@ -8,7 +8,7 @@ import java.util.*;
  */
 public class Bank {
 
-	List<Account> m_accounts;
+	final private List<Account> m_accounts;
 
 	public Bank() {
 		m_accounts = new LinkedList<Account>();

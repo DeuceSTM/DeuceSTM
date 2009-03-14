@@ -10,15 +10,15 @@ import org.deuce.transform.Exclude;
  */
 @Exclude
 public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
-	IntSet m_set;
-	int m_range;
+	final private IntSet m_set;
+	final private int m_range;
 	int m_nb_add;
 	int m_nb_remove;
 	int m_nb_contains;
-	int m_rate;
+	final private int m_rate;
 	boolean m_write;
 	int m_last;
-	Random m_random;
+	final private Random m_random;
 
 	public BenchmarkThread(IntSet set, int range, int rate) {
 		m_set = set;

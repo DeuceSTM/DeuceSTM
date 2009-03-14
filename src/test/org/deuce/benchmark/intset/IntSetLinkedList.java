@@ -9,7 +9,7 @@ import org.deuce.*;
 public class IntSetLinkedList implements IntSet {
 
 	public class Node {
-		private int m_value;
+		final private int m_value;
 		private Node m_next;
 
 		public Node(int value, Node next) {
@@ -19,10 +19,6 @@ public class IntSetLinkedList implements IntSet {
 
 		public Node(int value) {
 			this(value, null);
-		}
-
-		public void setValue(int value) {
-			m_value = value;
 		}
 
 		public int getValue() {
@@ -38,7 +34,7 @@ public class IntSetLinkedList implements IntSet {
 		}
 	}
 
-	private Node m_first;
+	final private Node m_first;
 
 	public IntSetLinkedList() {
 		Node min = new Node(Integer.MIN_VALUE);

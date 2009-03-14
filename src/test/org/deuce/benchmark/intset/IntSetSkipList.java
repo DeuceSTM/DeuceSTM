@@ -50,15 +50,15 @@ public class IntSetSkipList implements IntSet {
 	}
 
 	// Probability to increase level
-	private double m_probability;
+	final private double m_probability;
 	// Upper bound on the number of levels
-	private int m_maxLevel;
+	final private int m_maxLevel;
 	// Highest level so far
 	private int m_level;
 	// First element of the list
-	private Node m_head;
+	final private Node m_head;
 	// Thread-private PRNG
-	private static ThreadLocal<Random> s_random = new ThreadLocal<Random>() {
+	final private static ThreadLocal<Random> s_random = new ThreadLocal<Random>() {
 		protected synchronized Random initialValue() {
 			return new Random();
 		}

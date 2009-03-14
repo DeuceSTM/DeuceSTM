@@ -11,16 +11,16 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 
-	int m_id;
-	int m_nb;
-	Account[] m_accounts;
-	int m_max;
-	int m_read_frequency;
-	int m_write_frequency;
+	final private int m_id;
+	final private int m_nb;
+	final private Account[] m_accounts;
+	final private int m_max;
+	final private int m_read_frequency;
+	final private int m_write_frequency;
 	int m_nb_transfers;
 	int m_nb_reads;
 	int m_nb_writes;
-	Random m_random;
+	final private Random m_random;
 
 	BenchmarkThread(int id, int nb, Account[] accounts, int max, int read_frequency, int write_frequency) {
 		m_id = id;
