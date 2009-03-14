@@ -1,7 +1,5 @@
 package org.deuce.transaction.tl2;
 
-import java.util.Arrays;
-
 import org.deuce.transform.Exclude;
 
 /**

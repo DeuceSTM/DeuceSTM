@@ -1,6 +1,7 @@
 package org.deuce.transaction.tl2;
 
 import org.deuce.transaction.tl2.field.ReadFieldAccess;
+import org.deuce.transform.Exclude;
 
 /**
  * Represents the transaction read set.
@@ -9,6 +10,7 @@ import org.deuce.transaction.tl2.field.ReadFieldAccess;
  * @author Guy Korland
  * @since 0.7
  */
+@Exclude
 public class ReadSet{
 	
 	private static final int DEFAULT_CAPACITY = 1024;

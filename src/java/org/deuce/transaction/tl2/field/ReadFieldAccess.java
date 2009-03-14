@@ -32,7 +32,7 @@ public class ReadFieldAccess{
 	}
 
 	@Override
-	public int hashCode(){
+	final public int hashCode(){
 		return hash;
 	}
 

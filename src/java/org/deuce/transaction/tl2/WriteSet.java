@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import org.deuce.transaction.tl2.field.ReadFieldAccess;
 import org.deuce.transaction.tl2.field.WriteFieldAccess;
+import org.deuce.transform.Exclude;
 
 /**
  * Represents the transaction write set.
@@ -12,6 +13,7 @@ import org.deuce.transaction.tl2.field.WriteFieldAccess;
  * @author Guy Korland
  * @since 0.7
  */
+@Exclude
 public class WriteSet implements Iterable<WriteFieldAccess>{
 	
 	final private HashMap<WriteFieldAccess,WriteFieldAccess> writeSet = new HashMap<WriteFieldAccess,WriteFieldAccess>( 50);
