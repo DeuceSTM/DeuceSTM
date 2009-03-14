@@ -85,13 +85,14 @@ final public class Context implements org.deuce.transaction.Context{
 
 	private WriteFieldAccess addReadAccess0( Object obj, long field){
 
-		int hash = readSet.getCurrent().hashCode();
+		ReadFieldAccess current = readSet.getCurrent();
+		int hash = current.hashCode();
 
 		// Check the read is still valid
 		LockTable.checkLock(hash, localClock, lastReadLock);
 
 		// Check if it is already included in the write set
-		return writeSet.contains( readSet.getCurrent());
+		return writeSet.contains( current);
 	}
 
 	private void addWriteAccess0( WriteFieldAccess write){
