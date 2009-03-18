@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import org.deuce.transform.Exclude;
+import org.deuce.transform.asm.StaticMethodTransformer;
 
 @Exclude
 public class AddressUtil {
@@ -23,11 +24,17 @@ public class AddressUtil {
 
 	/**
 	 * Fetches base class handle
-	 * @param fieldName field reference
+	 * @param clazz Class reference
 	 * @return direct address
 	 */
-	public static Object staticFieldBase( Field field) {
-		return UnsafeHolder.getUnsafe().staticFieldBase( field);
+	public static Object staticFieldBase( Class clazz) {
+		Field field;
+		try {
+			field = clazz.getDeclaredField(StaticMethodTransformer.CLASS_BASE);
+			return UnsafeHolder.getUnsafe().staticFieldBase( field);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} 
 	}
 	
 	/**

@@ -32,7 +32,6 @@ public class StaticMethodTransformer extends MethodAdapter {
 	}
 
 	private void addField( Field field) {
-
 		super.visitLdcInsn(Type.getObjectType(className));
 		super.visitLdcInsn(field.getFieldName());
 		super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Class", "getDeclaredField",
@@ -43,13 +42,9 @@ public class StaticMethodTransformer extends MethodAdapter {
 	}
 
 	private void addClassBase(Field staticField) {
-
 		super.visitLdcInsn(Type.getObjectType(className));
-		super.visitLdcInsn(staticField.getFieldName());
-		super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Class", "getDeclaredField",
-		"(Ljava/lang/String;)Ljava/lang/reflect/Field;");
 		super.visitMethodInsn(Opcodes.INVOKESTATIC, "org/deuce/reflection/AddressUtil",
-				"staticFieldBase", "(Ljava/lang/reflect/Field;)Ljava/lang/Object;");
+				"staticFieldBase", "(Ljava/lang/Class;)Ljava/lang/Object;");
 		super.visitFieldInsn(Opcodes.PUTSTATIC, className, CLASS_BASE, "Ljava/lang/Object;");
 	}
 
