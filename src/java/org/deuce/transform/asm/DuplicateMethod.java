@@ -62,38 +62,37 @@ public class DuplicateMethod extends MethodAdapter{
 			super.visitFieldInsn(opcode, owner, name, desc); // ... = foo( ...
 			return;
 		}
-		final Type type = Type.getType(desc);
-		switch( opcode) {
-		case Opcodes.GETFIELD:  //	ALOAD 0: this (stack status)
-			
-			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, className,
-					(name +AccessorsAdder.GETTER_ENDING), AccessorsAdder.instanceGetterDesc(type, className));
-			
-			break;
-		case Opcodes.PUTFIELD:
-			
-			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, className,
-					(name +AccessorsAdder.SETTER_ENDING), AccessorsAdder.instanceSetterDesc(type, className));
-			
-			break;
-		case Opcodes.GETSTATIC: // check support for static fields
-			
-			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, className,
-					(name +AccessorsAdder.GETTER_ENDING), AccessorsAdder.staticGetterDesc(type));
-			
-			break;
-		case Opcodes.PUTSTATIC:
-			
-			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-			super.visitMethodInsn( Opcodes.INVOKESTATIC, className,
-					(name +AccessorsAdder.SETTER_ENDING), AccessorsAdder.staticSetterDesc(type));
+			final Type type = Type.getType(desc);
+			switch( opcode) {
+			case Opcodes.GETFIELD:  //	ALOAD 0: this (stack status)
+
+				super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+				super.visitMethodInsn( Opcodes.INVOKESTATIC, owner,
+						(name +AccessorsAdder.GETTER_ENDING), AccessorsAdder.instanceGetterDesc(type, owner));
+
+				return;
+			case Opcodes.PUTFIELD:
+				super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+				super.visitMethodInsn( Opcodes.INVOKESTATIC, owner,
+						(name +AccessorsAdder.SETTER_ENDING), AccessorsAdder.instanceSetterDesc(type, owner));
+
+				return;
+			case Opcodes.GETSTATIC: // check support for static fields
+
+				super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+				super.visitMethodInsn( Opcodes.INVOKESTATIC, owner,
+						(name +AccessorsAdder.GETTER_ENDING), AccessorsAdder.staticGetterDesc(type));
+
+				return;
+			case Opcodes.PUTSTATIC:
+
+				super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+				super.visitMethodInsn( Opcodes.INVOKESTATIC, owner,
+						(name +AccessorsAdder.SETTER_ENDING), AccessorsAdder.staticSetterDesc(type));
 			break;
 		default:
 			super.visitFieldInsn(opcode, owner, name, desc);
-		}
+			}
 	}
 
 	/**
@@ -213,7 +212,7 @@ public class DuplicateMethod extends MethodAdapter{
 		lastLabel = label;
 		super.visitLabel(label);
 	}
-// TODO handle methods with no arguments
+
 	@Override
 	public void visitLocalVariable(String name, String desc, String signature, Label start,
 			Label end, int index) {
