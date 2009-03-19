@@ -203,7 +203,7 @@ public class ContextDelegator {
 		context.beforeReadAccess(obj, field);
 	}
 
-	static public <T> T addReadAccess( Object obj, T value, long field, Context context) {
+	static public Object addReadAccess( Object obj, Object value, long field, Context context) {
 		return context.addReadAccess(obj, value, field);
 	}
 	static public boolean addReadAccess( Object obj, boolean value, long field, Context context) {
@@ -287,7 +287,7 @@ public class ContextDelegator {
 		context.addWriteAccess(obj, value, field);
 	}
 
-	static public <T> T addArrayReadAccess( T[] arr, int index, Context context) {
+	static public Object addArrayReadAccess( Object[] arr, int index, Context context) {
 		int address = OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
 		return context.addReadAccess(arr, arr[index], address);

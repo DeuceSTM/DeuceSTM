@@ -44,7 +44,7 @@ public interface Context
 
 	/* Methods called on Read/Write event */
 	void beforeReadAccess( Object obj, long field);
-	<T> T addReadAccess( Object obj, T value, long field);
+	Object addReadAccess( Object obj, Object value, long field);
 	boolean addReadAccess( Object obj, boolean value, long field);
 	byte addReadAccess( Object obj, byte value, long field);
 	char addReadAccess( Object obj, char value, long field);
