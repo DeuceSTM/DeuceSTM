@@ -1,0 +1,280 @@
+\documentclass[preprint,natbib,10pt]{sigplanconf}
+
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{color}
+
+\begin{document}
+
+\conferenceinfo{WXYZ '09}{Oct 25th, ORLANDO.} 
+\copyrightyear{2009} 
+\copyrightdata{[to be supplied]} 
+
+%\titlebanner{banner above paper title}        % These are ignored unless
+\preprintfooter{short description of paper}   % 'preprint' option specified.
+
+\title{Java concurrency part Deuce}
+%\subtitle{Subtitle Text, if any}
+
+\authorinfo{Guy Korland}
+           {Computer Science Department, Tel-Aviv University, Tel-Aviv, Israel}
+           {guykorla@post.tau.ac.il}
+
+\authorinfo{Pascal Felber}
+           {Computer Science Department, University of Neuchtel, Neuchtel, Switzerland} 
+	   {pascal.felber@unine.ch}
+
+\maketitle
+
+\begin{abstract}
+
+In the last few years multicore machines have become a commodity, making multithreaded programming a standard for harnessing these new processing capabilities. 
+
+One of the most fruitful research topics in this area is Software Transactional Memory (STM), a paradigm for programming concurrent applications using simple yet scalable mechanisms based on optimistic synchronization. Most of the research efforts in this area have focused on defining the right semantic and constructing the most efficient algorithm.
+
+In this paper we present a complete Java STM framework implementation, called Deuce, designed to be generally available as a platform for developing scalable concurrent applications and as a research tool for designing new STM algorithms.
+
+Deuce provides several benefits over existing Java STM frameworks: it avoids any changes or additions to the JVM, does not require language extensions or intrusive APIs, and it does not impose any memory footprint or GC overhead. To support legacy libraries, Deuce dynamically instruments classes at load time and uses an original ``field-based'' locking strategy to improve concurrency. Deuce also provides a simple internal API allowing different STMs algorithms to be plugged in. We show empirical results that highlight the scalability of our framework running benchmarks with hundreds of concurrent threads.
+\end{abstract}
+
+\category{CR-number}{subcategory}{third-level}
+
+\terms
+Experimentation, Languages.
+
+\keywords
+sotfware transactional memory (STM), java, concurrency, atomicity.
+
+\section{Introduction}
+
+For few years multicore CPUs are standard starting from a dualcore CPUs such as  up to 
+
+\section{Motivation}
+
+For many years Transactional Memory has been considered has a promissing solution to overcome the obvious obstacles in parallel programing. In the last decade many methods, algorithms, designs and implementation of TM were published.
+
+Most of the works never graduated to become a real solution or been heavily field tested. Moreover, since each of the works were developed from scratch a reliable comparison between the methods is always highly doubtable. Therefor a need for an opensource ground base framwork that can be used by researchers seems like a must. Such and idea of creating an opensource environment that can be used for testing and comparing different algorithm has been successfully implemented in past few time for one example is Jikes RVM\cite{1086625}. Jikes has been used by many works to test and compare new Garbage Collection algorithms and other JVM optimizations.
+
+Deuce is aiming to answer both requirements, first to deliver a full STM that can be easily (without any code change) planted in an exisitng application and to provide a framework for testing new STM algorithms and ideas.
+ 
+
+\section{Deuce API}
+Deuce API one of the main goals was to keep it simple. A survey of the exisiting works will reveal three approaches, few of the existing works suggest adding a new reserved keyword \textit{Atomic} to mark a block e.g AtomJava\cite{1178611}. 
+While other suggest a more explicit way using methods or macros call e.g. \textit{STMStart/STMCommit/STMAbort} suggested by CCR\textbf{???}\cite{949340} and \textit{STM\_START\_TRANSACTION/STM\_COMMIT\_TRANSACTION} suggested by TinySTM\cite{1178611}.
+The third approach which is more intrusive is less common and requiries the `Atomic` classes to implement an 'Atomic' interface e.g.
+
+\textbf{NOT READY NEED MORE INFO}
+
+\lstset{language=bash}
+\lstset{commentstyle=\textit}
+\begin{lstlisting}[frame=trbl,caption=Running an application under Deuce,label=lst:bash]{}
+java -javaagent:deuceAgent.jar ... Main
+\end{lstlisting}
+
+\lstset{language=java}
+\lstset{commentstyle=\textit}
+\begin{lstlisting}[frame=trbl,caption=@Atomic method example,label=lst:example]{}
+public class Accounts{
+
+ private static int counter = 0;
+ private int account1;
+ private int account2;
+ 
+ public Acounts(int account1,
+		int account2){
+  this.account1 = account1;
+  this.account2 = account2;
+ }
+
+ @Atomic
+ public void transaction(int amount){
+  move(amount);
+  counter++;
+ }
+
+ private void move(int amount){
+  accoun1 += amount;
+  accoun2 -= amount;
+ }
+}
+\end{lstlisting}
+
+\lstset{language=java}
+\lstset{commentstyle=\textit}
+\begin{lstlisting}[frame=trbl,caption=Context interface,label=lst:context]{}
+public interface Context{
+ ...
+ boolean commit();
+ ...
+ void beforeReadAccess(Object obj,
+                        long field);
+ int addReadAccess(Object obj, 
+             int value,long field);
+ ...
+ void addWriteAccess(Object obj,
+             int value,long field);
+ ...
+}
+\end{lstlisting}
+
+\section{Implementation}
+Deuce is relay on ASM\cite{1294344}
+
+\lstset{language=java}
+\lstset{commentstyle=\textit}
+\begin{lstlisting}[frame=trbl,caption=Fields address,label=lst:address]{}
+public class Accounts{
+
+ final static public Object 
+  __CLASS_BASE__ = ...
+ final static public long 
+  counter__ADDRESS__ = ...
+ final static public long 
+  accoun1__ADDRESS__ = ...
+ ...
+ private static int counter = 0;
+ private int account1;
+ ...
+}
+\end{lstlisting} 
+
+\lstset{language=java}
+\lstset{commentstyle=\textit}
+\begin{lstlisting}[frame=trbl,caption=Fields accessors,label=lst:access]{}
+public class Accounts{
+
+ public static int acoun1__deuceGetter$(
+ Accounts a,int v,Context c){
+  c.beforeReadAccess(a,
+                 counter__ADDRESS__); 
+  return c.addReadAccess(a,v,
+                   counter__ADDRESS__);
+ }
+ 
+ public static void acoun1__deuceSetter$(
+ Accounts a,int v,Context c){
+  c.addWriteAccess(a,v,
+              counter__ADDRESS__);
+ }
+ ...
+ private int account1;
+ ...
+}
+\end{lstlisting}
+
+\lstset{language=java}
+\lstset{commentstyle=\textit}
+\begin{lstlisting}[frame=trbl,caption=Fields accessors,label=lst:duplicate_method]{}
+public class Accounts{
+ ...
+ /**original method*/
+ private void move(int amount){
+  accoun1 += amount;
+  accoun2 -= amount;
+ }
+
+ /**duplicate method*/
+ private void move(int amount,Context c){
+  //accoun1 += amount;
+  acoun1__deuceSetter$(this,
+   (acoun1__deuceGetter$(this,amount,c) 
+    + amount), c);
+
+  //accoun2 -= amount;
+  acoun2__deuceSetter$(this,
+   (acoun2__deuceGetter$(this,amount,c) 
+    - amount), c);
+ }
+ ...
+}
+\end{lstlisting}
+
+
+\lstset{language=java}
+\lstset{commentstyle=\textit}
+\begin{lstlisting}[frame=trbl,caption=Fields accessors,label=lst:atomic_method]{}
+public class Accounts{
+ ...
+ public void transaction(int amount){
+
+  Throwable throwable=null;
+  Context context=
+   ContextDelegator.getInstance();
+  boolean commit=true;
+
+  for(int i=RETRIES;i>0;--i){
+   context.init();
+   try{
+     transaction(amount,context);
+   }catch(TransactionException ex){
+    commit=false;//need to rollback
+   }catch(Throwable ex){
+    throwable=ex;
+   }
+   //try to commit
+   if(commit){
+    if(context.commit()){
+     if(throwable==null)
+      return;
+     //rethrow application exception
+     throw (IOException)throwable;
+    }
+   }else{
+    context.rollback(); 
+    commit=true;
+   }
+  }//retry loop
+  throw new TransactionException();
+ }
+ ...
+} 
+\end{lstlisting}
+
+\section{Optimizations}
+\paragraph{Final fields} Final fields access can be ingored and should not be logged therefor no addRead*() event is triggered. When adding this optimization transaciton overhead was reduced dramaticly. 
+\paragraph{Object recycle} In order to reduce any impact on the JVM GC Deuce recycle all the ReadSet/WriteSet holders. This pool is kept as part of the thread local tranasaction context, which yells nice performance imporvment and keeps the thread locality.
+\paragraph{Fast reflection} In order to access the logged fields during the transaction some kind of reflection machnisim is needed. Three options were tested:
+\begin{itemize}
+ \item Java standard reflection - added a huge performance impact.
+ \item Accessors classes - AtomJava\cite{1178611} creates a anonymous class for each field which is used as alternative for Java standard reflection, but this method forced to use non-optimized interface method call.
+ \item sun.misc.Unsafe - using this psedo-standard internal library yelled the best performace removing most of the impact of reflection.
+\end{itemize}
+\paragraph{Constructor fields} Fields accessed as part of the constructor can be ingored and should not be logged therefor no addRead*()/addWrite*() event is triggered.
+
+\section{Performace}
+
+\section{Related work}
+
+\section{Conclusions}
+
+\section{Future work}
+Adding static code analysis to allow better opitimizations:
+\begin{itemize}
+ \item Tranasaction escape analysis, objects which aren't visible outside the transaction should not be monitored.
+ \item Practically final fields, fields that are not marked as final but are not changed in the application code, should not be logged by the transaction.
+ \item 
+ \item Two level locking, currenly both TL2 implementation and LSA are field based. This has an obvious advantages eliminating transactions false sharing, but increases the commit overhead. A two level locking schema but be able earn from both worlds. The first level, which locks the object level, will hold RWLock and will the second level will hold an exclusive lock. This will allow a transactions that about to lock many fields from the same object to lock the object and not each one of the fields, while all the other tranasctions will read lock the object and lock excusivly the field.
+
+
+\end{itemize}
+
+\appendix
+\section{Appendix Title}
+
+This is the text of the appendix, if you need one.
+
+\acks
+
+Acknowledgments, if needed.
+
+\bibliographystyle{plainnat}
+\bibliography{deuce}
+%\begin{thebibliography}
+%
+%\bibitem{1299063}
+%Smith, P. Q. reference text
+%
+%\end{thebibliography}
+
+\end{document}
+
