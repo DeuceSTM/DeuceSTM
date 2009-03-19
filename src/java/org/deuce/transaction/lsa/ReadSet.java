@@ -11,7 +11,7 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class ReadSet {
 
-	private static final int DEFAULT_CAPACITY = 16;
+	private static final int DEFAULT_CAPACITY = 1024;
 
 	private ReadFieldAccess[] entries;
 	private int size;
