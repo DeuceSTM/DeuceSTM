@@ -21,10 +21,10 @@ public class ContextDelegator {
 	final static public String BEFORE_READ_METHOD_NAME = "beforeReadAccess";
 	final static public String BEFORE_READ_METHOD_DESC = "(Ljava/lang/Object;J" + Context.CONTEXT_DESC +")V";
 	
-	final static public String WRITE_METHOD_NAME = "addWriteAccess";
+	final static public String WRITE_METHOD_NAME = "onWriteAccess";
 	final static public String WRITE_ARR_METHOD_NAME = "addArrayWriteAccess";
 	final static public String STATIC_WRITE_METHOD_NAME = "addStaticWriteAccess";
-	final static public String READ_METHOD_NAME = "addReadAccess";
+	final static public String READ_METHOD_NAME = "onReadAccess";
 	final static public String READ_ARR_METHOD_NAME = "addArrayReadAccess";
 
 	final static private String WRITE_METHOD_BOOLEAN_DESC = "(Ljava/lang/Object;ZJ" + Context.CONTEXT_DESC +")V";
@@ -203,153 +203,153 @@ public class ContextDelegator {
 		context.beforeReadAccess(obj, field);
 	}
 
-	static public Object addReadAccess( Object obj, Object value, long field, Context context) {
-		return context.addReadAccess(obj, value, field);
+	static public Object onReadAccess( Object obj, Object value, long field, Context context) {
+		return context.onReadAccess(obj, value, field);
 	}
-	static public boolean addReadAccess( Object obj, boolean value, long field, Context context) {
-		return context.addReadAccess(obj, value, field);
+	static public boolean onReadAccess( Object obj, boolean value, long field, Context context) {
+		return context.onReadAccess(obj, value, field);
 	}
-	static public byte addReadAccess( Object obj, byte value, long field, Context context) {
-		return context.addReadAccess(obj, value, field);
+	static public byte onReadAccess( Object obj, byte value, long field, Context context) {
+		return context.onReadAccess(obj, value, field);
 	}
-	static public char addReadAccess( Object obj, char value, long field, Context context) {
-		return context.addReadAccess(obj, value, field);
+	static public char onReadAccess( Object obj, char value, long field, Context context) {
+		return context.onReadAccess(obj, value, field);
 	}
-	static public short addReadAccess( Object obj, short value, long field, Context context) {
-		return context.addReadAccess(obj, value, field);
+	static public short onReadAccess( Object obj, short value, long field, Context context) {
+		return context.onReadAccess(obj, value, field);
 	}
-	static public int addReadAccess( Object obj, int value, long field, Context context) {
-		return context.addReadAccess(obj, value, field);
+	static public int onReadAccess( Object obj, int value, long field, Context context) {
+		return context.onReadAccess(obj, value, field);
 	}
-	static public long addReadAccess( Object obj, long value, long field, Context context) {
-		return context.addReadAccess(obj, value, field);
+	static public long onReadAccess( Object obj, long value, long field, Context context) {
+		return context.onReadAccess(obj, value, field);
 	}
-	static public float addReadAccess( Object obj, float value, long field, Context context) {
-		return context.addReadAccess(obj, value, field);
+	static public float onReadAccess( Object obj, float value, long field, Context context) {
+		return context.onReadAccess(obj, value, field);
 	}
-	static public double addReadAccess( Object obj, double value, long field, Context context) {
-		return context.addReadAccess(obj, value, field);
+	static public double onReadAccess( Object obj, double value, long field, Context context) {
+		return context.onReadAccess(obj, value, field);
 	}
 
-	static public void addWriteAccess( Object obj, Object value, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+	static public void onWriteAccess( Object obj, Object value, long field, Context context) {
+		context.onWriteAccess(obj, value, field);
 	}
-	static public void addWriteAccess( Object obj, boolean value, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+	static public void onWriteAccess( Object obj, boolean value, long field, Context context) {
+		context.onWriteAccess(obj, value, field);
 	}
-	static public void addWriteAccess( Object obj, byte value, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+	static public void onWriteAccess( Object obj, byte value, long field, Context context) {
+		context.onWriteAccess(obj, value, field);
 	}
-	static public void addWriteAccess( Object obj, char value, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+	static public void onWriteAccess( Object obj, char value, long field, Context context) {
+		context.onWriteAccess(obj, value, field);
 	}
-	static public void addWriteAccess( Object obj, short value, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+	static public void onWriteAccess( Object obj, short value, long field, Context context) {
+		context.onWriteAccess(obj, value, field);
 	}
-	static public void addWriteAccess( Object obj, int value, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+	static public void onWriteAccess( Object obj, int value, long field, Context context) {
+		context.onWriteAccess(obj, value, field);
 	}
-	static public void addWriteAccess( Object obj, long value, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+	static public void onWriteAccess( Object obj, long value, long field, Context context) {
+		context.onWriteAccess(obj, value, field);
 	}
-	static public void addWriteAccess( Object obj, float value, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+	static public void onWriteAccess( Object obj, float value, long field, Context context) {
+		context.onWriteAccess(obj, value, field);
 	}
-	static public void addWriteAccess( Object obj, double value, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+	static public void onWriteAccess( Object obj, double value, long field, Context context) {
+		context.onWriteAccess(obj, value, field);
 	}
 
 	static public void addStaticWriteAccess( Object value, Object obj, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+		context.onWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( boolean value, Object obj, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+		context.onWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( byte value, Object obj, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+		context.onWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( char value, Object obj, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+		context.onWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( short value, Object obj, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+		context.onWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( int value, Object obj, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+		context.onWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( long value, Object obj, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+		context.onWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( float value, Object obj, long field, Context context) {
-		context.addWriteAccess(obj, value, field);
+		context.onWriteAccess(obj, value, field);
 	}
 	static public void addStaticWriteAccess( double value, Object obj, long field, Context context) { 
-		context.addWriteAccess(obj, value, field);
+		context.onWriteAccess(obj, value, field);
 	}
 
 	static public Object addArrayReadAccess( Object[] arr, int index, Context context) {
 		int address = OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
-		return context.addReadAccess(arr, arr[index], address);
+		return context.onReadAccess(arr, arr[index], address);
 	}
 	static public byte addArrayReadAccess( byte[] arr, int index, Context context) {
 		int address = BYTE_ARR_BASE + BYTE_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
-		return context.addReadAccess(arr, arr[index], address);
+		return context.onReadAccess(arr, arr[index], address);
 	}
 	static public char addArrayReadAccess( char[] arr, int index, Context context) {
 		int address = CHAR_ARR_BASE + CHAR_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
-		return context.addReadAccess(arr, arr[index], address);
+		return context.onReadAccess(arr, arr[index], address);
 	}
 	static public short addArrayReadAccess( short[] arr, int index, Context context) {
 		int address = SHORT_ARR_BASE + SHORT_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
-		return context.addReadAccess(arr, arr[index], address);
+		return context.onReadAccess(arr, arr[index], address);
 	}
 	static public int addArrayReadAccess( int[] arr, int index, Context context) {
 		int address = INT_ARR_BASE + INT_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
-		return context.addReadAccess(arr, arr[index], address);
+		return context.onReadAccess(arr, arr[index], address);
 	}
 	static public long addArrayReadAccess( long[] arr, int index, Context context) {
 		int address = LONG_ARR_BASE + LONG_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
-		return context.addReadAccess(arr, arr[index], address);
+		return context.onReadAccess(arr, arr[index], address);
 	}
 	static public float addArrayReadAccess( float[] arr, int index, Context context) {
 		int address = FLOAT_ARR_BASE + FLOAT_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
-		return context.addReadAccess(arr, arr[index], address);
+		return context.onReadAccess(arr, arr[index], address);
 	}
 	static public double addArrayReadAccess( double[] arr, int index, Context context) {
 		int address = DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
-		return context.addReadAccess(arr, arr[index], address);
+		return context.onReadAccess(arr, arr[index], address);
 	}
 	
 	static public <T> void addArrayWriteAccess( T[] arr,  int index, T value, Context context) {
-		context.addWriteAccess(arr, value, OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index);
+		context.onWriteAccess(arr, value, OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index);
 	}
 	static public void addArrayWriteAccess( byte[] arr, int index, byte value, Context context) {
-		context.addWriteAccess(arr, value, BYTE_ARR_BASE + BYTE_ARR_SCALE*index);
+		context.onWriteAccess(arr, value, BYTE_ARR_BASE + BYTE_ARR_SCALE*index);
 	}
 	static public void addArrayWriteAccess( char[] arr, int index, char value, Context context) {
-		context.addWriteAccess(arr, value, CHAR_ARR_BASE + CHAR_ARR_SCALE*index);
+		context.onWriteAccess(arr, value, CHAR_ARR_BASE + CHAR_ARR_SCALE*index);
 	}
 	static public void addArrayWriteAccess( short[] arr, int index, short value, Context context) {
-		context.addWriteAccess(arr, value, SHORT_ARR_BASE + SHORT_ARR_SCALE*index);
+		context.onWriteAccess(arr, value, SHORT_ARR_BASE + SHORT_ARR_SCALE*index);
 	}
 	static public void addArrayWriteAccess( int[] arr, int index, int value, Context context) {
-		context.addWriteAccess(arr, value, INT_ARR_BASE + INT_ARR_SCALE*index);
+		context.onWriteAccess(arr, value, INT_ARR_BASE + INT_ARR_SCALE*index);
 	}
 	static public void addArrayWriteAccess( long[] arr, int index, long value, Context context) {
-		context.addWriteAccess(arr, value, LONG_ARR_BASE + LONG_ARR_SCALE*index);
+		context.onWriteAccess(arr, value, LONG_ARR_BASE + LONG_ARR_SCALE*index);
 	}
 	static public void addArrayWriteAccess( float[] arr, int index, float value, Context context) {
-		context.addWriteAccess(arr, value, FLOAT_ARR_BASE + FLOAT_ARR_SCALE*index);
+		context.onWriteAccess(arr, value, FLOAT_ARR_BASE + FLOAT_ARR_SCALE*index);
 	}
 	static public void addArrayWriteAccess( double[] arr, int index, double value, Context context) {
-		context.addWriteAccess(arr, value, DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index);
+		context.onWriteAccess(arr, value, DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index);
 	}
 }

@@ -49,7 +49,6 @@ final public class Context implements org.deuce.transaction.Context{
 	}
 	
 	public boolean commit(){
-
         if (writeSet.isEmpty()) // if the writeSet is empty no need to lock a thing. 
         	return true;
         		
@@ -83,7 +82,7 @@ final public class Context implements org.deuce.transaction.Context{
 	public void rollback(){
 	}
 
-	private WriteFieldAccess addReadAccess0( Object obj, long field){
+	private WriteFieldAccess onReadAccess0( Object obj, long field){
 
 		ReadFieldAccess current = readSet.getCurrent();
 		int hash = current.hashCode();
@@ -110,40 +109,40 @@ final public class Context implements org.deuce.transaction.Context{
 		lastReadLock = LockTable.checkLock(next.hashCode(), localClock);
 	}
 	
-	public Object addReadAccess( Object obj, Object value, long field){
-		WriteFieldAccess writeAccess = addReadAccess0(obj, field);
+	public Object onReadAccess( Object obj, Object value, long field){
+		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if( writeAccess == null)
 			return value;
 		
 		return ((ObjectWriteFieldAccess)writeAccess).getValue();  
 	}
 		
-	public boolean addReadAccess(Object obj, boolean value, long field) {
-		WriteFieldAccess writeAccess = addReadAccess0(obj, field);
+	public boolean onReadAccess(Object obj, boolean value, long field) {
+		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if( writeAccess == null)
 			return value;
 		
 		return ((BooleanWriteFieldAccess)writeAccess).getValue();  
 	}
 	
-	public byte addReadAccess(Object obj, byte value, long field) {
-		WriteFieldAccess writeAccess = addReadAccess0(obj, field);
+	public byte onReadAccess(Object obj, byte value, long field) {
+		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if( writeAccess == null)
 			return value;
 		
 		return ((ByteWriteFieldAccess)writeAccess).getValue();  
 	}
 	
-	public char addReadAccess(Object obj, char value, long field) {
-		WriteFieldAccess writeAccess = addReadAccess0(obj, field);
+	public char onReadAccess(Object obj, char value, long field) {
+		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if( writeAccess == null)
 			return value;
 		
 		return ((CharWriteFieldAccess)writeAccess).getValue();  
 	}
 	
-	public short addReadAccess(Object obj, short value, long field) {
-		WriteFieldAccess writeAccess = addReadAccess0(obj, field);
+	public short onReadAccess(Object obj, short value, long field) {
+		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if( writeAccess == null)
 			return value;
 		
@@ -151,72 +150,72 @@ final public class Context implements org.deuce.transaction.Context{
 
 	}
 	
-	public int addReadAccess(Object obj, int value, long field) {
-		WriteFieldAccess writeAccess = addReadAccess0(obj, field);
+	public int onReadAccess(Object obj, int value, long field) {
+		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if( writeAccess == null)
 			return value;
 		
 		return ((IntWriteFieldAccess)writeAccess).getValue();  
 	}
 	
-	public long addReadAccess(Object obj, long value, long field) {
-		WriteFieldAccess writeAccess = addReadAccess0(obj, field);
+	public long onReadAccess(Object obj, long value, long field) {
+		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if( writeAccess == null)
 			return value;
 		
 		return ((LongWriteFieldAccess)writeAccess).getValue();  
 	}
 	
-	public float addReadAccess(Object obj, float value, long field) {
-		WriteFieldAccess writeAccess = addReadAccess0(obj, field);
+	public float onReadAccess(Object obj, float value, long field) {
+		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if( writeAccess == null)
 			return value;
 		
 		return ((FloatWriteFieldAccess)writeAccess).getValue();  
 	}
 	
-	public double addReadAccess(Object obj, double value, long field) {
-		WriteFieldAccess writeAccess = addReadAccess0(obj, field);
+	public double onReadAccess(Object obj, double value, long field) {
+		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if( writeAccess == null)
 			return value;
 		
 		return ((DoubleWriteFieldAccess)writeAccess).getValue();  
 	}
 	
-	public void addWriteAccess( Object obj, Object value, long field){
+	public void onWriteAccess( Object obj, Object value, long field){
 		addWriteAccess0( new ObjectWriteFieldAccess( value, obj, field));
 	}
 	
-	public void addWriteAccess(Object obj, boolean value, long field) {
+	public void onWriteAccess(Object obj, boolean value, long field) {
 		addWriteAccess0( new BooleanWriteFieldAccess( value, obj, field));
 	}
 	
-	public void addWriteAccess(Object obj, byte value, long field) {
+	public void onWriteAccess(Object obj, byte value, long field) {
 		addWriteAccess0( new ByteWriteFieldAccess( value, obj, field));
 	}
 	
-	public void addWriteAccess(Object obj, char value, long field) {
+	public void onWriteAccess(Object obj, char value, long field) {
 		addWriteAccess0( new CharWriteFieldAccess( value, obj, field));
 	}
 	
-	public void addWriteAccess(Object obj, short value, long field) {
+	public void onWriteAccess(Object obj, short value, long field) {
 		addWriteAccess0( new ShortWriteFieldAccess( value, obj, field));
 	}
 	
-	public void addWriteAccess(Object obj, int value, long field) {
+	public void onWriteAccess(Object obj, int value, long field) {
 		addWriteAccess0( new IntWriteFieldAccess( value, obj, field));
 	}
 	
-	public void addWriteAccess(Object obj, long value, long field) {
+	public void onWriteAccess(Object obj, long value, long field) {
 		addWriteAccess0( new LongWriteFieldAccess( value, obj, field));
 	}
 
-	public void addWriteAccess(Object obj, float value, long field) {
+	public void onWriteAccess(Object obj, float value, long field) {
 		addWriteAccess0( new FloatWriteFieldAccess( value, obj, field));
 	}
 
 	
-	public void addWriteAccess(Object obj, double value, long field) {
+	public void onWriteAccess(Object obj, double value, long field) {
 		addWriteAccess0( new DoubleWriteFieldAccess( value, obj, field));	
 	}
 }

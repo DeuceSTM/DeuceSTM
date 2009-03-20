@@ -135,7 +135,7 @@ public class AccessorsAdder {
 	/**
 	 * static public MyValueClass field___deuceGetter$( Context context){
 	 * 	ContextDelegetr.beforeReadAccess( MyClass.__CLASS_BASE__, fieldOffset, context);
-	 * 	return (MyValueClass)ContextDelegetr.addReadAccess( MyClass.__CLASS_BASE__, MyClass.field, MyClass.field__ADDRESS__, context);
+	 * 	return (MyValueClass)ContextDelegetr.onReadAccess( MyClass.__CLASS_BASE__, MyClass.field, MyClass.field__ADDRESS__, context);
 	 * }
 	 * @param isFinal 
 	 */
@@ -161,7 +161,7 @@ public class AccessorsAdder {
 					StaticMethodTransformer.CLASS_BASE, "Ljava/lang/Object;");
 			addBeforeReadCall(mv, visitor.getClassName(), name, 0);
 
-			// return (MyClass)ContextDelegetr.addReadAccess( MyClass.__CLASS_BASE__, MyClass.field, fieldOffset, context);
+			// return (MyClass)ContextDelegetr.onReadAccess( MyClass.__CLASS_BASE__, MyClass.field, fieldOffset, context);
 			mv.visitFieldInsn(Opcodes.GETSTATIC, visitor.getClassName(), 
 					StaticMethodTransformer.CLASS_BASE, "Ljava/lang/Object;");
 			mv.visitFieldInsn(Opcodes.GETSTATIC, visitor.getClassName(), name, desc);
@@ -186,7 +186,7 @@ public class AccessorsAdder {
 	/**
 	 * static public MyValueClass field___deuceGetter$( MyClass obj, Context context){
 	 * 	ContextDelegetr.beforeReadAccess( obj, MyClass.field__ADDRESS__, context);
-	 * 	return (MyValueClass)ContextDelegetr.addReadAccess( obj, obj.field, MyClass.field__ADDRESS__, context);
+	 * 	return (MyValueClass)ContextDelegetr.onReadAccess( obj, obj.field, MyClass.field__ADDRESS__, context);
 	 * }
 	 * @param isFinal 
 	 */
@@ -212,7 +212,7 @@ public class AccessorsAdder {
 			mv.visitVarInsn(Opcodes.ALOAD, 0); // load this
 			addBeforeReadCall(mv, visitor.getClassName(), name, 1);
 
-			// return (MyValueClass)ContextDelegetr.addReadAccess( obj, obj.field, MyClass.field__ADDRESS__, context)
+			// return (MyValueClass)ContextDelegetr.onReadAccess( obj, obj.field, MyClass.field__ADDRESS__, context)
 			mv.visitVarInsn(Opcodes.ALOAD, 0); // load obj
 			mv.visitVarInsn(Opcodes.ALOAD, 0); // load obj
 			mv.visitFieldInsn(Opcodes.GETFIELD, visitor.getClassName(), name, desc);

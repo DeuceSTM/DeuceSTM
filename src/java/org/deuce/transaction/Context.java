@@ -44,23 +44,23 @@ public interface Context
 
 	/* Methods called on Read/Write event */
 	void beforeReadAccess( Object obj, long field);
-	Object addReadAccess( Object obj, Object value, long field);
-	boolean addReadAccess( Object obj, boolean value, long field);
-	byte addReadAccess( Object obj, byte value, long field);
-	char addReadAccess( Object obj, char value, long field);
-	short addReadAccess( Object obj, short value, long field);
-	int addReadAccess( Object obj, int value, long field);
-	long addReadAccess( Object obj, long value, long field);
-	float addReadAccess( Object obj, float value, long field);
-	double addReadAccess( Object obj, double value, long field);
+	Object onReadAccess( Object obj, Object value, long field);
+	boolean onReadAccess( Object obj, boolean value, long field);
+	byte onReadAccess( Object obj, byte value, long field);
+	char onReadAccess( Object obj, char value, long field);
+	short onReadAccess( Object obj, short value, long field);
+	int onReadAccess( Object obj, int value, long field);
+	long onReadAccess( Object obj, long value, long field);
+	float onReadAccess( Object obj, float value, long field);
+	double onReadAccess( Object obj, double value, long field);
 
-	void addWriteAccess( Object obj, Object value, long field);
-	void addWriteAccess( Object obj, boolean value, long field);
-	void addWriteAccess( Object obj, byte value, long field);
-	void addWriteAccess( Object obj, char value, long field);
-	void addWriteAccess( Object obj, short value, long field);
-	void addWriteAccess( Object obj, int value, long field);
-	void addWriteAccess( Object obj, long value, long field);
-	void addWriteAccess( Object obj, float value, long field);
-	void addWriteAccess( Object obj, double value, long field);
+	void onWriteAccess( Object obj, Object value, long field);
+	void onWriteAccess( Object obj, boolean value, long field);
+	void onWriteAccess( Object obj, byte value, long field);
+	void onWriteAccess( Object obj, char value, long field);
+	void onWriteAccess( Object obj, short value, long field);
+	void onWriteAccess( Object obj, int value, long field);
+	void onWriteAccess( Object obj, long value, long field);
+	void onWriteAccess( Object obj, float value, long field);
+	void onWriteAccess( Object obj, double value, long field);
 }

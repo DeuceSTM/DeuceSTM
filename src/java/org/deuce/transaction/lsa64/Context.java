@@ -95,7 +95,7 @@ final public class Context implements org.deuce.transaction.Context {
 		readLock = LockTable.checkLock(readHash, id);
 	}
 
-	public Object addReadAccess(Object obj, long field, Type type) {
+	private Object onReadAccess(Object obj, long field, Type type) {
 		while (true) {
 			if (readLock < 0) {
 				// We already own that lock
@@ -126,7 +126,7 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
-	private void addWriteAccess(Object obj, long field, Object value, Type type) {
+	private void onWriteAccess(Object obj, long field, Object value, Type type) {
 		if (!readWriteHint) {
 			// Change hint to read-write
 			readWriteMarkers.insert(atomicBlockId, true);
@@ -158,84 +158,84 @@ final public class Context implements org.deuce.transaction.Context {
 		writeSet.add(hash, obj, field, value, type, timestamp);
 	}
 
-	public Object addReadAccess(Object obj, Object value, long field) {
-		Object v = addReadAccess(obj, field, Type.OBJECT);
+	public Object onReadAccess(Object obj, Object value, long field) {
+		Object v = onReadAccess(obj, field, Type.OBJECT);
 		return (v == null ? value : v);
 	}
 
-	public boolean addReadAccess(Object obj, boolean value, long field) {
-		Object v = addReadAccess(obj, field, Type.BOOLEAN);
+	public boolean onReadAccess(Object obj, boolean value, long field) {
+		Object v = onReadAccess(obj, field, Type.BOOLEAN);
 		return (v == null ? value : (Boolean) v);
 	}
 
-	public byte addReadAccess(Object obj, byte value, long field) {
-		Object v = addReadAccess(obj, field, Type.BYTE);
+	public byte onReadAccess(Object obj, byte value, long field) {
+		Object v = onReadAccess(obj, field, Type.BYTE);
 		return (v == null ? value : ((Number) v).byteValue());
 	}
 
-	public char addReadAccess(Object obj, char value, long field) {
-		Object v = addReadAccess(obj, field, Type.CHAR);
+	public char onReadAccess(Object obj, char value, long field) {
+		Object v = onReadAccess(obj, field, Type.CHAR);
 		return (v == null ? value : (Character) v);
 	}
 
-	public short addReadAccess(Object obj, short value, long field) {
-		Object v = addReadAccess(obj, field, Type.SHORT);
+	public short onReadAccess(Object obj, short value, long field) {
+		Object v = onReadAccess(obj, field, Type.SHORT);
 		return (v == null ? value : ((Number) v).shortValue());
 	}
 
-	public int addReadAccess(Object obj, int value, long field) {
-		Object v = addReadAccess(obj, field, Type.INT);
+	public int onReadAccess(Object obj, int value, long field) {
+		Object v = onReadAccess(obj, field, Type.INT);
 		return (v == null ? value : ((Number) v).intValue());
 	}
 
-	public long addReadAccess(Object obj, long value, long field) {
-		Object v = addReadAccess(obj, field, Type.LONG);
+	public long onReadAccess(Object obj, long value, long field) {
+		Object v = onReadAccess(obj, field, Type.LONG);
 		return (v == null ? value : ((Number) v).longValue());
 	}
 
-	public float addReadAccess(Object obj, float value, long field) {
-		Object v = addReadAccess(obj, field, Type.FLOAT);
+	public float onReadAccess(Object obj, float value, long field) {
+		Object v = onReadAccess(obj, field, Type.FLOAT);
 		return (v == null ? value : ((Number) v).floatValue());
 	}
 
-	public double addReadAccess(Object obj, double value, long field) {
-		Object v = addReadAccess(obj, field, Type.DOUBLE);
+	public double onReadAccess(Object obj, double value, long field) {
+		Object v = onReadAccess(obj, field, Type.DOUBLE);
 		return (v == null ? value : ((Number) v).doubleValue());
 	}
 
-	public void addWriteAccess(Object obj, Object value, long field) {
-		addWriteAccess(obj, field, value, Type.OBJECT);
+	public void onWriteAccess(Object obj, Object value, long field) {
+		onWriteAccess(obj, field, value, Type.OBJECT);
 	}
 
-	public void addWriteAccess(Object obj, boolean value, long field) {
-		addWriteAccess(obj, field, (Object) value, Type.BOOLEAN);
+	public void onWriteAccess(Object obj, boolean value, long field) {
+		onWriteAccess(obj, field, (Object) value, Type.BOOLEAN);
 	}
 
-	public void addWriteAccess(Object obj, byte value, long field) {
-		addWriteAccess(obj, field, (Object) value, Type.BYTE);
+	public void onWriteAccess(Object obj, byte value, long field) {
+		onWriteAccess(obj, field, (Object) value, Type.BYTE);
 	}
 
-	public void addWriteAccess(Object obj, char value, long field) {
-		addWriteAccess(obj, field, (Object) value, Type.CHAR);
+	public void onWriteAccess(Object obj, char value, long field) {
+		onWriteAccess(obj, field, (Object) value, Type.CHAR);
 	}
 
-	public void addWriteAccess(Object obj, short value, long field) {
-		addWriteAccess(obj, field, (Object) value, Type.SHORT);
+	public void onWriteAccess(Object obj, short value, long field) {
+		onWriteAccess(obj, field, (Object) value, Type.SHORT);
 	}
 
-	public void addWriteAccess(Object obj, int value, long field) {
-		addWriteAccess(obj, field, (Object) value, Type.INT);
+	public void onWriteAccess(Object obj, int value, long field) {
+		onWriteAccess(obj, field, (Object) value, Type.INT);
 	}
 
-	public void addWriteAccess(Object obj, long value, long field) {
-		addWriteAccess(obj, field, (Object) value, Type.LONG);
+	public void onWriteAccess(Object obj, long value, long field) {
+		onWriteAccess(obj, field, (Object) value, Type.LONG);
 	}
 
-	public void addWriteAccess(Object obj, float value, long field) {
-		addWriteAccess(obj, field, (Object) value, Type.FLOAT);
+	public void onWriteAccess(Object obj, float value, long field) {
+		onWriteAccess(obj, field, (Object) value, Type.FLOAT);
 	}
 
-	public void addWriteAccess(Object obj, double value, long field) {
-		addWriteAccess(obj, field, (Object) value, Type.DOUBLE);
+	public void onWriteAccess(Object obj, double value, long field) {
+		onWriteAccess(obj, field, (Object) value, Type.DOUBLE);
 	}
 }
