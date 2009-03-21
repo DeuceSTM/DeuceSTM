@@ -22,10 +22,10 @@ public class ContextDelegator {
 	final static public String BEFORE_READ_METHOD_DESC = "(Ljava/lang/Object;J" + Context.CONTEXT_DESC +")V";
 	
 	final static public String WRITE_METHOD_NAME = "onWriteAccess";
-	final static public String WRITE_ARR_METHOD_NAME = "addArrayWriteAccess";
+	final static public String WRITE_ARR_METHOD_NAME = "onArrayWriteAccess";
 	final static public String STATIC_WRITE_METHOD_NAME = "addStaticWriteAccess";
 	final static public String READ_METHOD_NAME = "onReadAccess";
-	final static public String READ_ARR_METHOD_NAME = "addArrayReadAccess";
+	final static public String READ_ARR_METHOD_NAME = "onArrayReadAccess";
 
 	final static private String WRITE_METHOD_BOOLEAN_DESC = "(Ljava/lang/Object;ZJ" + Context.CONTEXT_DESC +")V";
 	final static private String WRITE_METHOD_BYTE_DESC = "(Ljava/lang/Object;BJ" + Context.CONTEXT_DESC +")V";
@@ -287,69 +287,69 @@ public class ContextDelegator {
 		context.onWriteAccess(obj, value, field);
 	}
 
-	static public Object addArrayReadAccess( Object[] arr, int index, Context context) {
+	static public Object onArrayReadAccess( Object[] arr, int index, Context context) {
 		int address = OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
 		return context.onReadAccess(arr, arr[index], address);
 	}
-	static public byte addArrayReadAccess( byte[] arr, int index, Context context) {
+	static public byte onArrayReadAccess( byte[] arr, int index, Context context) {
 		int address = BYTE_ARR_BASE + BYTE_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
 		return context.onReadAccess(arr, arr[index], address);
 	}
-	static public char addArrayReadAccess( char[] arr, int index, Context context) {
+	static public char onArrayReadAccess( char[] arr, int index, Context context) {
 		int address = CHAR_ARR_BASE + CHAR_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
 		return context.onReadAccess(arr, arr[index], address);
 	}
-	static public short addArrayReadAccess( short[] arr, int index, Context context) {
+	static public short onArrayReadAccess( short[] arr, int index, Context context) {
 		int address = SHORT_ARR_BASE + SHORT_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
 		return context.onReadAccess(arr, arr[index], address);
 	}
-	static public int addArrayReadAccess( int[] arr, int index, Context context) {
+	static public int onArrayReadAccess( int[] arr, int index, Context context) {
 		int address = INT_ARR_BASE + INT_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
 		return context.onReadAccess(arr, arr[index], address);
 	}
-	static public long addArrayReadAccess( long[] arr, int index, Context context) {
+	static public long onArrayReadAccess( long[] arr, int index, Context context) {
 		int address = LONG_ARR_BASE + LONG_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
 		return context.onReadAccess(arr, arr[index], address);
 	}
-	static public float addArrayReadAccess( float[] arr, int index, Context context) {
+	static public float onArrayReadAccess( float[] arr, int index, Context context) {
 		int address = FLOAT_ARR_BASE + FLOAT_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
 		return context.onReadAccess(arr, arr[index], address);
 	}
-	static public double addArrayReadAccess( double[] arr, int index, Context context) {
+	static public double onArrayReadAccess( double[] arr, int index, Context context) {
 		int address = DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index;
 		context.beforeReadAccess(arr, address);
 		return context.onReadAccess(arr, arr[index], address);
 	}
 	
-	static public <T> void addArrayWriteAccess( T[] arr,  int index, T value, Context context) {
+	static public <T> void onArrayWriteAccess( T[] arr,  int index, T value, Context context) {
 		context.onWriteAccess(arr, value, OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index);
 	}
-	static public void addArrayWriteAccess( byte[] arr, int index, byte value, Context context) {
+	static public void onArrayWriteAccess( byte[] arr, int index, byte value, Context context) {
 		context.onWriteAccess(arr, value, BYTE_ARR_BASE + BYTE_ARR_SCALE*index);
 	}
-	static public void addArrayWriteAccess( char[] arr, int index, char value, Context context) {
+	static public void onArrayWriteAccess( char[] arr, int index, char value, Context context) {
 		context.onWriteAccess(arr, value, CHAR_ARR_BASE + CHAR_ARR_SCALE*index);
 	}
-	static public void addArrayWriteAccess( short[] arr, int index, short value, Context context) {
+	static public void onArrayWriteAccess( short[] arr, int index, short value, Context context) {
 		context.onWriteAccess(arr, value, SHORT_ARR_BASE + SHORT_ARR_SCALE*index);
 	}
-	static public void addArrayWriteAccess( int[] arr, int index, int value, Context context) {
+	static public void onArrayWriteAccess( int[] arr, int index, int value, Context context) {
 		context.onWriteAccess(arr, value, INT_ARR_BASE + INT_ARR_SCALE*index);
 	}
-	static public void addArrayWriteAccess( long[] arr, int index, long value, Context context) {
+	static public void onArrayWriteAccess( long[] arr, int index, long value, Context context) {
 		context.onWriteAccess(arr, value, LONG_ARR_BASE + LONG_ARR_SCALE*index);
 	}
-	static public void addArrayWriteAccess( float[] arr, int index, float value, Context context) {
+	static public void onArrayWriteAccess( float[] arr, int index, float value, Context context) {
 		context.onWriteAccess(arr, value, FLOAT_ARR_BASE + FLOAT_ARR_SCALE*index);
 	}
-	static public void addArrayWriteAccess( double[] arr, int index, double value, Context context) {
+	static public void onArrayWriteAccess( double[] arr, int index, double value, Context context) {
 		context.onWriteAccess(arr, value, DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index);
 	}
 }
