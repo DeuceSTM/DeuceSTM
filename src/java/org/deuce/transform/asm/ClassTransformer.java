@@ -69,7 +69,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 		accessorsAdder.addSetter(access, name, desc);
 
 		String addressFieldName = Util.getAddressField( name);
-		int fieldAccess = Opcodes.ACC_FINAL | Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
+		int fieldAccess = Opcodes.ACC_FINAL | Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC;
 
 		Field field = new Field(name, addressFieldName);
 		fields.add( field);
@@ -96,7 +96,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 				return originalMethod;
 			}
 
-			int fieldAccess = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
+			int fieldAccess = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC;
 			super.visitField( fieldAccess, StaticMethodTransformer.CLASS_BASE,
 					Type.getDescriptor(Object.class), null, null);
 
@@ -104,7 +104,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 		}
 		Method newMethod = createNewMethod(name, desc);
 
-		MethodVisitor copyMethod =  super.visitMethod(access, name, newMethod.getDescriptor(),
+		MethodVisitor copyMethod =  super.visitMethod(access | Opcodes.ACC_SYNTHETIC, name, newMethod.getDescriptor(),
 				signature, exceptions);
 
 		return new MethodTransformer( originalMethod, copyMethod, className,
