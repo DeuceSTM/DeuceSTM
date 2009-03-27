@@ -40,11 +40,7 @@ public class ReadFieldAccess{
 		return System.identityHashCode( obj) + (int)field;
 	}
 
-	public void set(Object reference, long field) {
-		init(reference, field);
-	}
-	
-	protected void clear(){
+	public void clear(){
 		reference = null;
 	}
 }

@@ -51,7 +51,7 @@ public class ReadSet{
     public void checkClock(int clock) {
         for (int i = 0; i < nextAvaliable; i++) {
         	LockTable.checkLock( readSet[i].hashCode(), clock);
-        	readSet[i].set(null, 0);
+        	readSet[i].clear();
         }
     }
     
