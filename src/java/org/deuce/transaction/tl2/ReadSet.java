@@ -27,7 +27,7 @@ public class ReadSet{
 	}
 
 	private void fillArray( int offset){
-		for( int i=offset ; i < DEFAULT_CAPACITY + offset ; ++i){
+		for( int i=offset ; i < readSet.length ; ++i){
 			readSet[i] = new ReadFieldAccess();
 		}
 	}
@@ -35,11 +35,10 @@ public class ReadSet{
 	public ReadFieldAccess getNext(){
 		if( nextAvaliable >= readSet.length){
 			int orignLength = readSet.length;
-			ReadFieldAccess[] tmpReadSet = new ReadFieldAccess[ orignLength + DEFAULT_CAPACITY];
-			System.arraycopy(readSet, 0, tmpReadSet, 0, readSet.length);
+			ReadFieldAccess[] tmpReadSet = new ReadFieldAccess[ 2*orignLength];
+			System.arraycopy(readSet, 0, tmpReadSet, 0, orignLength);
 			readSet = tmpReadSet;
 			fillArray( orignLength);
-			currentReadFieldAccess = new ReadFieldAccess();
 		}
 		currentReadFieldAccess = readSet[ nextAvaliable++];
 		return currentReadFieldAccess;
@@ -52,6 +51,7 @@ public class ReadSet{
     public void checkClock(int clock) {
         for (int i = 0; i < nextAvaliable; i++) {
         	LockTable.checkLock( readSet[i].hashCode(), clock);
+        	readSet[i].set(null, 0);
         }
     }
     
