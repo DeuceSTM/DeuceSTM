@@ -39,4 +39,12 @@ public class ReadFieldAccess{
 	private static int hash(Object obj, long field){
 		return System.identityHashCode( obj) + (int)field;
 	}
+
+	public void set(Object reference, long field) {
+		init(reference, field);
+	}
+	
+	protected void clear(){
+		reference = null;
+	}
 }
