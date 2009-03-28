@@ -20,8 +20,6 @@ public class ClassTransformer extends ByteCodeVisitor{
 	private boolean exclude = false;
 	private boolean visitclinit = false;
 	final private LinkedList<Field> fields = new LinkedList<Field>();
-	private Field staticField = null;
-	final private AccessorsAdder accessorsAdder = new AccessorsAdder(this); 
 
 	final static private String EXCLUDE_DESC = Type.getDescriptor(Exclude.class);
 	final static private String ANNOTATION_NAME = Type.getInternalName(Annotation.class);
@@ -64,20 +62,23 @@ public class ClassTransformer extends ByteCodeVisitor{
 		FieldVisitor fieldVisitor = super.visitField(access, name, desc, signature, value);
 		if( exclude)
 			return fieldVisitor;
-
-		accessorsAdder.addGetter(access, name, desc);
-		accessorsAdder.addSetter(access, name, desc);
-
-		String addressFieldName = Util.getAddressField( name);
+		
+		// Define as constant
 		int fieldAccess = Opcodes.ACC_FINAL | Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC;
+		String addressFieldName = Util.getAddressField( name);
+		
+		final boolean include = (access & Opcodes.ACC_FINAL) == 0;
+		if( include){ // include field if not final 
+			Field field = new Field(name, addressFieldName);
+			fields.add( field);
 
-		Field field = new Field(name, addressFieldName);
-		fields.add( field);
-
-		if( staticField == null && (access &  Opcodes.ACC_STATIC) != 0)
-			staticField = field;
-
-		super.visitField( fieldAccess, addressFieldName, Type.LONG_TYPE.getDescriptor(), null, null);
+			super.visitField( fieldAccess, addressFieldName, Type.LONG_TYPE.getDescriptor(), null, null);
+		}
+		else{
+			// If this field is final mark with a negative address.
+			super.visitField( fieldAccess, addressFieldName, Type.LONG_TYPE.getDescriptor(), null, -1L);
+		}
+		
 		return fieldVisitor;
 	}
 
@@ -100,7 +101,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 			super.visitField( fieldAccess, StaticMethodTransformer.CLASS_BASE,
 					Type.getDescriptor(Object.class), null, null);
 
-			return new StaticMethodTransformer( originalMethod, fields, className, staticField);
+			return new StaticMethodTransformer( originalMethod, fields, className);
 		}
 		Method newMethod = createNewMethod(name, desc);
 

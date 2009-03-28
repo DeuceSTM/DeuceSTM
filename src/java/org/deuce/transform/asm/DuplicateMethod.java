@@ -9,6 +9,7 @@ import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.Context;
 import org.deuce.transaction.ContextDelegator;
+import org.deuce.transform.util.Util;
 
 public class DuplicateMethod extends MethodAdapter{
 
@@ -17,17 +18,11 @@ public class DuplicateMethod extends MethodAdapter{
 	private Label firstLabel;
 	private Label lastLabel;
 	private final int argumentsSize;
-	
 	private boolean addContextToTable = false;
-	
 	private AnalyzerAdapter analyzerAdapter;
 
-	private final String className;
-
-	public DuplicateMethod( String className, MethodVisitor mv,
-			boolean isstatic, Method newMethod) {
+	public DuplicateMethod(MethodVisitor mv, boolean isstatic, Method newMethod) {
 		super(mv);
-		this.className = className;
 		this.argumentsSize = calcArgumentsSize( isstatic, newMethod); 
 	}
 	
@@ -39,7 +34,6 @@ public class DuplicateMethod extends MethodAdapter{
 	public void visitMethodInsn(int opcode, String owner, String name,
 			String desc) 
 	{
-	//if( owner.startsWith("java") || owner.startsWith("sun"))
 		if( Agent.IGNORE_TREE.contains( owner))
 		{
 			super.visitMethodInsn(opcode, owner, name, desc); // ... = foo( ...
@@ -52,6 +46,7 @@ public class DuplicateMethod extends MethodAdapter{
 		}
 	}
 	
+	
 	/**
 	 * Adds for each field visited a call to the context.
 	 */
@@ -62,37 +57,74 @@ public class DuplicateMethod extends MethodAdapter{
 			super.visitFieldInsn(opcode, owner, name, desc); // ... = foo( ...
 			return;
 		}
-			final Type type = Type.getType(desc);
-			switch( opcode) {
-			case Opcodes.GETFIELD:  //	ALOAD 0: this (stack status)
-
-				super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-				super.visitMethodInsn( Opcodes.INVOKESTATIC, owner,
-						(name +AccessorsAdder.GETTER_ENDING), AccessorsAdder.instanceGetterDesc(type, owner));
-
-				return;
-			case Opcodes.PUTFIELD:
-				super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-				super.visitMethodInsn( Opcodes.INVOKESTATIC, owner,
-						(name +AccessorsAdder.SETTER_ENDING), AccessorsAdder.instanceSetterDesc(type, owner));
-
-				return;
-			case Opcodes.GETSTATIC: // check support for static fields
-
-				super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-				super.visitMethodInsn( Opcodes.INVOKESTATIC, owner,
-						(name +AccessorsAdder.GETTER_ENDING), AccessorsAdder.staticGetterDesc(type));
-
-				return;
-			case Opcodes.PUTSTATIC:
-
-				super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
-				super.visitMethodInsn( Opcodes.INVOKESTATIC, owner,
-						(name +AccessorsAdder.SETTER_ENDING), AccessorsAdder.staticSetterDesc(type));
+		
+		mv.visitFieldInsn(Opcodes.GETSTATIC, owner, Util.getAddressField(name), "J");
+		Label l1 = new Label();
+		mv.visitInsn(Opcodes.LCONST_0);
+		mv.visitInsn(Opcodes.LCMP);
+		mv.visitJumpInsn(Opcodes.IFGE, l1);
+		super.visitFieldInsn(opcode, owner, name, desc);
+		Label l2 = new Label();
+		mv.visitJumpInsn(Opcodes.GOTO, l2);
+		mv.visitLabel(l1);
+		
+		final Type type = Type.getType(desc);
+		switch( opcode) {
+		case Opcodes.GETFIELD:  //	ALOAD 0: this (stack status)
+			
+			addBeforeReadCall(owner, name);
+			
+			super.visitInsn(Opcodes.DUP);
+			super.visitFieldInsn(opcode, owner, name, desc);
+			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
+			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+					ContextDelegator.READ_METHOD_NAME, ContextDelegator.getReadMethodDesc(type));
+			
+			if( type.getSort() >= Type.ARRAY) // non primitive
+				super.visitTypeInsn( Opcodes.CHECKCAST, Type.getType(desc).getInternalName());
+			break;
+		case Opcodes.PUTFIELD:
+			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
+			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+					ContextDelegator.WRITE_METHOD_NAME, ContextDelegator.getWriteMethodDesc(type));
+			break;
+		case Opcodes.GETSTATIC: // check support for static fields
+			super.visitFieldInsn(Opcodes.GETSTATIC, owner, 
+					StaticMethodTransformer.CLASS_BASE, "Ljava/lang/Object;");
+			
+			addBeforeReadCall(owner, name);
+			
+			super.visitFieldInsn(opcode, owner, name, desc);
+			super.visitFieldInsn(Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
+			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+					ContextDelegator.READ_METHOD_NAME, ContextDelegator.getReadMethodDesc(type));
+			
+			if( type.getSort() >= Type.ARRAY) // non primitive
+				super.visitTypeInsn( Opcodes.CHECKCAST, Type.getType(desc).getInternalName());
+			break;
+		case Opcodes.PUTSTATIC:
+			super.visitFieldInsn(Opcodes.GETSTATIC, owner, 
+					StaticMethodTransformer.CLASS_BASE, "Ljava/lang/Object;");
+			super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
+			super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+			super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+					ContextDelegator.STATIC_WRITE_METHOD_NAME, ContextDelegator.getStaticWriteMethodDesc(type));
 			break;
 		default:
 			super.visitFieldInsn(opcode, owner, name, desc);
-			}
+		}
+		mv.visitLabel(l2);
+	}
+
+	private void addBeforeReadCall(String owner, String name) {
+		super.visitInsn(Opcodes.DUP);
+		super.visitFieldInsn( Opcodes.GETSTATIC, owner, Util.getAddressField(name) , "J");
+		super.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+		super.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+				ContextDelegator.BEFORE_READ_METHOD_NAME, ContextDelegator.BEFORE_READ_METHOD_DESC);
 	}
 
 	/**
