@@ -9,12 +9,12 @@ import org.deuce.transform.Exclude;
 @Exclude
 abstract public class WriteFieldAccess extends ReadFieldAccess{
 
-	public WriteFieldAccess(Object reference, long field) {
-		super(reference, field);
-	}
-
 	/**
 	 * Commits the value in memory.
 	 */
 	abstract public void put();
+
+	public void init(Object reference, long field) {
+		super.init(reference, field);
+	}
 }

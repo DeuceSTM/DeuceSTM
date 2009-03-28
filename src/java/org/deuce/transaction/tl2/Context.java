@@ -14,6 +14,8 @@ import org.deuce.transaction.tl2.field.ObjectWriteFieldAccess;
 import org.deuce.transaction.tl2.field.ReadFieldAccess;
 import org.deuce.transaction.tl2.field.ShortWriteFieldAccess;
 import org.deuce.transaction.tl2.field.WriteFieldAccess;
+import org.deuce.transaction.tl2.pool.Pool;
+import org.deuce.transaction.tl2.pool.ResourceFactory;
 import org.deuce.transform.Exclude;
 
 /**
@@ -45,7 +47,16 @@ final public class Context implements org.deuce.transaction.Context{
 		
 		this.readSet.clear(); 
 		this.writeSet.clear();
-		this.localClock = clock.get();		
+		this.localClock = clock.get();	
+		this.objectPool.clear();
+		this.booleanPool.clear();
+		this.bytePool.clear();
+		this.charPool.clear();
+		this.shortPool.clear();
+		this.intPool.clear();
+		this.longPool.clear();
+		this.floatPool.clear();
+		this.doublePool.clear();
 	}
 	
 	public boolean commit(){
@@ -183,39 +194,119 @@ final public class Context implements org.deuce.transaction.Context{
 	}
 	
 	public void onWriteAccess( Object obj, Object value, long field){
-		addWriteAccess0( new ObjectWriteFieldAccess( value, obj, field));
+		ObjectWriteFieldAccess next = objectPool.getNext();
+		next.set(value, obj, field);
+		addWriteAccess0(next);
 	}
 	
 	public void onWriteAccess(Object obj, boolean value, long field) {
-		addWriteAccess0( new BooleanWriteFieldAccess( value, obj, field));
+		
+		BooleanWriteFieldAccess next = booleanPool.getNext();
+		next.set(value, obj, field);
+		addWriteAccess0(next);
 	}
 	
 	public void onWriteAccess(Object obj, byte value, long field) {
-		addWriteAccess0( new ByteWriteFieldAccess( value, obj, field));
+		
+		ByteWriteFieldAccess next = bytePool.getNext();
+		next.set(value, obj, field);
+		addWriteAccess0(next);
 	}
 	
 	public void onWriteAccess(Object obj, char value, long field) {
-		addWriteAccess0( new CharWriteFieldAccess( value, obj, field));
+		
+		CharWriteFieldAccess next = charPool.getNext();
+		next.set(value, obj, field);
+		addWriteAccess0(next);
 	}
 	
 	public void onWriteAccess(Object obj, short value, long field) {
-		addWriteAccess0( new ShortWriteFieldAccess( value, obj, field));
+		
+		ShortWriteFieldAccess next = shortPool.getNext();
+		next.set(value, obj, field);
+		addWriteAccess0(next);
 	}
 	
 	public void onWriteAccess(Object obj, int value, long field) {
-		addWriteAccess0( new IntWriteFieldAccess( value, obj, field));
+		
+		IntWriteFieldAccess next = intPool.getNext();
+		next.set(value, obj, field);
+		addWriteAccess0(next);
 	}
 	
 	public void onWriteAccess(Object obj, long value, long field) {
-		addWriteAccess0( new LongWriteFieldAccess( value, obj, field));
+		
+		LongWriteFieldAccess next = longPool.getNext();
+		next.set(value, obj, field);
+		addWriteAccess0(next);
 	}
 
 	public void onWriteAccess(Object obj, float value, long field) {
-		addWriteAccess0( new FloatWriteFieldAccess( value, obj, field));
+		
+		FloatWriteFieldAccess next = floatPool.getNext();
+		next.set(value, obj, field);
+		addWriteAccess0(next);
 	}
 
 	
 	public void onWriteAccess(Object obj, double value, long field) {
-		addWriteAccess0( new DoubleWriteFieldAccess( value, obj, field));	
+		
+		DoubleWriteFieldAccess next = doublePool.getNext();
+		next.set(value, obj, field);
+		addWriteAccess0(next);
 	}
+	
+	private Pool<ObjectWriteFieldAccess> objectPool = new Pool<ObjectWriteFieldAccess>( new ResourceFactory<ObjectWriteFieldAccess>(){
+		public ObjectWriteFieldAccess newInstance() {
+			return new ObjectWriteFieldAccess();
+		}
+	});
+	
+	private Pool<BooleanWriteFieldAccess> booleanPool = new Pool<BooleanWriteFieldAccess>( new ResourceFactory<BooleanWriteFieldAccess>(){
+		public BooleanWriteFieldAccess newInstance() {
+			return new BooleanWriteFieldAccess();
+		}
+	});
+	
+	private Pool<ByteWriteFieldAccess> bytePool = new Pool<ByteWriteFieldAccess>( new ResourceFactory<ByteWriteFieldAccess>(){
+		public ByteWriteFieldAccess newInstance() {
+			return new ByteWriteFieldAccess();
+		}
+	});
+	
+	private Pool<CharWriteFieldAccess> charPool = new Pool<CharWriteFieldAccess>( new ResourceFactory<CharWriteFieldAccess>(){
+		public CharWriteFieldAccess newInstance() {
+			return new CharWriteFieldAccess();
+		}
+	});
+	
+	private Pool<ShortWriteFieldAccess> shortPool = new Pool<ShortWriteFieldAccess>( new ResourceFactory<ShortWriteFieldAccess>(){
+		public ShortWriteFieldAccess newInstance() {
+			return new ShortWriteFieldAccess();
+		}
+	});
+	
+	private Pool<IntWriteFieldAccess> intPool = new Pool<IntWriteFieldAccess>( new ResourceFactory<IntWriteFieldAccess>(){
+		public IntWriteFieldAccess newInstance() {
+			return new IntWriteFieldAccess();
+		}
+	});
+	
+	private Pool<LongWriteFieldAccess> longPool = new Pool<LongWriteFieldAccess>( new ResourceFactory<LongWriteFieldAccess>(){
+		public LongWriteFieldAccess newInstance() {
+			return new LongWriteFieldAccess();
+		}
+	});
+	
+	private Pool<FloatWriteFieldAccess> floatPool = new Pool<FloatWriteFieldAccess>( new ResourceFactory<FloatWriteFieldAccess>(){
+		public FloatWriteFieldAccess newInstance() {
+			return new FloatWriteFieldAccess();
+		}
+	});
+	
+	private Pool<DoubleWriteFieldAccess> doublePool = new Pool<DoubleWriteFieldAccess>( new ResourceFactory<DoubleWriteFieldAccess>(){
+		public DoubleWriteFieldAccess newInstance() {
+			return new DoubleWriteFieldAccess();
+		}
+	});
 }

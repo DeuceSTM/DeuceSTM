@@ -6,16 +6,17 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class IntWriteFieldAccess extends WriteFieldAccess {
 
-	private final int value;
+	private int value;
 
-	public IntWriteFieldAccess(int value, Object reference, long field) {
-		super(reference, field);
+	public void set(int value, Object reference, long field) {
+		super.init(reference, field);
 		this.value = value;
 	}
 
 	@Override
 	public void put() {
 		UnsafeHolder.getUnsafe().putInt(reference, field, value);
+		clear();
 	}
 
 	public int getValue() {

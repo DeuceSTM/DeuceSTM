@@ -6,16 +6,17 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class CharWriteFieldAccess extends WriteFieldAccess {
 
-	private final char value;
+	private char value;
 
-	public CharWriteFieldAccess(char value, Object reference, long field) {
-		super(reference, field);
+	public void set(char value, Object reference, long field) {
+		super.init(reference, field);
 		this.value = value;
 	}
 
 	@Override
 	public void put() {
 		UnsafeHolder.getUnsafe().putChar(reference, field, value);
+		clear();
 	}
 
 	public char getValue() {

@@ -6,16 +6,17 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class ByteWriteFieldAccess extends WriteFieldAccess {
 
-	private final byte value;
+	private byte value;
 
-	public ByteWriteFieldAccess(byte value, Object reference, long field) {
-		super(reference, field);
+	public void set(byte value, Object reference, long field) {
+		super.init(reference, field);
 		this.value = value;
 	}
 
 	@Override
 	public void put() {
 		UnsafeHolder.getUnsafe().putByte(reference, field, value);
+		clear();
 	}
 
 	public byte getValue() {

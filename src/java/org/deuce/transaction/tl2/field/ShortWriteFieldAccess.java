@@ -6,16 +6,17 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class ShortWriteFieldAccess extends WriteFieldAccess {
 
-	private final short value;
+	private short value;
 
-	public ShortWriteFieldAccess(short value, Object reference, long field) {
-		super(reference, field);
+	public void set(short value, Object reference, long field) {
+		super.init(reference, field);
 		this.value = value;
 	}
 
 	@Override
 	public void put() {
 		UnsafeHolder.getUnsafe().putShort(reference, field, value);
+		clear();
 	}
 
 	public short getValue() {

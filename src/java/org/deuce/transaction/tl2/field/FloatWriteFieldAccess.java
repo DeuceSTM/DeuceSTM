@@ -6,16 +6,17 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class FloatWriteFieldAccess extends WriteFieldAccess {
 
-	private final float value;
+	private float value;
 
-	public FloatWriteFieldAccess(float value, Object reference, long field) {
-		super(reference, field);
+	public void set(float value, Object reference, long field) {
+		super.init(reference, field);
 		this.value = value;
 	}
 
 	@Override
 	public void put() {
 		UnsafeHolder.getUnsafe().putFloat(reference, field, value);
+		clear();
 	}
 
 	public float getValue() {

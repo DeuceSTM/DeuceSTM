@@ -6,16 +6,17 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class BooleanWriteFieldAccess extends WriteFieldAccess {
 
-	private final boolean value;
+	private boolean value;
 
-	public BooleanWriteFieldAccess(boolean value, Object reference, long field) {
-		super(reference, field);
+	public void set(boolean value, Object reference, long field) {
+		super.init(reference, field);
 		this.value = value;
 	}
 
 	@Override
 	public void put() {
 		UnsafeHolder.getUnsafe().putBoolean(reference, field, getValue());
+		clear();
 	}
 
 	public boolean getValue() {
