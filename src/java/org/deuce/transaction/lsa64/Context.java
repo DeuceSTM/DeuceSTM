@@ -96,13 +96,12 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	private Object onReadAccess(Object obj, long field, Type type) {
+		if (readLock < 0) {
+			// We already own that lock
+			return writeSet.get(readHash, obj, field);
+		}
+		Object value = null;
 		while (true) {
-			if (readLock < 0) {
-				// We already own that lock
-				return writeSet.get(readHash, obj, field);
-			}
-
-			Object value = null;
 			while (readLock <= endTime) {
 				// Re-read timestamp (check for race)
 				long lock = LockTable.checkLock(readHash, id);
