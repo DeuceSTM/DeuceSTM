@@ -1,5 +1,7 @@
 package org.deuce.transform.asm;
 
+import java.lang.reflect.Method;
+
 import org.deuce.objectweb.asm.ClassAdapter;
 import org.deuce.objectweb.asm.ClassReader;
 import org.deuce.objectweb.asm.ClassWriter;
@@ -27,7 +29,7 @@ public class ByteCodeVisitor extends ClassAdapter{
 
 	public ByteCodeVisitor( String className) {
 
-		super(new ClassWriter( ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES));
+		super(new CommonClassWriter( ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES, className));
 
 		this.className = className;
 	}
@@ -60,5 +62,57 @@ public class ByteCodeVisitor extends ClassAdapter{
 	
 	public String getClassName() {
 		return className;
+	}
+	
+	/**
+	 * FIXME This is a work around and should be fixed better in the future.
+	 * By overriding the getCommonSuperClass we avoid loading 
+	 * @author Guy Korland
+	 *
+	 */
+	private static class CommonClassWriter extends ClassWriter{
+		
+		final static private Method getCallerClassLoaderMethod;
+		final static private Method findLoadedClassMethod;
+		static{
+			Method callerMethod;
+			Method findMethod;
+			try {
+				callerMethod = ClassLoader.class.getMethod("getCallerClassLoader");
+				callerMethod.setAccessible(true);
+				findMethod = ClassLoader.class.getMethod("findLoadedClass", String.class);
+				findMethod.setAccessible(true);
+			} catch (Exception e) {
+				callerMethod = findMethod = null;
+			}
+			getCallerClassLoaderMethod = callerMethod;
+			findLoadedClassMethod = findMethod;
+		}
+		
+		public CommonClassWriter(int flags, String className) {
+			super(flags);
+		}
+		@Override
+		protected String getCommonSuperClass(final String type1, final String type2)
+	    {
+			if( type1.equals(type2))
+				return type1;
+			
+			if( getCallerClassLoaderMethod != null){
+				try{
+					ClassLoader classLoader = (ClassLoader) getCallerClassLoaderMethod.invoke(null);
+					if( findLoadedClassMethod.invoke(classLoader, type1) == null)
+						return  "java/lang/Object";
+
+					if( findLoadedClassMethod.invoke(classLoader, type2) == null)
+						return  "java/lang/Object";
+				}
+				catch(Exception e){
+					return  "java/lang/Object";
+				}
+			}
+			
+			return super.getCommonSuperClass(type1, type2);
+	    }
 	}
 }
