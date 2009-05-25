@@ -32,13 +32,6 @@ public class ByteCodeVisitor extends ClassAdapter{
 		this.className = className;
 	}
 	
-	@Override
-	public void visit(final int version, final int access, final String name,
-			final String signature, final String superName,
-			final String[] interfaces) {
-		super.visit(version, access, name, signature, superName, interfaces);
-	}
-	
 	public byte[] toByteArray() {
 		return ((ClassWriter)super.cv).toByteArray();
 	}
