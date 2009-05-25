@@ -102,9 +102,7 @@ public class Agent implements ClassFileTransformer {
 		
 		// TODO return the same bytecode if 1.6+ 
 		ByteCodeVisitor frameCompute = new ByteCodeVisitor( className);
-		frameCompute.visit( classfileBuffer);
-		classfileBuffer = frameCompute.toByteArray();
-		return classfileBuffer;
+		return frameCompute.visit( classfileBuffer, 49); // avoid adding frames to Java6
 	}
 
 	public static void premain(String agentArgs, Instrumentation inst) throws Exception{

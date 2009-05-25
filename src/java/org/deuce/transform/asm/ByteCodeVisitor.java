@@ -25,6 +25,8 @@ public class ByteCodeVisitor extends ClassAdapter{
 	}
 
 	protected final String className;
+	//The maximal bytecode version to tranasform.
+	private int maximalversion = Integer.MAX_VALUE;
 
 	public ByteCodeVisitor( String className) {
 
@@ -32,18 +34,37 @@ public class ByteCodeVisitor extends ClassAdapter{
 		this.className = className;
 	}
 	
-	public byte[] toByteArray() {
-		return ((ClassWriter)super.cv).toByteArray();
+	@Override
+	public void visit(final int version, final int access, final String name,
+			final String signature, final String superName, final String[] interfaces) {
+		if(version > maximalversion) // higher that maximal version
+			throw VersionException.INSTANCE;
+		super.visit(version, access, name, signature, superName, interfaces);
 	}
-
+	
 	public byte[] visit( byte[] bytes){
 		ClassReader cr = new ClassReader(bytes);
 		cr.accept(this, ClassReader.EXPAND_FRAMES);
-		return this.toByteArray();
+		return ((ClassWriter)super.cv).toByteArray();
 	}
+	
+	public byte[] visit( byte[] bytes, int maximalversion){
+		this.maximalversion = maximalversion;
+		try{
+			return visit(bytes);
+		}
+		catch(VersionException ve){
+			return bytes;
+		}
+	}
+
 	
 	public String getClassName() {
 		return className;
+	}
+	
+	private static class VersionException extends RuntimeException{
+		public static VersionException INSTANCE = new VersionException();
 	}
 	
 	/**
