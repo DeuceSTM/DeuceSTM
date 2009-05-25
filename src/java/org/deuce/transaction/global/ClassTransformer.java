@@ -20,8 +20,4 @@ public class ClassTransformer extends ByteCodeVisitor{
 			String signature, String[] exceptions) {
 		return super.visitMethod(access, name, desc, signature, exceptions);
 	}
-
-	public String getClassName() {
-		return className;
-	}
 }

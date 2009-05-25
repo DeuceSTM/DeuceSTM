@@ -23,6 +23,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 
 	final static private String EXCLUDE_DESC = Type.getDescriptor(Exclude.class);
 	final static private String ANNOTATION_NAME = Type.getInternalName(Annotation.class);
+	private boolean isInterface;
 
 	public ClassTransformer( String className){
 		super( className);
@@ -31,7 +32,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 	@Override
 	public void visit(final int version, final int access, final String name,
 			final String signature, final String superName, final String[] interfaces) {
-		
+		isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
 		for(String inter : interfaces){
 			if( inter.equals(ANNOTATION_NAME)){
 				exclude = true;

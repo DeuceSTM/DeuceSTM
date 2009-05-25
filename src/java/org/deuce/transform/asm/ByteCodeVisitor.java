@@ -25,12 +25,10 @@ public class ByteCodeVisitor extends ClassAdapter{
 	}
 
 	protected final String className;
-	protected boolean isInterface;
 
 	public ByteCodeVisitor( String className) {
 
 		super(new CommonClassWriter( ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES, className));
-
 		this.className = className;
 	}
 	
@@ -38,18 +36,9 @@ public class ByteCodeVisitor extends ClassAdapter{
 	public void visit(final int version, final int access, final String name,
 			final String signature, final String superName,
 			final String[] interfaces) {
-		isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
 		super.visit(version, access, name, signature, superName, interfaces);
 	}
 	
-	/**
-	 * Creates a new method without and additions.
-	 */
-	public MethodVisitor createMethod( int access, String name, String desc,
-			String signature, String[] exceptions) {
-		return super.visitMethod(access, name, desc, signature, exceptions);
-	}
-
 	public byte[] toByteArray() {
 		return ((ClassWriter)super.cv).toByteArray();
 	}
