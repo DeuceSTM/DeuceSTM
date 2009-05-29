@@ -1,17 +1,15 @@
 package org.deuce.transform.asm;
 
-import java.lang.reflect.Method;
 
 import org.deuce.objectweb.asm.ClassAdapter;
 import org.deuce.objectweb.asm.ClassReader;
 import org.deuce.objectweb.asm.ClassWriter;
 import org.deuce.objectweb.asm.MethodVisitor;
-import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.commons.JSRInlinerAdapter;
 
 
 /**
- * Provides a wrapper over {@link ClassAdapter} and provides a {@link #toByteArray()}
+ * Provides a wrapper over {@link ClassAdapter}
  * @author Guy Korland
  * @since 1.0
  */

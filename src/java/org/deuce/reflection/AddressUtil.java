@@ -11,7 +11,7 @@ public class AddressUtil {
 
 	/**
 	 * Fetches the field direct address.
-	 * @param fieldName field reference
+	 * @param field field reference
 	 * @return direct address
 	 */
 	public static long getAddress( Field field) {

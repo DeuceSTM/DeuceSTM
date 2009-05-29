@@ -2,8 +2,6 @@ package org.deuce.transform.util;
 
 import java.util.HashMap;
 
-import com.sun.org.apache.bcel.internal.generic.Type;
-
 public class IgnoreTree {
 	
 	final private TreeNode root = new TreeNode();
