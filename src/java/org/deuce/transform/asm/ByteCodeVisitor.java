@@ -37,7 +37,7 @@ public class ByteCodeVisitor extends ClassAdapter{
 	@Override
 	public void visit(final int version, final int access, final String name,
 			final String signature, final String superName, final String[] interfaces) {
-		if(version > maximalversion) // higher that maximal version
+		if(version > maximalversion) // version higher than allowed 
 			throw VersionException.INSTANCE;
 		super.visit(version, access, name, signature, superName, interfaces);
 	}
@@ -64,6 +64,7 @@ public class ByteCodeVisitor extends ClassAdapter{
 	}
 	
 	private static class VersionException extends RuntimeException{
+		private static final long serialVersionUID = 1L;
 		public static VersionException INSTANCE = new VersionException();
 	}
 	
@@ -75,23 +76,6 @@ public class ByteCodeVisitor extends ClassAdapter{
 	 */
 	private static class CommonClassWriter extends ClassWriter{
 		
-		final static private Method getCallerClassLoaderMethod;
-		final static private Method findLoadedClassMethod;
-		static{
-			Method callerMethod;
-			Method findMethod;
-			try {
-				callerMethod = ClassLoader.class.getMethod("getCallerClassLoader");
-				callerMethod.setAccessible(true);
-				findMethod = ClassLoader.class.getMethod("findLoadedClass", String.class);
-				findMethod.setAccessible(true);
-			} catch (Exception e) {
-				callerMethod = findMethod = null;
-			}
-			getCallerClassLoaderMethod = callerMethod;
-			findLoadedClassMethod = findMethod;
-		}
-		
 		public CommonClassWriter(int flags, String className) {
 			super(flags);
 		}
@@ -101,21 +85,7 @@ public class ByteCodeVisitor extends ClassAdapter{
 			if( type1.equals(type2))
 				return type1;
 			
-			if( getCallerClassLoaderMethod != null){
-				try{
-					ClassLoader classLoader = (ClassLoader) getCallerClassLoaderMethod.invoke(null);
-					if( findLoadedClassMethod.invoke(classLoader, type1) == null)
-						return  "java/lang/Object";
-
-					if( findLoadedClassMethod.invoke(classLoader, type2) == null)
-						return  "java/lang/Object";
-				}
-				catch(Exception e){
-					return  "java/lang/Object";
-				}
-			}
-			
-			return super.getCommonSuperClass(type1, type2);
+			return  "java/lang/Object";
 	    }
 	}
 }
