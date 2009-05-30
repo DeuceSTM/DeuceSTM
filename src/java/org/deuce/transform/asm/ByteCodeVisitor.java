@@ -23,12 +23,12 @@ public class ByteCodeVisitor extends ClassAdapter{
 	}
 
 	protected final String className;
-	//The maximal bytecode version to tranasform.
+	//The maximal bytecode version to transform.
 	private int maximalversion = Integer.MAX_VALUE;
 
 	public ByteCodeVisitor( String className) {
 
-		super(new CommonClassWriter( ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES, className));
+		super(new ClassWriter( ClassWriter.COMPUTE_MAXS));
 		this.className = className;
 	}
 	
@@ -46,16 +46,6 @@ public class ByteCodeVisitor extends ClassAdapter{
 		return ((ClassWriter)super.cv).toByteArray();
 	}
 	
-	public byte[] visit( byte[] bytes, int maximalversion){
-		this.maximalversion = maximalversion;
-		try{
-			return visit(bytes);
-		}
-		catch(VersionException ve){
-			return bytes;
-		}
-	}
-
 	
 	public String getClassName() {
 		return className;
@@ -66,24 +56,4 @@ public class ByteCodeVisitor extends ClassAdapter{
 		public static VersionException INSTANCE = new VersionException();
 	}
 	
-	/**
-	 * FIXME This is a work around and should be fixed better in the future.
-	 * By overriding the getCommonSuperClass we avoid loading 
-	 * @author Guy Korland
-	 *
-	 */
-	private static class CommonClassWriter extends ClassWriter{
-		
-		public CommonClassWriter(int flags, String className) {
-			super(flags);
-		}
-		@Override
-		protected String getCommonSuperClass(final String type1, final String type2)
-	    {
-			if( type1.equals(type2))
-				return type1;
-			
-			return  "java/lang/Object";
-	    }
-	}
 }

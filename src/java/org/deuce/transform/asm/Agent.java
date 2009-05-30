@@ -99,10 +99,14 @@ public class Agent implements ClassFileTransformer {
 	 * @return bytecode with frames
 	 */
 	private byte[] addFrames(String className, byte[] classfileBuffer) {
-		
-		// TODO return the same bytecode if 1.6+ 
-		ByteCodeVisitor frameCompute = new ByteCodeVisitor( className);
-		return frameCompute.visit( classfileBuffer, 49); // avoid adding frames to Java6
+
+		try{
+			FramesCodeVisitor frameCompute = new FramesCodeVisitor( className);
+			return frameCompute.visit( classfileBuffer); // avoid adding frames to Java6
+		}
+		catch( FramesCodeVisitor.VersionException ex){
+			return classfileBuffer;
+		}
 	}
 
 	public static void premain(String agentArgs, Instrumentation inst) throws Exception{
