@@ -15,8 +15,8 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class FramesCodeVisitor extends ClassAdapter{
 
-	//The maximal bytecode version to transform.
-	final static private int MAXIMAL_VERSION = 49;
+	final static private int JAVA5_VERSION = 49;
+	final static private int JAVA6_VERSION = 50;
 
 	public FramesCodeVisitor( String className) {
 
@@ -26,9 +26,11 @@ public class FramesCodeVisitor extends ClassAdapter{
 	@Override
 	public void visit(final int version, final int access, final String name,
 			final String signature, final String superName, final String[] interfaces) {
-		if(version > MAXIMAL_VERSION) // version higher than allowed 
+		
+		if(version == JAVA6_VERSION) // already has frames 
 			throw VersionException.INSTANCE;
-		super.visit(version, access, name, signature, superName, interfaces);
+		
+		super.visit(JAVA5_VERSION, access, name, signature, superName, interfaces);
 	}
 	
 	public byte[] visit( byte[] bytes){
