@@ -6,10 +6,11 @@
 
 package org.deuce.test.reflection;
 
+import junit.framework.TestCase;
+
 import org.deuce.reflection.AddressUtil;
 import org.deuce.transform.Exclude;
 import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * TODO	add Javadoc
@@ -18,8 +19,8 @@ import org.junit.Test;
  * @version	1.0
  * @since	5.0
  */
-public class AddressUtilTest{
-
+public class AddressUtilTest extends TestCase{
+ 
 	@Exclude
 	private static class A{
 		static public int f1;
@@ -32,44 +33,37 @@ public class AddressUtilTest{
 		static public int f4;
 	}
 
-	@Test
-	public void getAddress() throws NoSuchFieldException{
+	public void testGetAddress() throws NoSuchFieldException{
 		long address = AddressUtil.getAddress(A.class.getField("f2"));
 		Assert.assertEquals(8, address);
 	}
 
-	@Test
-	public void getInheritAddress() throws NoSuchFieldException{
+	public void testGetInheritAddress() throws NoSuchFieldException{
 		long address = AddressUtil.getAddress(B.class.getField("f2"));
 		Assert.assertEquals(8, address);
 	}
 
-	@Test
-	public void getExtendAddress() throws NoSuchFieldException{
+	public void testGetExtendAddress() throws NoSuchFieldException{
 		long address = AddressUtil.getAddress(B.class.getField("f3"));
 		Assert.assertEquals(12, address);
 	}
 
-	@Test
-	public void getStaticAddress() throws NoSuchFieldException{
+	public void testGetStaticAddress() throws NoSuchFieldException{
 		long address = AddressUtil.getAddress(A.class.getField("f1"));
 		Assert.assertEquals(328, address);
 	}
 
-	@Test
-	public void getStaticInheritAddress() throws NoSuchFieldException{
+	public void testGetStaticInheritAddress() throws NoSuchFieldException{
 		long address = AddressUtil.getAddress(B.class.getField("f1"));
 		Assert.assertEquals(328, address);
 	}
 
-	@Test
-	public void getStaticExtendAddress() throws NoSuchFieldException{
+	public void testGetStaticExtendAddress() throws NoSuchFieldException{
 		long address = AddressUtil.getAddress(B.class.getField("f4"));
 		Assert.assertEquals(328, address);
 	}
 
-	@Test
-	public void failonFieldNotFound() throws NoSuchFieldException{
+	public void testFailonFieldNotFound() throws NoSuchFieldException{
 		try{
 			AddressUtil.getAddress(A.class.getField("f3"));
 			Assert.fail("Should throw NoSuchFieldException");
@@ -77,8 +71,7 @@ public class AddressUtilTest{
 		}
 	}
 
-	@Test
-	public void failonWrongAccessType() throws NoSuchFieldException{
+	public void testFailonWrongAccessType() throws NoSuchFieldException{
 		try{
 			AddressUtil.getAddress(A.class.getField("f3"));
 			Assert.fail("Should throw IllegalArgumentException");
