@@ -1,17 +1,16 @@
 package org.deuce.test.reflection;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 
+import junit.framework.TestCase;
+
 import org.junit.Assert;
-import org.junit.Test;
 
-public class AnnotationTest {
+public class AnnotationTest extends TestCase {
 
-	@Test
-	public void annotation() throws Exception {
+	public void testAnnotation() throws Exception {
 		MyClass c = new MyClass();
 		Method declaredMethod = c.getClass().getDeclaredMethod("myMethod");
 		Assert.assertNotNull(declaredMethod.getAnnotation(MyAnnotation.class));
