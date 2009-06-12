@@ -1,13 +1,11 @@
 package org.deuce.test.parallel;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.deuce.Atomic;
-import org.junit.Before;
-import org.junit.Test;
 
-
-public class SingleUpdate {
+public class SingleUpdate extends TestCase {
 
 	private int intVar;
 	private long longVar;
@@ -21,7 +19,7 @@ public class SingleUpdate {
 	private Object[] objectArrvar;
 	private String[] stringArrvar;
 	
-    @Before 
+    @Override
     public void setUp() { 
     	intVar = 0;
     	longVar = 0;
@@ -36,8 +34,7 @@ public class SingleUpdate {
     	stringArrvar = new String[1];
 	}
 	
-	@Test 
-	public void simpleAdd() {
+	public void testSimpleAdd() {
 		atomicSingleUpdate();
 		
 		Assert.assertEquals(intVar, 1);
@@ -69,8 +66,7 @@ public class SingleUpdate {
     	stringArrvar[0] = new String("a");
 	}
 	
-	@Test 
-	public void simpleAddAndDec() {
+	public void testSimpleAddAndDec() {
 		atomicSingleUpdateAndDec();
 		
 		Assert.assertEquals(intVar, 0);

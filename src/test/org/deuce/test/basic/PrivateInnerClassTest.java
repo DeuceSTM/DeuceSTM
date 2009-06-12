@@ -1,14 +1,14 @@
 package org.deuce.test.basic;
 
-import org.junit.Test;
+import junit.framework.TestCase;
+
 
 /**
  * Test an inner private class access 
  */
-public class PrivateInnerClassTest {
+public class PrivateInnerClassTest extends TestCase{
 
-       @Test
-       public void privateInner() throws Exception {
+       public void testPrivateInner() throws Exception {
                new ClassA();
        }
 

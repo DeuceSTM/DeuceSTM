@@ -5,12 +5,7 @@ import junit.framework.TestCase;
 import org.deuce.Atomic;
 import org.junit.Assert;
 
-/**
- * FieldsInheritanceTest
- * @author guy
- *
- */
-public class FieldsInheritanceTest extends TestCase{
+public class StaticFieldInheritanceTest extends TestCase {
 
 	public void testInheritanceAccess() throws Exception {
 		
@@ -19,6 +14,9 @@ public class FieldsInheritanceTest extends TestCase{
 		
 		atomicMethodA(b);
 		Assert.assertEquals( 2, b.a);
+		
+		atomicMethodB(b);
+		Assert.assertEquals( 3, b.a);
 		
 		atomicMethodB(b);
 		Assert.assertEquals( 3, b.a);
@@ -34,15 +32,18 @@ public class FieldsInheritanceTest extends TestCase{
 	@Atomic
 	private void atomicMethodB(B b){
 		b.a = 3;
+	}
+	
+	@Atomic
+	private void atomicMethodBb(B b){
 		b.b = 4;
 	}
 	
 	private static class A{
-		public int a;
+		public static int a;
 	}
 	
 	private static class B extends A{
-		public int b;
+		public static int b;
 	}
 }
-

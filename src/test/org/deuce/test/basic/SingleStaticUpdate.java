@@ -1,13 +1,11 @@
 package org.deuce.test.basic;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.deuce.Atomic;
-import org.junit.Before;
-import org.junit.Test;
 
-
-public class SingleStaticUpdate {
+public class SingleStaticUpdate  extends TestCase{
 
 	private static int intVar;
 	private static long longVar;
@@ -22,7 +20,7 @@ public class SingleStaticUpdate {
 	private static String[] stringArrvar;
 	private static boolean[][] booleanArrArrVar;
 	
-    @Before 
+    @Override
     public void setUp() { 
     	intVar = 0;
     	longVar = 0;
@@ -40,8 +38,7 @@ public class SingleStaticUpdate {
     	booleanArrArrVar[0] = new boolean[1];
 	}
 	
-	@Test 
-	public void simpleAdd() {
+	public void testSimpleAdd() {
 		atomicSingleUpdate();
 		
 		Assert.assertEquals(1, intVar);
@@ -76,8 +73,7 @@ public class SingleStaticUpdate {
     	booleanArrArrVar[0][0] = true;
 	}
 	
-	@Test 
-	public void simpleAddAndDec() {
+	public void testSimpleAddAndDec() {
 		atomicSingleUpdateAndDec();
 		
 		Assert.assertEquals(0,intVar);

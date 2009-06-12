@@ -1,14 +1,12 @@
 package org.deuce.test.parallel;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.deuce.Atomic;
 import org.deuce.transaction.TransactionException;
-import org.junit.Before;
-import org.junit.Test;
 
-
-public class StaticUpdate {
+public class StaticUpdate extends TestCase {
 
 	private static int intVar;
 	private static long longVar;
@@ -22,7 +20,7 @@ public class StaticUpdate {
 	private static Object[] objectArrvar;
 	private static String[] stringArrvar;
 
-	@Before 
+	@Override
     public void setUp() { 
     	intVar = 0;
     	longVar = 0;
@@ -37,8 +35,7 @@ public class StaticUpdate {
     	stringArrvar = new String[1];
 	}
 	
-	@Test
-	public void simpleAdd() throws InterruptedException {
+	public void testSimpleAdd() throws InterruptedException {
 		int threadsCount = 4;
 		final int rounds = 10000;
 		Thread[] threads = new Thread[threadsCount];

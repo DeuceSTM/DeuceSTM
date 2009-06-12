@@ -1,13 +1,11 @@
 package org.deuce.test.parallel;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.deuce.Atomic;
-import org.junit.Before;
-import org.junit.Test;
 
-
-public class SingleUpdateInnerClass {
+public class SingleUpdateInnerClass extends TestCase {
 
 	private static class Inner{
 		private int intVar;
@@ -25,7 +23,7 @@ public class SingleUpdateInnerClass {
 	
 	private Inner inner;
 	
-    @Before 
+    @Override
     public void setUp() { 
     	
     	inner = new Inner();
@@ -43,8 +41,7 @@ public class SingleUpdateInnerClass {
     	inner.stringArrvar = new String[1];
 	}
 	
-	@Test 
-	public void simpleAdd() {
+	public void testSimpleAdd() {
 		atomicSingleUpdate();
 		
 		Assert.assertEquals(inner.intVar, 1);
@@ -76,8 +73,7 @@ public class SingleUpdateInnerClass {
 		inner.stringArrvar[0] = new String("a");
 	}
 	
-	@Test 
-	public void simpleAddAndDec() {
+	public void testSimpleAddAndDec() {
 		atomicSingleUpdateAndDec();
 		
 		Assert.assertEquals(inner.intVar, 0);

@@ -1,13 +1,11 @@
 package org.deuce.test.parallel;
 
 import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.deuce.Atomic;
-import org.junit.Before;
-import org.junit.Test;
 
-
-public class SerialStaticTest {
+public class SerialStaticTest extends TestCase {
 	
 	private static int var0;
 	private static int var1;
@@ -15,7 +13,7 @@ public class SerialStaticTest {
 	private static int var3;
 	private static int var4;
 	
-    @Before 
+    @Override
     public void setUp() { 
     	var0 = 0;
     	var1 = 1;
@@ -24,8 +22,7 @@ public class SerialStaticTest {
     	var4 = 4;
 	}
 	
-	@Test 
-	public void SingleRead() {
+	public void testSingleRead() {
 		atomicSingleRead();
 	}
 	
@@ -35,9 +32,7 @@ public class SerialStaticTest {
 		Assert.assertEquals(1, var1);
 	}
 
-	
-	@Test 
-	public void MultiRead() {
+	public void testMultiRead() {
 		AtomicMultiRead();
 	}
 
@@ -51,8 +46,7 @@ public class SerialStaticTest {
 	}
 
 	
-	@Test 
-	public void SingleWrite() {
+	public void testSingleWrite() {
 		atomicSingleWrite();
 		Assert.assertEquals(10, var0);
 	}
@@ -62,8 +56,7 @@ public class SerialStaticTest {
 		var0 = 10;	
 	}
 	
-	@Test 
-	public void MultiWrite() {
+	public void testMultiWrite() {
 		atmicMultiWrite();
 	}
 

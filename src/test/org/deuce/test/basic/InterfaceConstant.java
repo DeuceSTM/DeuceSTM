@@ -1,11 +1,10 @@
 package org.deuce.test.basic;
 
-import org.junit.Test;
+import junit.framework.TestCase;
 
-public class InterfaceConstant {
+public class InterfaceConstant extends TestCase{
 
-    @Test
-    public void accessConstant() {
+    public void testAccessConstant() {
             new Concrete();
     }
 
