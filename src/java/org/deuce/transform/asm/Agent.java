@@ -137,7 +137,8 @@ public class Agent implements ClassFileTransformer {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(size);
 		
 		JarInputStream jarIS = new JarInputStream(new FileInputStream(inFileName));
-		JarOutputStream jarOS = new JarOutputStream(new FileOutputStream(outFilename));
+		JarOutputStream jarOS = new JarOutputStream(new FileOutputStream(outFilename), jarIS.getManifest());
+		
 		String nextName = "";
 		try {
 			for (JarEntry nextJarEntry = jarIS.getNextJarEntry(); nextJarEntry != null;
@@ -152,10 +153,12 @@ public class Agent implements ClassFileTransformer {
 				
 				nextName = nextJarEntry.getName();
 				if( nextName.endsWith(".class")){
-					byte[] transformed = transform( nextName, byteArray);
+					if( logger.isLoggable(Level.FINE)){
+						logger.fine("Transalating " + nextName);
+					}
 					JarEntry transformedEntry = new JarEntry(nextName);
 					jarOS.putNextEntry( transformedEntry); 
-					jarOS.write(transformed);
+					jarOS.write( transform( nextName, byteArray));
 				}
 				else{
 					jarOS.putNextEntry( nextJarEntry);

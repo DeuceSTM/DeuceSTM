@@ -1,7 +1,6 @@
 package org.deuce.transform.asm;
 
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.deuce.objectweb.asm.AnnotationVisitor;
@@ -9,6 +8,7 @@ import org.deuce.objectweb.asm.FieldVisitor;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
+import org.deuce.objectweb.asm.commons.JSRInlinerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.Context;
 import org.deuce.transform.Exclude;
@@ -102,7 +102,8 @@ public class ClassTransformer extends ByteCodeVisitor{
 			super.visitField( fieldAccess, StaticMethodTransformer.CLASS_BASE,
 					Type.getDescriptor(Object.class), null, null);
 
-			return new StaticMethodTransformer( originalMethod, fields, className);
+			StaticMethodTransformer staticTransformer =  new StaticMethodTransformer( originalMethod, fields, className);
+			return new JSRInlinerAdapter(staticTransformer, access, name, desc, signature, exceptions);
 		}
 		Method newMethod = createNewMethod(name, desc);
 

@@ -4,6 +4,8 @@ package org.deuce.transform.asm;
 import org.deuce.objectweb.asm.ClassAdapter;
 import org.deuce.objectweb.asm.ClassReader;
 import org.deuce.objectweb.asm.ClassWriter;
+import org.deuce.objectweb.asm.MethodVisitor;
+import org.deuce.objectweb.asm.commons.JSRInlinerAdapter;
 import org.deuce.transform.Exclude;
 
 
@@ -38,6 +40,18 @@ public class FramesCodeVisitor extends ClassAdapter{
 		cr.accept(this, 0);
 		return ((ClassWriter)super.cv).toByteArray();
 	}
+	
+	@Override
+	public MethodVisitor visitMethod(
+			final int access,
+			final String name,
+			final String desc,
+			final String signature,
+			final String[] exceptions)
+	{
+		return new JSRInlinerAdapter( super.visitMethod(access, name, desc, signature, exceptions), access, name, desc, signature, exceptions);
+	}
+
 	
 	@Exclude
 	public static class VersionException extends RuntimeException{
