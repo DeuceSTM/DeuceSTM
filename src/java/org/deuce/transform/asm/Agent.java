@@ -12,7 +12,6 @@ import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-import java.util.jar.JarOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -80,7 +79,7 @@ public class Agent implements ClassFileTransformer {
 
 		if( VERBOSE){
 			try {
-				verbose(className, bytecode);
+				verbose("verbose",className, bytecode);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -137,7 +136,8 @@ public class Agent implements ClassFileTransformer {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(size);
 		
 		JarInputStream jarIS = new JarInputStream(new FileInputStream(inFileName));
-		JarOutputStream jarOS = new JarOutputStream(new FileOutputStream(outFilename), jarIS.getManifest());
+		
+		logger.info("Start tranlating source:" + inFileName + " target:" + outFilename);
 		
 		String nextName = "";
 		try {
@@ -149,20 +149,16 @@ public class Agent implements ClassFileTransformer {
 				while ((read = jarIS.read(buffer, 0, size)) > 0) {
 					baos.write(buffer, 0, read);
 				}
-				byte[] byteArray = baos.toByteArray();
+				byte[] bytecode = baos.toByteArray();
 				
 				nextName = nextJarEntry.getName();
-				if( nextName.endsWith(".class")){
+				if( nextName.endsWith(".class") && nextName.startsWith("java/util")){
 					if( logger.isLoggable(Level.FINE)){
 						logger.fine("Transalating " + nextName);
 					}
-					JarEntry transformedEntry = new JarEntry(nextName);
-					jarOS.putNextEntry( transformedEntry); 
-					jarOS.write( transform( nextName, byteArray));
-				}
-				else{
-					jarOS.putNextEntry( nextJarEntry);
-					jarOS.write(byteArray);
+					String className = nextName.substring(0, nextName.length() - ".class".length());
+					byte[] transformBytecode = transform( className, bytecode);
+					verbose(outFilename, className, transformBytecode);
 				}
 			}
 		}
@@ -170,14 +166,14 @@ public class Agent implements ClassFileTransformer {
 			logger.log(Level.SEVERE, "Failed to translate " + nextName, e);
 		}
 		finally {
+			logger.info("Closing source:" + inFileName + " target:" + outFilename);
 			jarIS.close();
-			jarOS.close();
 		}
 	}
 	
-	private void verbose(String className, byte[] bytecode) throws FileNotFoundException,
+	private void verbose(String target, String className, byte[] bytecode) throws FileNotFoundException,
 	IOException {
-		File file = new File( "verbose");
+		File file = new File( target);
 		file.mkdir();
 
 		String[] packages = className.split("/");
