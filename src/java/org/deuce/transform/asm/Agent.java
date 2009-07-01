@@ -12,6 +12,7 @@ import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,7 +80,7 @@ public class Agent implements ClassFileTransformer {
 
 		if( VERBOSE){
 			try {
-				verbose("verbose",className, bytecode);
+				verbose(className, bytecode);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -136,6 +137,7 @@ public class Agent implements ClassFileTransformer {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(size);
 		
 		JarInputStream jarIS = new JarInputStream(new FileInputStream(inFileName));
+		JarOutputStream jarOS = new JarOutputStream(new FileOutputStream(outFilename), jarIS.getManifest());
 		
 		logger.info("Start tranlating source:" + inFileName + " target:" + outFilename);
 		
@@ -152,15 +154,22 @@ public class Agent implements ClassFileTransformer {
 				byte[] bytecode = baos.toByteArray();
 				
 				nextName = nextJarEntry.getName();
-				if( nextName.endsWith(".class") && nextName.startsWith("java/util")){
+				if( nextName.endsWith(".class")){
 					if( logger.isLoggable(Level.FINE)){
 						logger.fine("Transalating " + nextName);
 					}
 					String className = nextName.substring(0, nextName.length() - ".class".length());
 					byte[] transformBytecode = transform( className, bytecode);
-					verbose(outFilename, className, transformBytecode);
+					JarEntry transformedEntry = new JarEntry(nextName);
+					jarOS.putNextEntry( transformedEntry); 
+					jarOS.write( transformBytecode);
+				}
+				else{
+					jarOS.putNextEntry( nextJarEntry);
+					jarOS.write(bytecode);
 				}
 			}
+			
 		}
 		catch(Exception e){
 			logger.log(Level.SEVERE, "Failed to translate " + nextName, e);
@@ -168,12 +177,13 @@ public class Agent implements ClassFileTransformer {
 		finally {
 			logger.info("Closing source:" + inFileName + " target:" + outFilename);
 			jarIS.close();
+			jarOS.close();
 		}
 	}
 	
-	private void verbose(String target, String className, byte[] bytecode) throws FileNotFoundException,
+	private void verbose(String className, byte[] bytecode) throws FileNotFoundException,
 	IOException {
-		File file = new File( target);
+		File file = new File( "verbose");
 		file.mkdir();
 
 		String[] packages = className.split("/");
