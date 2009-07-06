@@ -1,4 +1,4 @@
-package org.deuce.transform.asm;
+package org.deuce.transform.asm.method;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

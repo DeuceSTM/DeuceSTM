@@ -1,4 +1,4 @@
-package org.deuce.transform.asm;
+package org.deuce.transform.asm.method;
 
 import org.deuce.objectweb.asm.AnnotationVisitor;
 

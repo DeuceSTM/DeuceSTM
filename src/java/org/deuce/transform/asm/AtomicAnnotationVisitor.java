@@ -1,6 +1,7 @@
 package org.deuce.transform.asm;
 
 import org.deuce.objectweb.asm.AnnotationVisitor;
+import org.deuce.transform.asm.method.AtomicMethod;
 
 public class AtomicAnnotationVisitor implements AnnotationVisitor {
 

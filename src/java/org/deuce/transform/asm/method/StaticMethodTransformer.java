@@ -1,4 +1,4 @@
-package org.deuce.transform.asm;
+package org.deuce.transform.asm.method;
 
 import java.util.List;
 
@@ -6,6 +6,7 @@ import org.deuce.objectweb.asm.MethodAdapter;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
+import org.deuce.transform.asm.Field;
 
 public class StaticMethodTransformer extends MethodAdapter {
 

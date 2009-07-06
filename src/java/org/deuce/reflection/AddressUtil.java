@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import org.deuce.transform.Exclude;
-import org.deuce.transform.asm.StaticMethodTransformer;
+import org.deuce.transform.asm.method.StaticMethodTransformer;
 
 @Exclude
 public class AddressUtil {

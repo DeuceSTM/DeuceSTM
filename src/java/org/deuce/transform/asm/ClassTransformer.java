@@ -12,6 +12,8 @@ import org.deuce.objectweb.asm.commons.JSRInlinerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.Context;
 import org.deuce.transform.Exclude;
+import org.deuce.transform.asm.method.MethodTransformer;
+import org.deuce.transform.asm.method.StaticMethodTransformer;
 import org.deuce.transform.util.Util;
 
 @Exclude
@@ -102,7 +104,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 			super.visitField( fieldAccess, StaticMethodTransformer.CLASS_BASE,
 					Type.getDescriptor(Object.class), null, null);
 
-			StaticMethodTransformer staticTransformer =  new StaticMethodTransformer( originalMethod, fields, className);
+			StaticMethodTransformer staticTransformer =  createStaticMethodTransformer( originalMethod);
 			return new JSRInlinerAdapter(staticTransformer, access, name, desc, signature, exceptions);
 		}
 		Method newMethod = createNewMethod(name, desc);
@@ -128,6 +130,10 @@ public class ClassTransformer extends ByteCodeVisitor{
 		super.visitEnd();
 	}
 
+	protected StaticMethodTransformer createStaticMethodTransformer(MethodVisitor originalMethod){
+		return new StaticMethodTransformer( originalMethod, fields, className);
+	}
+	
 	public static Method createNewMethod(String name, String desc) {
 		Method method = new Method( name, desc);
 		Type[] arguments = method.getArgumentTypes();
@@ -138,4 +144,6 @@ public class ClassTransformer extends ByteCodeVisitor{
 
 		return new Method( name, method.getReturnType(), newArguments);
 	}
+	
+	
 }

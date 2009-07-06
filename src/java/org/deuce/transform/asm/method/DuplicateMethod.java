@@ -1,4 +1,4 @@
-package org.deuce.transform.asm;
+package org.deuce.transform.asm.method;
 
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodAdapter;
@@ -9,6 +9,8 @@ import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.Context;
 import org.deuce.transaction.ContextDelegator;
+import org.deuce.transform.asm.Agent;
+import org.deuce.transform.asm.ClassTransformer;
 import org.deuce.transform.util.Util;
 
 public class DuplicateMethod extends MethodAdapter{
