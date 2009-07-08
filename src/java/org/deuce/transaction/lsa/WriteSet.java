@@ -33,13 +33,13 @@ public class WriteSet {
 		return entries.isEmpty();
 	}
 
-	public Object get(int hash, Object obj, long field) {
+	public WriteFieldAccess get(int hash, Object obj, long field) {
 		// Return value from existing entry
 		WriteFieldAccess w = entries.get(hash);
 		while (w != null) {
 			// Check if we have already written that field
 			if (w.getReference() == obj && w.getField() == field)
-				return w.getValue();
+				return w;
 			w = w.getNext();
 		}
 		return null;

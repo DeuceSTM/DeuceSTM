@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.lsa.field.Field;
 import org.deuce.transaction.lsa.field.Field.Type;
+import org.deuce.transaction.lsa.field.WriteFieldAccess;
 import org.deuce.transaction.lsa.ReadSet;
 import org.deuce.transaction.lsa.WriteSet;
 import org.deuce.transaction.util.BooleanArrayList;
@@ -42,6 +43,7 @@ final public class Context implements org.deuce.transaction.Context {
 
 	private int readHash;
 	private int readLock;
+	private Object readValue;
 
 	private int startTime;
 	private int endTime;
@@ -95,19 +97,24 @@ final public class Context implements org.deuce.transaction.Context {
 		readLock = LockTable.checkLock(readHash, id);
 	}
 
-	private Object onReadAccess(Object obj, long field, Type type) {
+	private boolean onReadAccess(Object obj, long field, Type type) {
 		if (readLock < 0) {
 			// We already own that lock
-			return writeSet.get(readHash, obj, field);
+			WriteFieldAccess w = writeSet.get(readHash, obj, field);
+			if (w == null)
+				return false;
+			readValue = w.getValue();
+			return true;
 		}
-		Object value = null;
+		boolean b = false;
 		while (true) {
 			while (readLock <= endTime) {
 				// Re-read timestamp (check for race)
 				int lock = LockTable.checkLock(readHash, id);
 				if (lock != readLock) {
 					readLock = lock;
-					value = Field.getValue(obj, field, type);
+					readValue = Field.getValue(obj, field, type);
+					b = true;
 					continue;
 				}
 				// We have read a valid value (in snapshot)
@@ -115,7 +122,7 @@ final public class Context implements org.deuce.transaction.Context {
 					// Save to read set
 					readSet.add(obj, field, readHash, lock);
 				}
-				return value;
+				return b;
 			}
 
 			// Try to extend snapshot
@@ -158,48 +165,39 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	public Object onReadAccess(Object obj, Object value, long field) {
-		Object v = onReadAccess(obj, field, Type.OBJECT);
-		return (v == null ? value : v);
+		return (onReadAccess(obj, field, Type.OBJECT) ? readValue : value);
 	}
 
 	public boolean onReadAccess(Object obj, boolean value, long field) {
-		Object v = onReadAccess(obj, field, Type.BOOLEAN);
-		return (v == null ? value : (Boolean) v);
+		return (onReadAccess(obj, field, Type.BOOLEAN) ? (Boolean) readValue : value);
 	}
 
 	public byte onReadAccess(Object obj, byte value, long field) {
-		Object v = onReadAccess(obj, field, Type.BYTE);
-		return (v == null ? value : ((Number) v).byteValue());
+		return (onReadAccess(obj, field, Type.BYTE) ? ((Number) readValue).byteValue() : value);
 	}
 
 	public char onReadAccess(Object obj, char value, long field) {
-		Object v = onReadAccess(obj, field, Type.CHAR);
-		return (v == null ? value : (Character) v);
+		return (onReadAccess(obj, field, Type.CHAR) ? (Character) readValue : value);
 	}
 
 	public short onReadAccess(Object obj, short value, long field) {
-		Object v = onReadAccess(obj, field, Type.SHORT);
-		return (v == null ? value : ((Number) v).shortValue());
+		return (onReadAccess(obj, field, Type.SHORT) ? ((Number) readValue).shortValue() : value);
 	}
 
 	public int onReadAccess(Object obj, int value, long field) {
-		Object v = onReadAccess(obj, field, Type.INT);
-		return (v == null ? value : ((Number) v).intValue());
+		return (onReadAccess(obj, field, Type.INT) ? ((Number) readValue).intValue() : value);
 	}
 
 	public long onReadAccess(Object obj, long value, long field) {
-		Object v = onReadAccess(obj, field, Type.LONG);
-		return (v == null ? value : ((Number) v).longValue());
+		return (onReadAccess(obj, field, Type.LONG) ? ((Number) readValue).longValue() : value);
 	}
 
 	public float onReadAccess(Object obj, float value, long field) {
-		Object v = onReadAccess(obj, field, Type.FLOAT);
-		return (v == null ? value : ((Number) v).floatValue());
+		return (onReadAccess(obj, field, Type.FLOAT) ? ((Number) readValue).floatValue() : value);
 	}
 
 	public double onReadAccess(Object obj, double value, long field) {
-		Object v = onReadAccess(obj, field, Type.DOUBLE);
-		return (v == null ? value : ((Number) v).doubleValue());
+		return (onReadAccess(obj, field, Type.DOUBLE) ? ((Number) readValue).doubleValue() : value);
 	}
 
 	public void onWriteAccess(Object obj, Object value, long field) {
