@@ -24,6 +24,14 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 				m_set = new IntSetLinkedList();
 			else if (args[0].equals("SkipList"))
 				m_set = new IntSetSkipList();
+			else if (args[0].equals("IntSetHash"))
+				m_set = new IntSetHash();
+			else if (args[0].equals("RBTree"))
+				m_set = new RBTree();
+			else if (args[0].equals("IntJavaHashSet"))
+				m_set = new IntJavaHashSet();
+			else if (args[0].equals("IntJavaConcurrentHashSet"))
+				m_set = new IntJavaConcurrentHashSet();
 			else
 				error = true;
 		} else
