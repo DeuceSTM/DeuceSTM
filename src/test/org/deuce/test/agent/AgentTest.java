@@ -8,6 +8,8 @@ package org.deuce.test.agent;
 
 import java.lang.reflect.Method;
 
+import junit.framework.TestCase;
+
 import org.deuce.transaction.Context;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -18,11 +20,10 @@ import static org.junit.Assert.*;
  * @author	Guy Korland
  * @since	0.3
  */
-public class AgentTest
+public class AgentTest extends TestCase
 {
 
-	@Test
-	public void createMethod()
+	public void testCreateMethod()
 	{
 		try
 		{
@@ -35,8 +36,7 @@ public class AgentTest
 		}
 	}
 
-	@Test
-	public void createConstructor()
+	public void testCreateConstructor()
 	{
 		try
 		{
@@ -49,8 +49,7 @@ public class AgentTest
 		}
 	}
 
-	@Test
-	public void createMethodWithCode()
+	public void testCreateMethodWithCode()
 	{
 		try
 		{
