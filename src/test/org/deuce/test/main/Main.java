@@ -14,7 +14,6 @@ import org.deuce.reflection.AddressUtil;
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.global.Lock;
 import org.deuce.transform.Exclude;
-import org.deuce.transform.asm.StaticMethodTransformer;
 
 import test.Main.AAA;
 
