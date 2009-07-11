@@ -54,7 +54,8 @@ public class IntSetLinkedList implements IntSet {
 			previous = next;
 			next = previous.getNext();
 		}
-		if (result = (v != value)) {
+		result = v != value;
+		if (result) {
 			previous.setNext(new Node(value, next));
 		}
 
@@ -72,7 +73,8 @@ public class IntSetLinkedList implements IntSet {
 			previous = next;
 			next = previous.getNext();
 		}
-		if (result = (v == value)) {
+		result = v == value;
+		if (result) {
 			previous.setNext(next.getNext());
 		}
 
