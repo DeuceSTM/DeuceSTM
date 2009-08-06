@@ -16,7 +16,7 @@ public class LockTable {
 	// Failure transaction 
 	final private static TransactionException FAILURE_EXCEPTION =
 		new TransactionException("Fail on lock (already locked).");
-	
+
 	final private static int ARRAYSIZE = 1 << 20; // 2^20
 	final private static int MASK = ARRAYSIZE - 1;
 	// Lock bits
@@ -44,7 +44,6 @@ public class LockTable {
 			long lock = locks.get(hash);
 			if ((lock & RWLOCK) != 0) {
 				int owner = (int)((lock & IDMASK) >> IDOFFSET);
-
 				if (owner != id) {
 					// Already locked by other thread
 					ConflictType type;
@@ -52,7 +51,7 @@ public class LockTable {
 						type = (write ? ConflictType.WW : ConflictType.WR);
 					else
 						type = (write ? ConflictType.RW : ConflictType.RR);
-					if (context.conflict(owner, type)) {
+					if (context.conflict(owner, type, hash, lock)) {
 						// We win: retry
 						continue;
 					}
@@ -60,8 +59,9 @@ public class LockTable {
 				} else {
 					// We already own this lock
 					if (write && (lock & WLOCK) == 0) {
-						// Upgrade lock
-						locks.set(hash, lock | WLOCK);
+						// Upgrade lock (use CAS as another thread might be releasing our locks)
+						if (!locks.compareAndSet(hash, lock, lock | WLOCK))
+							throw FAILURE_EXCEPTION;
 					}
 					return ((lock & WLOCK) != 0 ? LOCKED_WRITE : LOCKED_READ);
 				}
@@ -92,6 +92,11 @@ public class LockTable {
 			// Return old timestamp (write lock bit is not set)
 			return lock & TSMASK;
 		}
+	}
+
+	public static long readLock(int hash) {
+		assert hash <= MASK;
+		return locks.get(hash);
 	}
 
 	public static void setAndReleaseLock(int hash, long lock) {

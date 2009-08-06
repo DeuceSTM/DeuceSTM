@@ -13,7 +13,7 @@ public class Timestamp implements ContentionManager {
 	public int arbitrate(Context me, Context other, ConflictType type) {
 		long myTime = me.getStartTime();
 		long otherTime = other.getStartTime();
-		if (!other.isActive() || (otherTime > myTime || (otherTime == myTime && System.identityHashCode(other) > System.identityHashCode(me)))) {
+		if (!other.isActive() || (otherTime > myTime || (otherTime == myTime && other.getId() > me.getId()))) {
 			// I am older (or other is not active, so I can proceed)
 			return KILL_OTHER;
 		}

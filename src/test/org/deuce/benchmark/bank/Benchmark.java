@@ -12,6 +12,8 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 	int m_max = 10;
 	int m_read_frequency = 0;
 	int m_write_frequency = 0;
+	int m_read_threads = 0;
+	int m_write_threads = 0;
 	Account[] m_accounts;
 
 	public void init(String[] args) {
@@ -45,6 +47,16 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 					m_write_frequency = Integer.parseInt(args[i]);
 				else
 					error = true;
+			} else if (args[i].equals("-R")) {
+				if (++i < args.length)
+					m_read_threads = Integer.parseInt(args[i]);
+				else
+					error = true;
+			} else if (args[i].equals("-W")) {
+				if (++i < args.length)
+					m_write_threads = Integer.parseInt(args[i]);
+				else
+					error = true;
 			} else if (args[i].equals("-d")) {
 				// Use disjoint sets of accounts
 				Account.s_disjoint = true;
@@ -55,7 +67,7 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 				error = true;
 		}
 		if (error) {
-			System.out.println("Benchmark arguments: [-n nb-accounts] [-i initial-amount] [-m max-transfer] [-r read-all-frequency] [-w write-all-frequency] [-d] [-y]");
+			System.out.println("Benchmark arguments: [-n nb-accounts] [-i initial-amount] [-m max-transfer] [-r read-all-frequency] [-w write-all-frequency] [-R read-all-threads] [-W write-all-threads] [-d] [-y]");
 			System.exit(1);
 		}
 		m_accounts = new Account[nb];
@@ -68,6 +80,8 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 		System.out.println("Maximal transfer    = " + m_max);
 		System.out.println("Read-all frequency  = " + m_read_frequency + "%");
 		System.out.println("Write-all frequency = " + m_write_frequency + "%");
+		System.out.println("Read-all threads    = " + m_read_threads);
+		System.out.println("Write-all threads   = " + m_write_threads);
 		System.out.println("Disjoint            = " + Account.s_disjoint);
 		System.out.println("Yield               = " + Account.s_yield);
 		System.out.println();
@@ -77,7 +91,7 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 	}
 
 	public org.deuce.benchmark.BenchmarkThread createThread(int i, int nb) {
-		return new BenchmarkThread(i, nb, m_accounts, m_max, m_read_frequency, m_write_frequency);
+		return new BenchmarkThread(i, nb, m_accounts, m_max, m_read_frequency, m_write_frequency, m_read_threads, m_write_threads);
 	}
 
 	public String getStats(org.deuce.benchmark.BenchmarkThread[] threads) {

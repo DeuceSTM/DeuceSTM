@@ -1,5 +1,6 @@
 package org.deuce.transaction.lsacm;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,7 +49,7 @@ final public class Context implements org.deuce.transaction.Context {
 	final private static AtomicLong clock = new AtomicLong(0);
 	final private static AtomicInteger threadID = new AtomicInteger(0);
 
-	final private static ConcurrentHashMap<Integer, Context> threads = new ConcurrentHashMap<Integer, Context>();
+	final private static Map<Integer, Context> threads = new ConcurrentHashMap<Integer, Context>();
 
 	final private static boolean RO_HINT = Boolean.getBoolean("org.deuce.transaction.lsacm.rohint");
 
@@ -133,13 +134,15 @@ final public class Context implements org.deuce.transaction.Context {
 				}
 				// Write values and release locks
 				writeSet.commit(newClock);
-				status.set(v + (TX_COMMITTED - TX_COMMITTING));
+				status.set(v + (TX_COMMITTED - TX_ACTIVE));
 			} else {
 				// We have been killed: wait for our locks to have been released
 				while (s != TX_ABORTED)
 					s = status.get() & STATUS_MASK;
 				return false;
 			}
+		} else {
+			// No need to set status to COMMITTED (we cannot be killed with an empty write set)
 		}
 		attempts = 0;
 		return true;
@@ -156,21 +159,29 @@ final public class Context implements org.deuce.transaction.Context {
 			} else if (s == TX_ACTIVE && status.compareAndSet(v, v + (TX_ABORTING - TX_ACTIVE))) {
 				// Release locks
 				writeSet.rollback();
-				status.set(v + (TX_ABORTED - TX_ABORTING));
+				status.set(v + (TX_ABORTED - TX_ACTIVE));
 			} else {
 				// We have been killed: wait for our locks to have been released
 				while (s != TX_ABORTED)
 					s = status.get() & STATUS_MASK;
 			}
+		} else {
+			// No need to set status to ABORTED (at that point we do not hold locks anymore)
 		}
 	}
 
-	public boolean conflict(int other, ConflictType type) {
+	public boolean conflict(int other, ConflictType type, int hash, long lock) {
 		if (cm != null) {
 			Context tx = threads.get(other);
 			if (cm.arbitrate(this, tx, type) == ContentionManager.KILL_OTHER) {
 				// We win
-				kill(tx);
+				synchronized (tx.writeSet) {
+					// Mutual exclusion on write set to drop locks
+					if (lock == LockTable.readLock(hash)) {
+						// The other transaction still owns the lock
+						kill(tx);
+					}
+				}
 				return true;
 			}
 		}
@@ -183,16 +194,17 @@ final public class Context implements org.deuce.transaction.Context {
 		int s = v & STATUS_MASK;
 		if (s == TX_ACTIVE && tx.status.compareAndSet(v, v + (TX_ABORTING - TX_ACTIVE))) {
 			// Release locks
-			synchronized (tx.writeSet) {
-				// Mutual exclusion on write set to drop locks
-				tx.writeSet.rollback();
-			}
+			tx.writeSet.rollback();
 			tx.status.set(v + (TX_ABORTED - TX_ACTIVE));
 		}
 	}
 
 	public long getStartTime() {
 		return startTime.get();
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public boolean isActive() {
@@ -317,6 +329,7 @@ final public class Context implements org.deuce.transaction.Context {
 				// We already own that lock
 				writeSet.appendWrite(hash, obj, field, value, type);
 			} else {
+				// Add to write set
 				if (timestamp > endTime) {
 					// Handle write-after-read
 					if (readSet.contains(obj, field)) {

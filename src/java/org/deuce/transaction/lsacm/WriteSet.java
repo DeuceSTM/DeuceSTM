@@ -95,5 +95,4 @@ public class WriteSet {
 			LockTable.setAndReleaseLock(w.getHash(), w.getLock());
 		}
 	}
-
 }
