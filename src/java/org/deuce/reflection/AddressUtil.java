@@ -21,16 +21,16 @@ public class AddressUtil {
 			return UnsafeHolder.getUnsafe().objectFieldOffset(field);
 		}
 	}
-
+	
 	/**
 	 * Fetches base class handle
 	 * @param clazz Class reference
 	 * @return direct address
 	 */
-	public static Object staticFieldBase( Class clazz) {
+	public static Object staticFieldBase( Class clazz, String fieldName) {
 		Field field;
 		try {
-			field = clazz.getDeclaredField(StaticMethodTransformer.CLASS_BASE);
+			field = clazz.getDeclaredField(fieldName);
 			return UnsafeHolder.getUnsafe().staticFieldBase( field);
 		} catch (Exception e) {
 			throw new RuntimeException(e);

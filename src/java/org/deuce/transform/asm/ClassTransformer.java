@@ -17,7 +17,7 @@ import org.deuce.transform.asm.method.StaticMethodTransformer;
 import org.deuce.transform.util.Util;
 
 @Exclude
-public class ClassTransformer extends ByteCodeVisitor{
+public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 
 	private boolean exclude = false;
 	private boolean visitclinit = false;
@@ -26,9 +26,13 @@ public class ClassTransformer extends ByteCodeVisitor{
 	final static private String EXCLUDE_DESC = Type.getDescriptor(Exclude.class);
 	final static private String ANNOTATION_NAME = Type.getInternalName(Annotation.class);
 	private boolean isInterface;
+	private MethodVisitor staticMethod;
+	
+	private final FieldsHolder fieldsHolder;
 
-	public ClassTransformer( String className){
+	public ClassTransformer( String className, FieldsHolder fieldsHolder){
 		super( className);
+		this.fieldsHolder = fieldsHolder == null ? this : fieldsHolder;
 	}
 
 	@Override
@@ -75,11 +79,10 @@ public class ClassTransformer extends ByteCodeVisitor{
 			Field field = new Field(name, addressFieldName);
 			fields.add( field);
 
-			super.visitField( fieldAccess, addressFieldName, Type.LONG_TYPE.getDescriptor(), null, null);
-		}
-		else{
+			fieldsHolder.addField( fieldAccess, addressFieldName, Type.LONG_TYPE.getDescriptor(), null);
+		}else{
 			// If this field is final mark with a negative address.
-			super.visitField( fieldAccess, addressFieldName, Type.LONG_TYPE.getDescriptor(), null, -1L);
+			fieldsHolder.addField( fieldAccess, addressFieldName, Type.LONG_TYPE.getDescriptor(), -1L);
 		}
 		
 		return fieldVisitor;
@@ -94,6 +97,7 @@ public class ClassTransformer extends ByteCodeVisitor{
 			return originalMethod;
 
 		if( name.equals("<clinit>")) {
+			staticMethod = originalMethod;
 			visitclinit = true;
 
 			if( isInterface){
@@ -101,10 +105,11 @@ public class ClassTransformer extends ByteCodeVisitor{
 			}
 
 			int fieldAccess = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC;
-			super.visitField( fieldAccess, StaticMethodTransformer.CLASS_BASE,
-					Type.getDescriptor(Object.class), null, null);
-
-			StaticMethodTransformer staticTransformer =  createStaticMethodTransformer( originalMethod);
+			fieldsHolder.addField( fieldAccess, StaticMethodTransformer.CLASS_BASE,
+					Type.getDescriptor(Object.class), null);
+			
+			MethodVisitor staticMethodVisitor = fieldsHolder.getStaticMethodVisitor();
+			StaticMethodTransformer staticTransformer =  createStaticMethodTransformer( originalMethod, staticMethodVisitor);
 			return new JSRInlinerAdapter(staticTransformer, access, name, desc, signature, exceptions);
 		}
 		Method newMethod = createNewMethod(name, desc);
@@ -113,13 +118,15 @@ public class ClassTransformer extends ByteCodeVisitor{
 				signature, exceptions);
 
 		return new MethodTransformer( originalMethod, copyMethod, className,
-				access, name, desc, newMethod);
-
+				access, name, desc, newMethod, fieldsHolder);
 	}
 
 	@Override
 	public void visitEnd() {
-		if( !exclude & !visitclinit) {
+		//Didn't see any static method till now, so creates one. 
+		if( !exclude && !visitclinit && fields.size() > 0) {
+			
+			//TODO avoid creating new static method in case of external fields holder
 			visitclinit = true;
 			MethodVisitor method = visitMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
 			method.visitCode();
@@ -128,10 +135,11 @@ public class ClassTransformer extends ByteCodeVisitor{
 			method.visitEnd();
 		}
 		super.visitEnd();
+		fieldsHolder.close();
 	}
 
-	protected StaticMethodTransformer createStaticMethodTransformer(MethodVisitor originalMethod){
-		return new StaticMethodTransformer( originalMethod, fields, className);
+	private StaticMethodTransformer createStaticMethodTransformer(MethodVisitor originalMethod, MethodVisitor staticMethod){
+		return new StaticMethodTransformer( originalMethod, staticMethod, fields, className);
 	}
 	
 	public static Method createNewMethod(String name, String desc) {
@@ -145,5 +153,22 @@ public class ClassTransformer extends ByteCodeVisitor{
 		return new Method( name, method.getReturnType(), newArguments);
 	}
 	
+	@Override
+	public void addField(int fieldAccess, String addressFieldName, String desc, Object value){
+		super.visitField( fieldAccess, addressFieldName, desc, null, value);
+	}
 	
+	@Override
+	public void close(){
+	}
+	
+	@Override
+	public MethodVisitor getStaticMethodVisitor(){
+		return staticMethod;
+	}
+	
+	@Override
+	public String getFieldsHolderName(String owner){
+		return owner;
+	}
 }

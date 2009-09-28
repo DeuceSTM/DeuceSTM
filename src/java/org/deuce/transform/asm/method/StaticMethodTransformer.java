@@ -14,37 +14,42 @@ public class StaticMethodTransformer extends MethodAdapter {
 	
 	private final List<Field> fields;
 	private final String className;
+	private final MethodVisitor staticMethod;
 	
 
-	public StaticMethodTransformer(MethodVisitor mv, List<Field> fields, String className) {
+	public StaticMethodTransformer(MethodVisitor mv, MethodVisitor staticMethod, List<Field> fields, String className) {
 		super(mv);
+		this.staticMethod = staticMethod;
 		this.fields = fields;
 		this.className = className;
 	}
 
 	@Override
 	public void visitCode() {
-		for( Field field : fields)
-			addField( field);
+		if(fields.size() > 0){
+			for( Field field : fields)
+				addField( field);
 
-		addClassBase();
+			addClassBase(fields.get(0).getFieldNameAddress());
+		}
 	}
 
 	private void addField( Field field) {
-		super.visitLdcInsn(Type.getObjectType(className));
-		super.visitLdcInsn(field.getFieldName());
-		super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Class", "getDeclaredField",
+		staticMethod.visitLdcInsn(Type.getObjectType(className));
+		staticMethod.visitLdcInsn(field.getFieldName());
+		staticMethod.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Class", "getDeclaredField",
 		"(Ljava/lang/String;)Ljava/lang/reflect/Field;");
-		super.visitMethodInsn(Opcodes.INVOKESTATIC, "org/deuce/reflection/AddressUtil",
+		staticMethod.visitMethodInsn(Opcodes.INVOKESTATIC, "org/deuce/reflection/AddressUtil",
 				"getAddress", "(Ljava/lang/reflect/Field;)J");
-		super.visitFieldInsn(Opcodes.PUTSTATIC, className, field.getFieldNameAddress(), "J");
+		staticMethod.visitFieldInsn(Opcodes.PUTSTATIC, className, field.getFieldNameAddress(), "J");
 	}
 
-	private void addClassBase() {
-		super.visitLdcInsn(Type.getObjectType(className));
-		super.visitMethodInsn(Opcodes.INVOKESTATIC, "org/deuce/reflection/AddressUtil",
-				"staticFieldBase", "(Ljava/lang/Class;)Ljava/lang/Object;");
-		super.visitFieldInsn(Opcodes.PUTSTATIC, className, CLASS_BASE, "Ljava/lang/Object;");
+	private void addClassBase(String staticFieldBase) {
+		staticMethod.visitLdcInsn(Type.getObjectType(className));
+		mv.visitLdcInsn(staticFieldBase);
+		staticMethod.visitMethodInsn(Opcodes.INVOKESTATIC, "org/deuce/reflection/AddressUtil",
+				"staticFieldBase", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Object;");
+		staticMethod.visitFieldInsn(Opcodes.PUTSTATIC, className, CLASS_BASE, "Ljava/lang/Object;");
 	}
 
 }
