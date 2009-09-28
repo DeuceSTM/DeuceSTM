@@ -15,13 +15,16 @@ public class StaticMethodTransformer extends MethodAdapter {
 	private final List<Field> fields;
 	private final String className;
 	private final MethodVisitor staticMethod;
+	private final String fieldsHolderName;
 	
 
-	public StaticMethodTransformer(MethodVisitor mv, MethodVisitor staticMethod, List<Field> fields, String className) {
+	public StaticMethodTransformer(MethodVisitor mv, MethodVisitor staticMethod, List<Field> fields,
+			String className, String fieldsHolderName) {
 		super(mv);
 		this.staticMethod = staticMethod;
 		this.fields = fields;
 		this.className = className;
+		this.fieldsHolderName = fieldsHolderName;
 	}
 
 	@Override
@@ -41,7 +44,7 @@ public class StaticMethodTransformer extends MethodAdapter {
 		"(Ljava/lang/String;)Ljava/lang/reflect/Field;");
 		staticMethod.visitMethodInsn(Opcodes.INVOKESTATIC, "org/deuce/reflection/AddressUtil",
 				"getAddress", "(Ljava/lang/reflect/Field;)J");
-		staticMethod.visitFieldInsn(Opcodes.PUTSTATIC, className, field.getFieldNameAddress(), "J");
+		staticMethod.visitFieldInsn(Opcodes.PUTSTATIC, fieldsHolderName, field.getFieldNameAddress(), "J");
 	}
 
 	private void addClassBase(String staticFieldBase) {
@@ -49,7 +52,7 @@ public class StaticMethodTransformer extends MethodAdapter {
 		mv.visitLdcInsn(staticFieldBase);
 		staticMethod.visitMethodInsn(Opcodes.INVOKESTATIC, "org/deuce/reflection/AddressUtil",
 				"staticFieldBase", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Object;");
-		staticMethod.visitFieldInsn(Opcodes.PUTSTATIC, className, CLASS_BASE, "Ljava/lang/Object;");
+		staticMethod.visitFieldInsn(Opcodes.PUTSTATIC, fieldsHolderName, CLASS_BASE, "Ljava/lang/Object;");
 	}
 
 }

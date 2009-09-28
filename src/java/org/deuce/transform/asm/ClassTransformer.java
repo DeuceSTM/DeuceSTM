@@ -139,7 +139,8 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 	}
 
 	private StaticMethodTransformer createStaticMethodTransformer(MethodVisitor originalMethod, MethodVisitor staticMethod){
-		return new StaticMethodTransformer( originalMethod, staticMethod, fields, className);
+		return new StaticMethodTransformer( originalMethod, staticMethod, fields, 
+				className, fieldsHolder.getFieldsHolderName(className));
 	}
 	
 	public static Method createNewMethod(String name, String desc) {
