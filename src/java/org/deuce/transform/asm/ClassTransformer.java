@@ -123,16 +123,20 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 
 	@Override
 	public void visitEnd() {
-		//Didn't see any static method till now, so creates one. 
-		if( !exclude && !visitclinit && fields.size() > 0) {
-			
-			//TODO avoid creating new static method in case of external fields holder
-			visitclinit = true;
-			MethodVisitor method = visitMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
-			method.visitCode();
-			method.visitInsn(Opcodes.RETURN);
-			method.visitMaxs(100, 100); // TODO set the right value
-			method.visitEnd();
+		//Didn't see any static method till now, so creates one.
+		if(!exclude){
+			super.visitAnnotation(EXCLUDE_DESC, false);
+			if( !visitclinit && fields.size() > 0) {
+
+				//TODO avoid creating new static method in case of external fields holder
+				visitclinit = true;
+				MethodVisitor method = visitMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
+				method.visitCode();
+				method.visitInsn(Opcodes.RETURN);
+				method.visitMaxs(100, 100); // TODO set the right value
+				method.visitEnd();
+
+			}
 		}
 		super.visitEnd();
 		fieldsHolder.close();
