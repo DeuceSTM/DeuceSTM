@@ -4,13 +4,15 @@
 
 	<target name="agent" depends="compile">
 		<jar destfile="bin/deuceAgent.jar">
-			<fileset dir="classes" />
+			<fileset dir="bin/classes"/>
 			<manifest>
 				<attribute name="Implementation-Vendor" value="deuce.org" />
-				<attribute name="Implementation-Version" value="1.0"/>
+				<attribute name="Implementation-Version" value="1.1"/>
 				<attribute name="Premain-Class" value="org.deuce.transform.asm.Agent" />
+				<attribute name="Main-Class" value="org.deuce.transform.asm.Agent"/>
 				<attribute name="Can-Redefine-Classes" value="true"/>
 				<attribute name="Can-Retransform-Classes" value="true"/>
+				<attribute name="Compatible" value="1.6"/>
 			</manifest>
 		</jar>
 	</target>
@@ -25,8 +27,9 @@
 	</target>
 
 	<target name="compile">
-		<javac  fork="true" srcdir="src"  source="1.5" target="1.5"
-			destdir="classes"
+		<mkdir dir="bin/classes"/>
+		<javac fork="true" srcdir="src"  source="1.6" target="1.6"
+			destdir="bin/classes"
 		 	includes="java/**"
 		 	excludes="test/**"/>
 	</target>
