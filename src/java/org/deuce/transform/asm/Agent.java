@@ -33,14 +33,7 @@ public class Agent implements ClassFileTransformer {
 	private static final Logger logger = Logger.getLogger("org.deuce.agent");
 	final private static boolean VERBOSE = Boolean.getBoolean("org.deuce.verbose");
 	final private static boolean GLOBAL_TXN = Boolean.getBoolean("org.deuce.transaction.global");
-	final public static IgnoreTree IGNORE_TREE;
-	static
-	{
-		String property = System.getProperty("org.deuce.exclude");
-		if( property == null)
-			property = "java.*,sun.*,org.eclipse.*,org.junit.*,junit.*";
-		IGNORE_TREE = new IgnoreTree( property);
-	}
+	final public static ExcludeIncludeStore EXCLUDE_INCLUDE_STORE = new ExcludeIncludeStore();
 
 	/*
 	 * @see java.lang.instrument.ClassFileTransformer#transform(java.lang.ClassLoader,
@@ -68,7 +61,7 @@ public class Agent implements ClassFileTransformer {
 	throws IllegalClassFormatException {
 
 		ArrayList<ClassByteCode> byteCodes = new ArrayList<ClassByteCode>();
-		if (className.startsWith("$") || IGNORE_TREE.contains(className)){
+		if (className.startsWith("$") || EXCLUDE_INCLUDE_STORE.exclude(className)){
 			byteCodes.add(new ClassByteCode( className, classfileBuffer));
 			return byteCodes;
 		}

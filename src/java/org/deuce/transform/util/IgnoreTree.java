@@ -12,7 +12,7 @@ public class IgnoreTree {
 			return;
 		String[] splitNames = names.split(",");
 		for( String name : splitNames){
-			String[] parts = name.split("\\.");
+			String[] parts = name.trim().split("\\.");
 			root.add(parts, 0);
 		}
 	}

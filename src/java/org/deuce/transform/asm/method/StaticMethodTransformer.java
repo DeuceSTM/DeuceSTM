@@ -16,13 +16,14 @@ public class StaticMethodTransformer extends MethodAdapter {
 	private final String className;
 	private final MethodVisitor staticMethod;
 	private final String fieldsHolderName;
+	private final String staticField;
 	
-
 	public StaticMethodTransformer(MethodVisitor mv, MethodVisitor staticMethod, List<Field> fields,
-			String className, String fieldsHolderName) {
+			String staticField, String className, String fieldsHolderName) {
 		super(mv);
 		this.staticMethod = staticMethod;
 		this.fields = fields;
+		this.staticField = staticField;
 		this.className = className;
 		this.fieldsHolderName = fieldsHolderName;
 	}
@@ -32,8 +33,9 @@ public class StaticMethodTransformer extends MethodAdapter {
 		if(fields.size() > 0){
 			for( Field field : fields)
 				addField( field);
-
-			addClassBase(fields.get(0).getFieldNameAddress());
+			
+			if(staticField != null)
+				addClassBase(staticField);
 		}
 	}
 
@@ -49,10 +51,17 @@ public class StaticMethodTransformer extends MethodAdapter {
 
 	private void addClassBase(String staticFieldBase) {
 		staticMethod.visitLdcInsn(Type.getObjectType(className));
-		mv.visitLdcInsn(staticFieldBase);
+		staticMethod.visitLdcInsn(staticFieldBase);
 		staticMethod.visitMethodInsn(Opcodes.INVOKESTATIC, "org/deuce/reflection/AddressUtil",
 				"staticFieldBase", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Object;");
 		staticMethod.visitFieldInsn(Opcodes.PUTSTATIC, fieldsHolderName, CLASS_BASE, "Ljava/lang/Object;");
 	}
 
+	@Override
+	public void visitEnd(){
+		super.visitEnd();
+		// TODO can we do it cleaner?
+		if( super.mv != staticMethod)
+			staticMethod.visitEnd();
+	}
 }

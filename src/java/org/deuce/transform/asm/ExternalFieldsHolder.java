@@ -1,6 +1,7 @@
 package org.deuce.transform.asm;
 
 import org.deuce.objectweb.asm.ClassWriter;
+import org.deuce.objectweb.asm.MethodAdapter;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
 
@@ -15,7 +16,7 @@ public class ExternalFieldsHolder implements FieldsHolder {
 	
 	final private ClassWriter classWriter;
 	final private String className;
-	final private MethodVisitor staticMethod;
+	final private ExternalMethodVisitor staticMethod;
 	
 	public ExternalFieldsHolder(String className){
 		this.className = getFieldsHolderName(className);
@@ -23,8 +24,8 @@ public class ExternalFieldsHolder implements FieldsHolder {
 		classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 		classWriter.visit(Opcodes.V1_6, Opcodes.ACC_FINAL + Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, 
 				this.className, null, "java/lang/Object", null);
-		
-		staticMethod = classWriter.visitMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
+		classWriter.visitAnnotation(ClassTransformer.EXCLUDE_DESC, false);
+		staticMethod = new ExternalMethodVisitor(classWriter.visitMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null));
 		staticMethod.visitCode();
 	}
 	
@@ -40,8 +41,6 @@ public class ExternalFieldsHolder implements FieldsHolder {
 	
 	@Override
 	public void close(){
-		staticMethod.visitInsn(Opcodes.RETURN);
-		staticMethod.visitMaxs(1, 1); // Dummy call 
 		staticMethod.visitEnd();
 		classWriter.visitEnd();
 	}
@@ -54,5 +53,28 @@ public class ExternalFieldsHolder implements FieldsHolder {
 	@Override
 	public String getFieldsHolderName(String owner){
 		return owner +  FIELDS_HOLDER;
+	}
+	
+	/**
+	* A wrapper method that is used to close the new <clinit>.
+	*/
+	private static class ExternalMethodVisitor extends MethodAdapter{
+
+		private boolean ended = false;
+		
+		public ExternalMethodVisitor(MethodVisitor mv) {
+			super(mv);
+		}
+
+		@Override
+		public void visitEnd(){
+			if(ended)
+				return;
+
+			ended = true;
+			super.visitInsn(Opcodes.RETURN);
+			super.visitMaxs(1, 1); // Dummy call 
+			super.visitEnd();
+		}
 	}
 }

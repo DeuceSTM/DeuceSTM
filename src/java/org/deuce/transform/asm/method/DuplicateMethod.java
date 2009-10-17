@@ -40,7 +40,7 @@ public class DuplicateMethod extends MethodAdapter{
 	public void visitMethodInsn(int opcode, String owner, String name,
 			String desc) 
 	{
-		if( Agent.IGNORE_TREE.contains( owner))
+		if( Agent.EXCLUDE_INCLUDE_STORE.exclude(owner))
 		{
 			super.visitMethodInsn(opcode, owner, name, desc); // ... = foo( ...
 		}
@@ -58,7 +58,7 @@ public class DuplicateMethod extends MethodAdapter{
 	 */
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		if( Agent.IGNORE_TREE.contains( owner) || 
+		if( Agent.EXCLUDE_INCLUDE_STORE.exclude( owner) || 
 				name.contains("$")){ // Syntactic TODO remove this limitation
 			super.visitFieldInsn(opcode, owner, name, desc); // ... = foo( ...
 			return;

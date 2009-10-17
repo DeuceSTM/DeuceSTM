@@ -14,6 +14,8 @@ import org.deuce.transaction.Context;
 import org.deuce.transform.Exclude;
 import org.deuce.transform.asm.method.MethodTransformer;
 import org.deuce.transform.asm.method.StaticMethodTransformer;
+import org.deuce.transform.asm.type.TypeCodeResolver;
+import org.deuce.transform.asm.type.TypeCodeResolverFactory;
 import org.deuce.transform.util.Util;
 
 @Exclude
@@ -22,8 +24,9 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 	private boolean exclude = false;
 	private boolean visitclinit = false;
 	final private LinkedList<Field> fields = new LinkedList<Field>();
-
-	final static private String EXCLUDE_DESC = Type.getDescriptor(Exclude.class);
+	private String staticField = null;
+	
+	final static public String EXCLUDE_DESC = Type.getDescriptor(Exclude.class);
 	final static private String ANNOTATION_NAME = Type.getInternalName(Annotation.class);
 	private boolean isInterface;
 	private MethodVisitor staticMethod;
@@ -75,10 +78,12 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 		String addressFieldName = Util.getAddressField( name);
 		
 		final boolean include = (access & Opcodes.ACC_FINAL) == 0;
+		final boolean isStatic = (access & Opcodes.ACC_STATIC) != 0;
 		if( include){ // include field if not final 
 			Field field = new Field(name, addressFieldName);
 			fields.add( field);
-
+			if(isStatic)
+				staticField = name;
 			fieldsHolder.addField( fieldAccess, addressFieldName, Type.LONG_TYPE.getDescriptor(), null);
 		}else{
 			// If this field is final mark with a negative address.
@@ -93,9 +98,16 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 			String[] exceptions) {
 
 		MethodVisitor originalMethod =  super.visitMethod(access, name, desc, signature, exceptions);
+		
 		if( exclude)
 			return originalMethod;
 
+		final boolean isNative = (access & Opcodes.ACC_NATIVE) != 0;
+		if(isNative){
+			createNativeMethod(access, name, desc, signature, exceptions);
+			return originalMethod;
+		}
+		
 		if( name.equals("<clinit>")) {
 			staticMethod = originalMethod;
 			visitclinit = true;
@@ -109,8 +121,7 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 					Type.getDescriptor(Object.class), null);
 			
 			MethodVisitor staticMethodVisitor = fieldsHolder.getStaticMethodVisitor();
-			StaticMethodTransformer staticTransformer =  createStaticMethodTransformer( originalMethod, staticMethodVisitor);
-			return new JSRInlinerAdapter(staticTransformer, access, name, desc, signature, exceptions);
+			return createStaticMethodTransformer( originalMethod, staticMethodVisitor);
 		}
 		Method newMethod = createNewMethod(name, desc);
 
@@ -119,6 +130,44 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 
 		return new MethodTransformer( originalMethod, copyMethod, className,
 				access, name, desc, newMethod, fieldsHolder);
+	}
+
+	/**
+	 * Build a dummy method that delegates the call to the native method
+	 */
+	private void createNativeMethod(int access, String name, String desc,
+			String signature, String[] exceptions) {
+		Method newMethod = createNewMethod(name, desc);
+		final int newAccess = access & ~Opcodes.ACC_NATIVE;
+		MethodVisitor copyMethod =  super.visitMethod(newAccess | Opcodes.ACC_SYNTHETIC, name, newMethod.getDescriptor(),
+				signature, exceptions);
+		copyMethod.visitCode();
+		
+		// load the arguments before calling the original method
+		final boolean isStatic = (access & ~Opcodes.ACC_STATIC) != 0;
+		int place = 0; // place on the stack
+		if(!isStatic){
+			copyMethod.visitVarInsn(Opcodes.ALOAD, 0); // load this
+			place = 1;
+		}
+		
+		Type[] argumentTypes = newMethod.getArgumentTypes();
+		for(int i=0 ; i<(argumentTypes.length-1) ; ++i){
+			Type type = argumentTypes[i];
+			copyMethod.visitVarInsn(type.getOpcode(Opcodes.IALOAD), place);
+			place += type.getSize();
+		}
+		
+		// call the original method
+		copyMethod.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, name, desc);
+		TypeCodeResolver returnReolver = TypeCodeResolverFactory.getReolver(newMethod.getReturnType());
+		if( returnReolver == null) {
+			copyMethod.visitInsn( Opcodes.RETURN); // return;
+		}else {
+			copyMethod.visitInsn(returnReolver.returnCode());
+		}
+		copyMethod.visitMaxs(1, 1);
+		copyMethod.visitEnd();
 	}
 
 	@Override
@@ -143,7 +192,7 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 	}
 
 	private StaticMethodTransformer createStaticMethodTransformer(MethodVisitor originalMethod, MethodVisitor staticMethod){
-		return new StaticMethodTransformer( originalMethod, staticMethod, fields, 
+		return new StaticMethodTransformer( originalMethod, staticMethod, fields, staticField,
 				className, fieldsHolder.getFieldsHolderName(className));
 	}
 	
