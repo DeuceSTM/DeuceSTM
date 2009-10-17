@@ -28,12 +28,12 @@ public class AddressUtil {
 	 * @return direct address
 	 */
 	public static Object staticFieldBase( Class clazz, String fieldName) {
-		Field field;
+		Field field = null;
 		try {
 			field = clazz.getDeclaredField(fieldName);
 			return UnsafeHolder.getUnsafe().staticFieldBase( field);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(clazz + " " + field, e);
 		} 
 	}
 	
