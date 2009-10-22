@@ -30,14 +30,12 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 	final private boolean isStatic;
 	final private int variablesSize;
 	final private Method newMethod;
-	final private String descriptor; 
 	
 	public AtomicMethod(MethodVisitor mv, String className, String methodName,
 			String descriptor, Method newMethod, boolean isStatic) {
 		super(mv);
 		this.className = className;
 		this.methodName = methodName;
-		this.descriptor = descriptor;
 		this.newMethod = newMethod;
 		this.isStatic = isStatic;
 

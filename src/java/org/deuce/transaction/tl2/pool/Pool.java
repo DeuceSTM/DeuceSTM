@@ -16,7 +16,7 @@ public class Pool<T>{
 	private static final int DEFAULT_CAPACITY = 1024;
 	private T[] pool = (T[]) new Object[DEFAULT_CAPACITY];
 	private int nextAvaliable = 0;
-	final private ResourceFactory factory;
+	final private ResourceFactory<T> factory;
 	
 	public Pool(ResourceFactory<T> factory){
 		this.factory = factory;
@@ -29,7 +29,7 @@ public class Pool<T>{
 
 	private void fillArray( int offset){
 		for( int i=offset ; i < DEFAULT_CAPACITY + offset ; ++i){
-			pool[i] = (T) factory.newInstance();
+			pool[i] = factory.newInstance();
 		}
 	}
 

@@ -11,8 +11,6 @@ import java.lang.reflect.Method;
 import junit.framework.TestCase;
 
 import org.deuce.transaction.Context;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * Check that duplicate methods are created with the right signature. 

@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 
 import org.deuce.reflection.UnsafeHolder;
 import org.deuce.transform.Exclude;
-import org.deuce.transform.util.IgnoreTree;
 
 /**
  * A java agent to dynamically instrument transactional supported classes/  

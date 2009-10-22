@@ -1,7 +1,6 @@
 package org.deuce.test.main;
 
 import org.deuce.Atomic;
-import org.deuce.benchmark.bank.OverdraftException;
 
 /**
  * @author Pascal Felber
