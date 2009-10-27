@@ -46,4 +46,9 @@ public class WriteSet implements Iterable<WriteFieldAccess>{
 		// Check if it is already included in the write set
 		return bloomFilter.contains(read.hashCode()) ? writeSet.get( read): null;
 	}
+	
+	public int size() {
+		return writeSet.size();
+	}
+	
 }
