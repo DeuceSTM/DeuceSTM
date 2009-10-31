@@ -16,14 +16,17 @@ public class ExternalFieldsHolder implements FieldsHolder {
 	
 	final private ClassWriter classWriter;
 	final private String className;
-	final private ExternalMethodVisitor staticMethod;
+	private ExternalMethodVisitor staticMethod;
 	
 	public ExternalFieldsHolder(String className){
 		this.className = getFieldsHolderName(className);
-		
-		classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-		classWriter.visit(Opcodes.V1_6, Opcodes.ACC_FINAL + Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, 
-				this.className, null, "java/lang/Object", null);
+		this.classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+	}
+	
+	public void visit(String superName){
+		String superFieldHolder = ExcludeIncludeStore.exclude(superName) ? "java/lang/Object" : getFieldsHolderName(superName);
+		classWriter.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, 
+				this.className, null, superFieldHolder, null);
 		classWriter.visitAnnotation(ClassTransformer.EXCLUDE_DESC, false);
 		staticMethod = new ExternalMethodVisitor(classWriter.visitMethod(Opcodes.ACC_STATIC, "<clinit>", "()V", null, null));
 		staticMethod.visitCode();

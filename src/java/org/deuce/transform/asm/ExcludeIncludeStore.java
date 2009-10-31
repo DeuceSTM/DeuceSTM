@@ -1,5 +1,7 @@
 package org.deuce.transform.asm;
 
+import java.util.HashSet;
+
 import org.deuce.transform.util.IgnoreTree;
 
 /**
@@ -12,8 +14,17 @@ public class ExcludeIncludeStore {
 
 	final private IgnoreTree excludeTree;
 	final private IgnoreTree includeTree;
+	final private HashSet<String> excludeClass = new HashSet<String>();
 	
-	public ExcludeIncludeStore(){
+	final private static ExcludeIncludeStore excludeIncludeStore = new ExcludeIncludeStore();
+	static{
+		excludeIncludeStore.excludeClass.add("java/lang/Object");
+		excludeIncludeStore.excludeClass.add("java/lang/Thread");
+		excludeIncludeStore.excludeClass.add("java/lang/Throwable");		
+	}
+
+	
+	private ExcludeIncludeStore(){
 
 		String property = System.getProperty("org.deuce.exclude");
 		if( property == null)
@@ -26,9 +37,10 @@ public class ExcludeIncludeStore {
 		includeTree = new IgnoreTree( property);
 	}
 	
-	public boolean exclude(String className){
-		if(className.startsWith("java/lang/Object"))
+	public static boolean exclude(String className){
+		if(excludeIncludeStore.excludeClass.contains(className))
 			return true;
-		return excludeTree.contains(className) && !includeTree.contains(className);
+		return excludeIncludeStore.excludeTree.contains(className) && !excludeIncludeStore.includeTree.contains(className);
 	} 
+	
 }

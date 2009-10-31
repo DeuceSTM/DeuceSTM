@@ -9,8 +9,8 @@ import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.Context;
 import org.deuce.transaction.ContextDelegator;
-import org.deuce.transform.asm.Agent;
 import org.deuce.transform.asm.ClassTransformer;
+import org.deuce.transform.asm.ExcludeIncludeStore;
 import org.deuce.transform.asm.FieldsHolder;
 import org.deuce.transform.util.Util;
 
@@ -40,7 +40,7 @@ public class DuplicateMethod extends MethodAdapter{
 	public void visitMethodInsn(int opcode, String owner, String name,
 			String desc) 
 	{
-		if( Agent.EXCLUDE_INCLUDE_STORE.exclude(owner))
+		if( ExcludeIncludeStore.exclude(owner))
 		{
 			super.visitMethodInsn(opcode, owner, name, desc); // ... = foo( ...
 		}
@@ -58,7 +58,7 @@ public class DuplicateMethod extends MethodAdapter{
 	 */
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		if( Agent.EXCLUDE_INCLUDE_STORE.exclude( owner) || 
+		if( ExcludeIncludeStore.exclude( owner) || 
 				name.contains("$")){ // Syntactic TODO remove this limitation
 			super.visitFieldInsn(opcode, owner, name, desc); // ... = foo( ...
 			return;

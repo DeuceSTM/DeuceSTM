@@ -44,6 +44,7 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 	public void visit(final int version, final int access, final String name,
 			final String signature, final String superName, final String[] interfaces) {
 		
+		fieldsHolder.visit(superName);
 		isInterface = (access & Opcodes.ACC_INTERFACE) != 0;
 		isEnum = ENUM_DESC.equals(superName);
 		
@@ -159,12 +160,12 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 		Type[] argumentTypes = newMethod.getArgumentTypes();
 		for(int i=0 ; i<(argumentTypes.length-1) ; ++i){
 			Type type = argumentTypes[i];
-			copyMethod.visitVarInsn(type.getOpcode(Opcodes.IALOAD), place);
+			copyMethod.visitVarInsn(type.getOpcode(Opcodes.ILOAD), place);
 			place += type.getSize();
 		}
 		
 		// call the original method
-		copyMethod.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, name, desc);
+		copyMethod.visitMethodInsn(isStatic ? Opcodes.INVOKESTATIC : Opcodes.INVOKEVIRTUAL, className, name, desc);
 		TypeCodeResolver returnReolver = TypeCodeResolverFactory.getReolver(newMethod.getReturnType());
 		if( returnReolver == null) {
 			copyMethod.visitInsn( Opcodes.RETURN); // return;
@@ -196,7 +197,7 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 					super.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC, "ordinal", "(Lorg/deuce/transaction/Context;)I", null, null);
 				ordinalMethod.visitCode();
 				ordinalMethod.visitVarInsn(Opcodes.ALOAD, 0);
-				ordinalMethod.visitMethodInsn(Opcodes.INVOKEVIRTUAL, ENUM_DESC, "ordinal", "()I");
+				ordinalMethod.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, "ordinal", "()I");
 				ordinalMethod.visitInsn(Opcodes.IRETURN);
 				ordinalMethod.visitMaxs(1, 2);
 				ordinalMethod.visitEnd();
@@ -239,5 +240,10 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 	@Override
 	public String getFieldsHolderName(String owner){
 		return owner;
+	}
+
+	@Override
+	public void visit(String superName) {
+		//nothing to do
 	}
 }
