@@ -50,17 +50,17 @@ public class AddressUtilTest extends TestCase{
 
 	public void testGetStaticAddress() throws NoSuchFieldException{
 		long address = AddressUtil.getAddress(A.class.getField("f1"));
-		Assert.assertEquals(328, address);
+		Assert.assertEquals(336, address);
 	}
 
 	public void testGetStaticInheritAddress() throws NoSuchFieldException{
 		long address = AddressUtil.getAddress(B.class.getField("f1"));
-		Assert.assertEquals(328, address);
+		Assert.assertEquals(336, address);
 	}
 
 	public void testGetStaticExtendAddress() throws NoSuchFieldException{
 		long address = AddressUtil.getAddress(B.class.getField("f4"));
-		Assert.assertEquals(328, address);
+		Assert.assertEquals(336, address);
 	}
 
 	public void testFailonFieldNotFound() throws NoSuchFieldException{
