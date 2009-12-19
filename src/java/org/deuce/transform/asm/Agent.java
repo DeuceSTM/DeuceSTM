@@ -139,56 +139,65 @@ public class Agent implements ClassFileTransformer {
 		agent.transformJar(args[0], args[1]);
 	}
 	
-	private void transformJar( String inFileName, String outFilename) throws IOException, IllegalClassFormatException {
+	private void transformJar( String inFileNames, String outFilenames) throws IOException, IllegalClassFormatException {
 		
-		final int size = 4096;
-		byte[] buffer = new byte[size];
-		ByteArrayOutputStream baos = new ByteArrayOutputStream(size);
+		String[] inFileNamesArr = inFileNames.split(";");
+		String[] outFilenamesArr = outFilenames.split(";");
+		if(inFileNamesArr.length != outFilenamesArr.length)
+			throw new IllegalArgumentException("Input files list length doesn't match output files list.");
 		
-		JarInputStream jarIS = new JarInputStream(new FileInputStream(inFileName));
-		JarOutputStream jarOS = new JarOutputStream(new FileOutputStream(outFilename), jarIS.getManifest());
-		
-		logger.info("Start tranlating source:" + inFileName + " target:" + outFilename);
-		
-		String nextName = "";
-		try {
-			for (JarEntry nextJarEntry = jarIS.getNextJarEntry(); nextJarEntry != null;
-								nextJarEntry = jarIS.getNextJarEntry()) {
-				
-				baos.reset();
-				int read;
-				while ((read = jarIS.read(buffer, 0, size)) > 0) {
-					baos.write(buffer, 0, read);
-				}
-				byte[] bytecode = baos.toByteArray();
-				
-				nextName = nextJarEntry.getName();
-				if( nextName.endsWith(".class")){
-					if( logger.isLoggable(Level.FINE)){
-						logger.fine("Transalating " + nextName);
-					}
-					String className = nextName.substring(0, nextName.length() - ".class".length());
-					List<ClassByteCode> transformBytecodes = transform( className, bytecode, true);
-					for(ClassByteCode byteCode : transformBytecodes){
-						JarEntry transformedEntry = new JarEntry(byteCode.getClassName() + ".class");
-						jarOS.putNextEntry( transformedEntry); 
-						jarOS.write( byteCode.getBytecode());
-					}
-				}
-				else{
-					jarOS.putNextEntry( nextJarEntry);
-					jarOS.write(bytecode);
-				}
-			}
+		for(int i=0 ; i<inFileNamesArr.length ; ++i){
+			String inFileName = inFileNamesArr[i];
+			String outFilename = outFilenamesArr[i];
 			
-		}
-		catch(Exception e){
-			logger.log(Level.SEVERE, "Failed to translate " + nextName, e);
-		}
-		finally {
-			logger.info("Closing source:" + inFileName + " target:" + outFilename);
-			jarIS.close();
-			jarOS.close();
+			final int size = 4096;
+			byte[] buffer = new byte[size];
+			ByteArrayOutputStream baos = new ByteArrayOutputStream(size);
+			JarInputStream jarIS = new JarInputStream(new FileInputStream(inFileName));
+			JarOutputStream jarOS = new JarOutputStream(new FileOutputStream(outFilename), jarIS.getManifest());
+
+			logger.info("Start tranlating source:" + inFileName + " target:" + outFilename);
+
+			String nextName = "";
+			try {
+				for (JarEntry nextJarEntry = jarIS.getNextJarEntry(); nextJarEntry != null;
+				nextJarEntry = jarIS.getNextJarEntry()) {
+
+					baos.reset();
+					int read;
+					while ((read = jarIS.read(buffer, 0, size)) > 0) {
+						baos.write(buffer, 0, read);
+					}
+					byte[] bytecode = baos.toByteArray();
+
+					nextName = nextJarEntry.getName();
+					if( nextName.endsWith(".class")){
+						if( logger.isLoggable(Level.FINE)){
+							logger.fine("Transalating " + nextName);
+						}
+						String className = nextName.substring(0, nextName.length() - ".class".length());
+						List<ClassByteCode> transformBytecodes = transform( className, bytecode, true);
+						for(ClassByteCode byteCode : transformBytecodes){
+							JarEntry transformedEntry = new JarEntry(byteCode.getClassName() + ".class");
+							jarOS.putNextEntry( transformedEntry); 
+							jarOS.write( byteCode.getBytecode());
+						}
+					}
+					else{
+						jarOS.putNextEntry( nextJarEntry);
+						jarOS.write(bytecode);
+					}
+				}
+
+			}
+			catch(Exception e){
+				logger.log(Level.SEVERE, "Failed to translate " + nextName, e);
+			}
+			finally {
+				logger.info("Closing source:" + inFileName + " target:" + outFilename);
+				jarIS.close();
+				jarOS.close();
+			}
 		}
 	}
 	
