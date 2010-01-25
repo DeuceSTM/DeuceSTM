@@ -36,7 +36,7 @@ public class KarmaLockStealer extends BackoffCM {
 		else if (myPrio + myState.counter > otherPrio) {
 			// It is not allowed to steal a lock before
 			// you mark the other transaction as aborted
-			if (other.kill(other.getLocalClock())) {
+			if (other.kill()) {
 				return Action.STEAL_LOCK;
 			}
 		}

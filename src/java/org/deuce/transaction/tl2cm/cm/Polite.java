@@ -36,7 +36,7 @@ public class Polite extends BackoffCM {
 		} 
 		else if (myState.counter == MAX_BACKOFF_TIMES) {
 			// The thread is not allowed to back-off any longer
-			other.kill(other.getLocalClock());
+			other.kill();
 			return Action.RETRY_LOCK;
 		}
 		// increase back-off counter and loop until

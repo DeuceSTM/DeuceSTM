@@ -15,7 +15,7 @@ import org.deuce.transform.Exclude;
 public class Aggressive extends AbstractContentionManager {
 
 	public Action resolve(WriteFieldAccess contentionPoint, Context contending, Context other) {
-		other.kill(other.getLocalClock());
+		other.kill();
 		return Action.RETRY_LOCK;
 	}
 

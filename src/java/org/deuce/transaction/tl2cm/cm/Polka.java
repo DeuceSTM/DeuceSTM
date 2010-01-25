@@ -29,14 +29,11 @@ public class Polka extends BackoffCM {
 		// Check if the thread is running a new transaction
 		// and if so we need to update the thread's state
 		if (myState.originalTimestamp < myCurrTimestamp) {
-//			contending.getStatistics().reportPolkaStart(myState.counter);
 			myState.originalTimestamp = myCurrTimestamp;
 			myState.counter = 1;
 		}
 		else if (diff > 0 && myState.counter > 0) {
-			other.kill(other.getLocalClock());
-//			myState.counter = -1;	// to indicate that I already killed the other transaction
-//			contending.getStatistics().reportPolkaKill(myState.counter);
+			other.kill();
 			return Action.RETRY_LOCK;
 		}
 		

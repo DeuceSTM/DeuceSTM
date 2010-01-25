@@ -26,7 +26,7 @@ public class Timestamp extends BackoffCM {
 			myState.counter = 1;
 		}
 		else if (myTimestamp > otherTimestamp) {
-			other.kill(other.getLocalClock());
+			other.kill();
 			return Action.RETRY_LOCK;
 		}
 		// increase back-off counter and loop until

@@ -1,13 +1,10 @@
 package org.deuce.transaction.tl2cm;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.tl2.WriteSet;
@@ -46,7 +43,7 @@ final public class Context implements org.deuce.transaction.Context {
 	public static final String TL2CM_LOGGER = "org.deuce.transaction.tl2cm";
 	public static final TransactionException FAILURE_EXCEPTION = new TransactionException( "Transaction failed");
 	
-	private static final Logger logger = Logger.getLogger(TL2CM_LOGGER);
+	//private static final Logger logger = Logger.getLogger(TL2CM_LOGGER);
 	private static final AtomicInteger clock = new AtomicInteger(0);
 	private static final AtomicInteger threadIdCounter = new AtomicInteger(1);
 	private static final Map<Integer, Context> threads = new ConcurrentHashMap<Integer, Context>();
@@ -63,14 +60,6 @@ final public class Context implements org.deuce.transaction.Context {
 	private final AtomicInteger timestamp;
 	private int atomicBlockId;
 	private int versionOfLastReadLock;
-	private int abortsCount;
-	
-	
-//	private long startTime;
-//	private boolean isDone;
-//	
-	private final Map<Integer, Integer> originalVersions = new HashMap<Integer, Integer>();
-	
 
 	// Static initialization
 	static {
@@ -90,9 +79,6 @@ final public class Context implements org.deuce.transaction.Context {
 		this.timestamp = new AtomicInteger(0);
 		this.phase = new AtomicReference<Phase>(Phase.COMMITTED);
 		threads.put(threadId, this);
-		
-//		this.startTime = System.currentTimeMillis();
-		
 	}
 	
 	@Override
@@ -121,19 +107,9 @@ final public class Context implements org.deuce.transaction.Context {
 			this.timestamp.set(currentClock);
 		} 
 		
-		this.originalVersions.clear(); 
-		
 		this.atomicBlockId = atomicBlockId;
 		this.phase.set(Phase.RUNNING);
 		this.stats.reportTxStart();
-	
-		
-//		isDone = System.currentTimeMillis() - startTime > 7000;
-//		if (abortsCount % 100 == 0 && isDone) {
-//			System.out.println("Thread " + threadId + " aborted too many times.");
-//		}
-		
-		
 	}
 
 	public boolean commit() {
@@ -182,13 +158,7 @@ final public class Context implements org.deuce.transaction.Context {
 		this.phase.set(Phase.ABORTED);
 		for (WriteSetIteratorElement elem : lockedList) {
 			int hash = elem.getField().hashCode();
-//			if (elem.getState().equals(State.ACQUIRED)) {
-//				// location so it will be restored here
-//				LockTable.unLock(hash, threadId, originalVersions.get(hash));	
-//			}
-//			else {
-				LockTable.unLock(hash, threadId, -1);
-//			}
+			LockTable.unLock(hash, threadId, -1);
 		}
 		return false;
 	}
@@ -198,18 +168,11 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 	
 	/**
-	 * Kills the transaction executed by this thread. This method only kills
-	 * the transaction that caused conflict by checking that the local clock
-	 * value at the time the method was invoked equals the local clock value
-	 * at the time the method is run.
-	 * @param timeOfKill local clock at the time the kill or -1 if this thread kills itself
-	 * method was invoked
+	 * Kills this transaction if it is still running
+	 * @return true if the kill operation succeeded, false otherwise
 	 */
-	public boolean kill(int timeOfKill) {
-		if (timeOfKill == -1 || localClock.get() == timeOfKill) {
-			return phase.compareAndSet(Phase.RUNNING, Phase.ABORTED);
-		}
-		return false;
+	public boolean kill() {
+		return phase.compareAndSet(Phase.RUNNING, Phase.ABORTED);
 	}
 	
 	/**
@@ -293,12 +256,6 @@ final public class Context implements org.deuce.transaction.Context {
 				boolean lockedByForce = false;
 				long lock = LockTable.lock(writeField.hashCode(), threadId, localClock.get());
 				int lockOwner = LockTable.getOwner(lock);
-				
-//				if (isDone && lockOwner != threadId) {
-//					System.out.println("Thread " + threadId + " aborted since lock owner is " + lockOwner);
-//					
-//				}
-				
 				if (lockOwner == -1) {
 					// Lock appeared to be free, but when I tried to CAS it, I failed. The owner of the
 					// lock is not known to me, therefore I can't efficiently do contention management, so I just retry.
@@ -324,7 +281,6 @@ final public class Context implements org.deuce.transaction.Context {
 							continue;
 						}
 						else if (action.equals(Action.STEAL_LOCK)) {
-//							int versionForStealing = LockTable.getVersion(lock) + abortsCount;
 							int versionForStealing = clock.incrementAndGet();
 							lockedByForce = LockTable.forceLock(writeField.hashCode(), lock, threadId, versionForStealing);
 						}
@@ -366,27 +322,21 @@ final public class Context implements org.deuce.transaction.Context {
 			throw FAILURE_EXCEPTION;
 		}
 		
-		//TODO: think where to put TxLoad CM
-		
 		// Check if the location is already included in the write set
 		return writeSet.contains(current);
 	}
 
 	private void addWriteAccess0(WriteFieldAccess write) {
 		//trace("adding write to hash={0}", new Object[]{write.hashCode()});
-		// Add to write set
-		long lock = LockTable.getLock(write.hashCode());
-		int ver = LockTable.getVersion(lock);
-		originalVersions.put(write.hashCode(), ver);
 		writeSet.put(write);
 	}
 
-	private void trace(String message, Object[] params) {
-		StringBuilder sb = new StringBuilder(message);
-		sb.append(this.toString());
-		String str = sb.toString();
-		logger.log(Level.INFO, str, params);
-	}
+//	private void trace(String message, Object[] params) {
+//		StringBuilder sb = new StringBuilder(message);
+//		sb.append(this.toString());
+//		String str = sb.toString();
+//		logger.log(Level.INFO, str, params);
+//	}
 
 	public void beforeReadAccess(Object obj, long field) {
 		ReadFieldAccess next = readSet.getNext();
@@ -397,18 +347,9 @@ final public class Context implements org.deuce.transaction.Context {
 		long lock = LockTable.getLock(hash);
 		versionOfLastReadLock = LockTable.getVersion(lock);
 		if (versionOfLastReadLock > localClock.get()) {
-//			
-//			if (isDone) {
-//				System.out.println("Thread " + threadId + " aborted hash=" + hash + " rv=" + localClock.get() + " lockV=" + LockTable.getVersion(lock));
-//				
-//			}
-//			
 			stats.reportAbort(AbortType.SPECULATION_READVERSION);
 			throw FAILURE_EXCEPTION;
 		}
-		
-		//TODO: think where to put TxLoad CM
-		
 		// The version of the location is consistent
 	}
 
