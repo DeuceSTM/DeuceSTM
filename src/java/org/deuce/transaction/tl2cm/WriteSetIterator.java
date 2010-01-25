@@ -37,11 +37,10 @@ public class WriteSetIterator {
 		acquired.offer(n);
 	}
 	
-	public boolean skipLock() {
+	public void skipLock() {
 		WriteSetIteratorElement n = pending.poll();
 		n.lockAttempts++;
 		pending.offer(n);
-		return n.lockAttempts == 3;
 	}
 	
 	public List<WriteSetIteratorElement> getAcquiredLocks() {
