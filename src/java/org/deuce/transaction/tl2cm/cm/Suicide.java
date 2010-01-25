@@ -11,18 +11,14 @@ import org.deuce.transform.Exclude;
  * @since 1.2
  */
 @Exclude
-public class Suicide implements ContentionManager {
+public class Suicide extends AbstractContentionManager {
 
 	public Action resolve(WriteFieldAccess contentionPoint, Context contending, Context other) {
 		return Action.RESTART;
 	}
 
-	public boolean requiresPriorities() {
-		return false;
-	}
-	
-	public boolean requiresTimestamps() {
-		return false;
+	public String getDescription() {
+		return "Suicide";
 	}
 
 }

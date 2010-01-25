@@ -2,13 +2,8 @@ package org.deuce.transaction.tl2cm;
 
 import org.deuce.transform.Exclude;
 
-/**
-* Transaction status codes
-* @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
-* @since 1.2
-*/
 @Exclude
-public enum Status {
+public enum Phase {
 
 	/**
 	 * The transaction is running a speculative execution of the code,

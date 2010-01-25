@@ -12,19 +12,15 @@ import org.deuce.transform.Exclude;
  * @since 1.2
  */
 @Exclude
-public class Aggressive implements ContentionManager {
+public class Aggressive extends AbstractContentionManager {
 
 	public Action resolve(WriteFieldAccess contentionPoint, Context contending, Context other) {
 		other.kill(other.getLocalClock());
 		return Action.RETRY_LOCK;
 	}
 
-	public boolean requiresPriorities() {
-		return false;
-	}
-
-	public boolean requiresTimestamps() {
-		return false;
+	public String getDescription() {
+		return "Aggressive";
 	}
 
 }

@@ -11,7 +11,7 @@ import org.deuce.transform.Exclude;
  * @since 1.2
  */
 @Exclude
-public abstract class BackoffCM implements ContentionManager {
+public abstract class BackoffCM extends AbstractContentionManager {
 	
 	protected final ThreadLocal<BackoffData> data = new ThreadLocal<BackoffData>();
 	

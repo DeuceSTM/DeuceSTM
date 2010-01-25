@@ -1,7 +1,7 @@
 package org.deuce.transaction.tl2cm.cm;
 
-import org.deuce.transaction.tl2cm.Context;
 import org.deuce.transaction.tl2.field.WriteFieldAccess;
+import org.deuce.transaction.tl2cm.Context;
 import org.deuce.transform.Exclude;
 
 /**
@@ -29,11 +29,14 @@ public class Polka extends BackoffCM {
 		// Check if the thread is running a new transaction
 		// and if so we need to update the thread's state
 		if (myState.originalTimestamp < myCurrTimestamp) {
+//			contending.getStatistics().reportPolkaStart(myState.counter);
 			myState.originalTimestamp = myCurrTimestamp;
 			myState.counter = 1;
 		}
-		else if (diff > 0) {
+		else if (diff > 0 && myState.counter > 0) {
 			other.kill(other.getLocalClock());
+//			myState.counter = -1;	// to indicate that I already killed the other transaction
+//			contending.getStatistics().reportPolkaKill(myState.counter);
 			return Action.RETRY_LOCK;
 		}
 		
@@ -48,9 +51,8 @@ public class Polka extends BackoffCM {
 		return true;
 	}
 	
-	public boolean requiresTimestamps() {
-		return false;
+	public String getDescription() {
+		return "Polka busy-waiting [C=" + C + "]";
 	}
-
 
 }

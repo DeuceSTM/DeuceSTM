@@ -1,12 +1,15 @@
 package org.deuce.transaction.tl2cm;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.deuce.transaction.TransactionException;
-import org.deuce.transaction.tl2cm.cm.ContentionManager;
-import org.deuce.transaction.tl2cm.cm.ContentionManager.Action;
-import org.deuce.transaction.tl2cm.contexts.ContextsMap;
 import org.deuce.transaction.tl2.WriteSet;
 import org.deuce.transaction.tl2.field.BooleanWriteFieldAccess;
 import org.deuce.transaction.tl2.field.ByteWriteFieldAccess;
@@ -21,6 +24,10 @@ import org.deuce.transaction.tl2.field.ShortWriteFieldAccess;
 import org.deuce.transaction.tl2.field.WriteFieldAccess;
 import org.deuce.transaction.tl2.pool.Pool;
 import org.deuce.transaction.tl2.pool.ResourceFactory;
+import org.deuce.transaction.tl2cm.Statistics.AbortType;
+import org.deuce.transaction.tl2cm.WriteSetIterator.WriteSetIteratorElement;
+import org.deuce.transaction.tl2cm.cm.ContentionManager;
+import org.deuce.transaction.tl2cm.cm.ContentionManager.Action;
 import org.deuce.transform.Exclude;
 
 /**
@@ -35,31 +42,42 @@ import org.deuce.transform.Exclude;
 @Exclude
 final public class Context implements org.deuce.transaction.Context {
 
+	// Static members - shared by all threads
 	public static final String TL2CM_LOGGER = "org.deuce.transaction.tl2cm";
-	//private static final Logger logger = Logger.getLogger(TL2CM_LOGGER);
-	//private static final boolean isTracing = logger.isLoggable(Level.INFO);
-	private static final AtomicInteger clock = new AtomicInteger(0);
-	private static final AtomicInteger threadIdCounter = new AtomicInteger(LockTable.INITIAL_OWNER+1);
-	private static final ContextsMap threads = Factory.createContextsMap();
-	private static ContentionManager cm;
+	public static final TransactionException FAILURE_EXCEPTION = new TransactionException( "Transaction failed");
 	
-	private final int threadId;
+	private static final Logger logger = Logger.getLogger(TL2CM_LOGGER);
+	private static final AtomicInteger clock = new AtomicInteger(0);
+	private static final AtomicInteger threadIdCounter = new AtomicInteger(1);
+	private static final Map<Integer, Context> threads = new ConcurrentHashMap<Integer, Context>();
+	private static final ContentionManager cm = Factory.createContentionManager();
+
+	// Instance members - specific to each thread
+	private final int threadId = threadIdCounter.getAndIncrement();
+	private final Statistics stats = new Statistics(threadId);
 	private final ReadSet readSet = new ReadSet();
 	private final WriteSet writeSet = new WriteSet();
-	private final Statistics stats = new Statistics();
 	private final AtomicInteger localClock;
-	private final AtomicReference<Status> status;
-	private final AtomicInteger priority = new AtomicInteger(0);
-	private final AtomicInteger timestamp = new AtomicInteger(0);
+	private final AtomicReference<Phase> phase;
+	private final AtomicInteger priority;
+	private final AtomicInteger timestamp;
 	private int atomicBlockId;
-	private long lastReadLock;
+	private int versionOfLastReadLock;
+	private int abortsCount;
 	
+	
+//	private long startTime;
+//	private boolean isDone;
+//	
+	private final Map<Integer, Integer> originalVersions = new HashMap<Integer, Integer>();
+	
+
+	// Static initialization
 	static {
 		try {
 			System.out.println("TL2CM Initialized:");
-			cm = Factory.createContentionManager();
-			System.out.println("Contention Manager: " + cm.getClass().getSimpleName() + "\n");
-		}
+			System.out.println("Contention Manager: " + cm.getDescription());
+		} 
 		catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -67,16 +85,20 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 	
 	public Context() {
-		this.threadId = threadIdCounter.getAndIncrement();
 		this.localClock = new AtomicInteger(0);
-		this.status = new AtomicReference<Status>(Status.COMMITTED);
+		this.priority = new AtomicInteger(0);
+		this.timestamp = new AtomicInteger(0);
+		this.phase = new AtomicReference<Phase>(Phase.COMMITTED);
 		threads.put(threadId, this);
+		
+//		this.startTime = System.currentTimeMillis();
+		
 	}
 	
 	@Override
 	protected void finalize() throws Throwable {
-		 //threads.remove(threadId);
-		 super.finalize();
+		this.phase.set(Phase.INACTIVE);
+		super.finalize();
 	}
 	
 	public void init(int atomicBlockId) {
@@ -91,116 +113,82 @@ final public class Context implements org.deuce.transaction.Context {
 		this.longPool.clear();
 		this.floatPool.clear();
 		this.doublePool.clear();
-		this.atomicBlockId = atomicBlockId;
-		this.localClock.set(clock.get());
-		if (cm.requiresTimestamps() && status.get().equals(Status.COMMITTED)) {
+		int currentClock = clock.get();
+		this.localClock.set(currentClock);
+		if (cm.requiresTimestamps() && phase.get().equals(Phase.COMMITTED)) {
 			// Only if the last transaction committed we issue a new timestamp
 			// otherwise we continue with the old one 
-			this.timestamp.set(localClock.get());
-		}
-		this.status.set(Status.RUNNING);
-		this.stats.starts++;
+			this.timestamp.set(currentClock);
+		} 
+		
+		this.originalVersions.clear(); 
+		
+		this.atomicBlockId = atomicBlockId;
+		this.phase.set(Phase.RUNNING);
+		this.stats.reportTxStart();
+	
+		
+//		isDone = System.currentTimeMillis() - startTime > 7000;
+//		if (abortsCount % 100 == 0 && isDone) {
+//			System.out.println("Thread " + threadId + " aborted too many times.");
+//		}
+		
+		
 	}
 
 	public boolean commit() {
-		//trace("Commit begin", null);
-		if (writeSet.isEmpty()) { 
-			// if the writeSet is empty no need to lock a thing - all read locations
-			// were validated before we read them
-			//trace("Commit end | result = true (writeSet empty)", null);
-			this.stats.commits++;
+		this.stats.reportOnCommit(readSet.size(), writeSet.size());
+
+		// Read-only transactions don't have to do anything in order to commit
+		if (writeSet.isEmpty()) {
+			this.stats.reportCommit();
 			return true;
 		}
 		
-		// Lock write set
-		int lockedCounter = 0;
-		for (WriteFieldAccess writeField : writeSet) {
-			//trace("trying to acquire lock #{0}", new Object[]{lockedCounter});
-			while (status.get().equals(Status.RUNNING)) {
-				int lockOwner = LockTable.lock(writeField.hashCode(), threadId);
-				if (lockOwner == -1) {
-					// Lock appeared to be free, but when I tried to CAS it, I failed.
-					// The owner of the lock is not known to me, therefore I can't 
-					// efficiently do contention management, so I just retry.
-					continue;
-				}
-				else if (threadId != lockOwner) {	
-					// Lock is owned by some other thread. Contention Management is in order
-					Context otherCtx = threads.get(lockOwner);
-					if (otherCtx == null) {
-						// this can happen if the other thread already finished and 
-						// un-registered its context object. In this case, I retry.
-						//trace("Lock owner is not available, probably already finished. Retrying lock #{0}", new Object[]{lockedCounter});
-						continue;
+		// Writing transaction have to go through a different algorithm
+		List<WriteSetIteratorElement> lockedList = lockWriteSet();
+		if (lockedList.size() == writeSet.size()) {
+			boolean readSetValidated = readSet.isConsistent(localClock.get());
+			if (readSetValidated) {
+				boolean committed = phase.compareAndSet(Phase.RUNNING, Phase.COMMITTED);
+				if (committed) {
+					// Get a new version number
+					int newClock = clock.incrementAndGet();
+					// Write values to memory
+					for (WriteFieldAccess writeField : writeSet) {
+						writeField.put(); 
 					}
-					else {
-						Action action = cm.resolve(writeField, this, otherCtx);
-						if (action == Action.RESTART) {
-							// this will cause my transaction to roll-back and restart itself
-							//trace("restarting transaction as a result of contention on lock #{0}", new Object[]{lockedCounter});
-							kill(-1);
-							break;
-						}
-						else if (action == Action.RETRY_LOCK) {
-							// try again to acquire the lock
-							//trace("Retrying lock #{0}", new Object[]{lockedCounter});
-							continue;
-						}
+					// Update and release locks
+					for (WriteFieldAccess writeField : writeSet) {
+						LockTable.updateAndUnlock(writeField.hashCode(), newClock);
 					}
-				}
-				else {
-					// Lock is acquired!
-					//trace("Lock #{0} acquired", new Object[]{lockedCounter});
 					if (cm.requiresPriorities()) {
-						priority.incrementAndGet();
+						priority.set(0);
 					}
-					lockedCounter++;
-					break;
+					this.stats.reportCommit();
+					return true;
 				}
 			}
-			// If the while loop ended because someone killed me
-			// don't go to the next lock
-			if (!status.get().equals(Status.RUNNING)) {
-				break;
+			else {
+				this.stats.reportAbort(AbortType.COMMIT_READSET_VALIDATION);
 			}
 		}
-		// If the write set is locked, validate read set
-		boolean readSetValidated = false;
-		if (status.get().equals(Status.RUNNING)) {
-			try {
-				readSet.checkClock(localClock.get());
-				readSetValidated = true;
-			}
-			catch (TransactionException e) {
-				//trace("Commit | read set not validated", null);
-			}
-		}
-		// Wrap things up - try to commit
-		boolean committed = false;
-		if (readSetValidated) {
-			// If the read set is validated we can update the locks with a new version
-			int newClock = clock.incrementAndGet();
-			//trace("new clock is {0}", new Object[]{newClock});
-			for (WriteFieldAccess writeField : writeSet) {
-				writeField.put(); // commit value to field
-				LockTable.setAndReleaseLock(writeField.hashCode(), newClock, threadId);
-			}
-			//trace("Commit end | result = true", null);
-			if (cm.requiresPriorities()) {
-				priority.set(0);
-			}
-			committed = status.compareAndSet(Status.RUNNING, Status.COMMITTED);
-			if (committed) {
-				this.stats.commits++;
-				return true;
-			}
+		else {
+			this.stats.reportWriteSetValidationFailureDuringCommit(lockedList.size()+1);
+			this.stats.reportAbort(AbortType.COMMIT_WRITESET_LOCKING);
 		}
 		
-		// Could not commit - rollback
-		if (!readSetValidated || !committed) {
-			rollback(lockedCounter);
-			//trace("Commit end | result = false", null);
-			return false;
+		// Commit did not succeed, change phase and unlock the locks I did acquire
+		this.phase.set(Phase.ABORTED);
+		for (WriteSetIteratorElement elem : lockedList) {
+			int hash = elem.getField().hashCode();
+//			if (elem.getState().equals(State.ACQUIRED)) {
+//				// location so it will be restored here
+//				LockTable.unLock(hash, threadId, originalVersions.get(hash));	
+//			}
+//			else {
+				LockTable.unLock(hash, threadId, -1);
+//			}
 		}
 		return false;
 	}
@@ -217,11 +205,11 @@ final public class Context implements org.deuce.transaction.Context {
 	 * @param timeOfKill local clock at the time the kill or -1 if this thread kills itself
 	 * method was invoked
 	 */
-	public void kill(int timeOfKill) {
+	public boolean kill(int timeOfKill) {
 		if (timeOfKill == -1 || localClock.get() == timeOfKill) {
-			//trace("kill", null);
-			status.compareAndSet(Status.RUNNING, Status.ABORTED);
+			return phase.compareAndSet(Phase.RUNNING, Phase.ABORTED);
 		}
+		return false;
 	}
 	
 	/**
@@ -232,14 +220,14 @@ final public class Context implements org.deuce.transaction.Context {
 		return threadId;
 	}
 
-	public Status getStatus() {
-		return status.get();
+	/**
+	 * Returns the phase of this transaction
+	 * @return phase of this transaction
+	 */
+	public Phase getPhase() {
+		return this.phase.get();
 	}
 	
-	public void setStatus(Status status) {
-		this.status.set(status);
-	}
-
 	/**
 	 * Gets the clock value of the current transaction
 	 * @return clock value of the current transaction
@@ -270,7 +258,7 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	public Statistics getStatistics() {
-		return this.stats;
+		return stats;
 	}
 
 	@Override
@@ -294,48 +282,134 @@ final public class Context implements org.deuce.transaction.Context {
 		return str;
 	}
 
-	/**
-	 * Rolls back the transaction by releasing the locations acquired 
-	 * so far during the <code>commit</code> method
-	 * @param locksCounter amount of locked locations
-	 */
-	private void rollback(int locksCounter) {
-		for (WriteFieldAccess writeField : writeSet) {
-			if (locksCounter-- > 0) {
-				LockTable.unLock(writeField.hashCode());
+	private List<WriteSetIteratorElement> lockWriteSet() {
+		boolean killedByCM = false;
+		WriteSetIterator wsIter = new WriteSetIterator(writeSet);
+		while (!killedByCM && !wsIter.isEmpty() && phase.get().equals(Phase.RUNNING)) {
+			WriteFieldAccess writeField = wsIter.getLock();
+			// Attempt to acquire this lock as long as we did not get a command to restart/skip by 
+			// a contention manager or some other thread killed us
+			while (!killedByCM && phase.get().equals(Phase.RUNNING)) {
+				boolean lockedByForce = false;
+				long lock = LockTable.lock(writeField.hashCode(), threadId, localClock.get());
+				int lockOwner = LockTable.getOwner(lock);
+				
+//				if (isDone && lockOwner != threadId) {
+//					System.out.println("Thread " + threadId + " aborted since lock owner is " + lockOwner);
+//					
+//				}
+				
+				if (lockOwner == -1) {
+					// Lock appeared to be free, but when I tried to CAS it, I failed. The owner of the
+					// lock is not known to me, therefore I can't efficiently do contention management, so I just retry.
+					continue;
+				}
+				else if (threadId != lockOwner) {	
+					// Lock is owned by some other thread. Activating Contention Management
+					Context otherCtx = threads.get(lockOwner);
+					if (otherCtx.getPhase().equals(Phase.INACTIVE)) {
+						// This can happen if the other thread will no longer run transactions, but I 
+						// conflicted with it (before it changes it's phase to INACTIVE). The best thing to do
+						// is to retry the lock in hopes no one else locked it in the meantime.
+						continue;
+					}
+					else {
+						Action action = cm.resolve(writeField, this, otherCtx);
+						if (action.equals(Action.RESTART)) {
+							// this will cause my transaction to roll-back and restart itself
+							killedByCM = true;
+							break;
+						}
+						else if (action.equals(Action.RETRY_LOCK)) {
+							continue;
+						}
+						else if (action.equals(Action.STEAL_LOCK)) {
+//							int versionForStealing = LockTable.getVersion(lock) + abortsCount;
+							int versionForStealing = clock.incrementAndGet();
+							lockedByForce = LockTable.forceLock(writeField.hashCode(), lock, threadId, versionForStealing);
+						}
+						else if (action.equals(Action.SKIP_LOCK)) {
+							wsIter.skipLock();
+							continue;
+						}
+					}
+				}
+				if (threadId == lockOwner || lockedByForce){
+					// Lock is acquired!
+					//trace("Lock #{0} acquired", new Object[]{lockedCounter});
+					if (cm.requiresPriorities()) {
+						priority.incrementAndGet();
+					}
+					wsIter.lockAcquired(lockedByForce);
+					break;	// continue to next lock
+				}
 			}
 		}
-	}
-	
-//	private void trace(String message, Object[] params) {
-//		if (isTracing) {
-//			StringBuilder sb = new StringBuilder(message);
-//			sb.append(this.toString());
-//			String str = sb.toString();
-//			logger.log(Level.INFO, str, params);
-//		}
-//	}
+		return wsIter.getAcquiredLocks();
+	} 
 
+	
 	private WriteFieldAccess onReadAccess0(Object obj, long field) {
 		ReadFieldAccess current = readSet.getCurrent();
 		int hash = current.hashCode();
-		// Check the read is still valid
-		LockTable.checkLock(hash, localClock.get(), lastReadLock);
-		// Check if it is already included in the write set
+		long lock = LockTable.getLock(hash);
+		int version = LockTable.getVersion(lock);
+		
+		// We want to make sure the lock hasn't changed
+		// to be sure we read a consistent value from memory 
+		if (version != versionOfLastReadLock) {
+			stats.reportAbort(AbortType.SPECULATION_READVERSION);
+			throw FAILURE_EXCEPTION;
+		}
+		if (LockTable.isLocked(lock)) {
+			stats.reportAbort(AbortType.SPECULATION_LOCATION_LOCKED);
+			throw FAILURE_EXCEPTION;
+		}
+		
+		//TODO: think where to put TxLoad CM
+		
+		// Check if the location is already included in the write set
 		return writeSet.contains(current);
 	}
 
 	private void addWriteAccess0(WriteFieldAccess write) {
 		//trace("adding write to hash={0}", new Object[]{write.hashCode()});
 		// Add to write set
+		long lock = LockTable.getLock(write.hashCode());
+		int ver = LockTable.getVersion(lock);
+		originalVersions.put(write.hashCode(), ver);
 		writeSet.put(write);
+	}
+
+	private void trace(String message, Object[] params) {
+		StringBuilder sb = new StringBuilder(message);
+		sb.append(this.toString());
+		String str = sb.toString();
+		logger.log(Level.INFO, str, params);
 	}
 
 	public void beforeReadAccess(Object obj, long field) {
 		ReadFieldAccess next = readSet.getNext();
 		next.init(obj, field);
-		// Check the read is still valid
-		lastReadLock = LockTable.checkAndGetLock(next.hashCode(), localClock.get());
+		// Check that the location's version is consistent with 
+		// localClock. If not, throw an exception
+		int hash = next.hashCode();
+		long lock = LockTable.getLock(hash);
+		versionOfLastReadLock = LockTable.getVersion(lock);
+		if (versionOfLastReadLock > localClock.get()) {
+//			
+//			if (isDone) {
+//				System.out.println("Thread " + threadId + " aborted hash=" + hash + " rv=" + localClock.get() + " lockV=" + LockTable.getVersion(lock));
+//				
+//			}
+//			
+			stats.reportAbort(AbortType.SPECULATION_READVERSION);
+			throw FAILURE_EXCEPTION;
+		}
+		
+		//TODO: think where to put TxLoad CM
+		
+		// The version of the location is consistent
 	}
 
 	public Object onReadAccess(Object obj, Object value, long field) {

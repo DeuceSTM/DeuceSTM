@@ -26,7 +26,14 @@ public interface ContentionManager {
 		/**
 		 * Retry the lock
 		 */
-		RETRY_LOCK
+		RETRY_LOCK,
+		
+		/**
+		 * Attempt to take the lock even if it is locked
+		 */
+		STEAL_LOCK, 
+		
+		SKIP_LOCK
 	}
 
 	/**
@@ -51,5 +58,11 @@ public interface ContentionManager {
 	 * @return true is this contention manager requires timestamps, false otherwise
 	 */
 	public boolean requiresTimestamps();
+
+	/**
+	 * Gets a description of this contention manager
+	 * @return description
+	 */
+	public String getDescription();
 	
 }

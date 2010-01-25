@@ -22,7 +22,10 @@ public class ReadSet{
 		fillArray( 0);
 	}
 	
-	public void clear(){
+	public void clear() {
+		for (int i = 0; i < nextAvaliable; i++) {
+			readSet[i].clear();
+		}
 		nextAvaliable = 0;
 	}
 
@@ -48,11 +51,20 @@ public class ReadSet{
 		return currentReadFieldAccess;
 	}
 	
-    public void checkClock(int clock) {
+    public boolean isConsistent(int version) {
         for (int i = 0; i < nextAvaliable; i++) {
-        	LockTable.checkAndGetLock( readSet[i].hashCode(), clock);
-        	readSet[i].clear();
+        	int hash = readSet[i].hashCode();
+        	long lock = LockTable.getLock(hash);
+        	int lockVersion = LockTable.getVersion(lock);
+        	if (lockVersion > version) {
+        		return false;
+        	}
         }
+        return true;
+    }
+    
+    public int size() {
+    	return nextAvaliable-1;
     }
     
     public interface ReadSetListener{

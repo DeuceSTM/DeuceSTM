@@ -1,7 +1,7 @@
 package org.deuce.transaction.tl2cm.cm;
 
-import org.deuce.transaction.tl2cm.Context;
 import org.deuce.transaction.tl2.field.WriteFieldAccess;
+import org.deuce.transaction.tl2cm.Context;
 import org.deuce.transform.Exclude;
 
 /**
@@ -11,14 +11,14 @@ import org.deuce.transform.Exclude;
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  * @since 1.2
- */
+ */  
 @Exclude
-public class Karma extends BackoffCM {
+public class KarmaLockStealer extends BackoffCM {
 
 	//private static final Logger logger = Logger.getLogger(Context.TL2CM_LOGGER);
 	private static int BACKOFF_PERIOD = (int) Math.pow(10, 4);
 	
-	public Karma(int k) {
+	public KarmaLockStealer(int k) {
 		BACKOFF_PERIOD = (int) Math.pow(10, k);
 	}
 
@@ -34,8 +34,11 @@ public class Karma extends BackoffCM {
 			myState.counter = 1;
 		}
 		else if (myPrio + myState.counter > otherPrio) {
-			other.kill(other.getLocalClock());
-			return Action.RETRY_LOCK;
+			// It is not allowed to steal a lock before
+			// you mark the other transaction as aborted
+			if (other.kill(other.getLocalClock())) {
+				return Action.STEAL_LOCK;
+			}
 		}
 		// increase back-off counter and loop until
 		// the time comes to retry	
@@ -48,9 +51,9 @@ public class Karma extends BackoffCM {
 	public boolean requiresPriorities() {
 		return true;
 	}
-
+	
 	public String getDescription() {
-		return "Karma busy-waiting backoff [Backoff=" + BACKOFF_PERIOD + "]";
+		return "KarmaLockStealer busy-waiting backoff [Backoff=" + BACKOFF_PERIOD + "]";
 	}
 
 }

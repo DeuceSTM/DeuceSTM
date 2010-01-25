@@ -48,17 +48,13 @@ public class Polite extends BackoffCM {
 		return Action.RETRY_LOCK;
 	}
 
-	public boolean requiresPriorities() {
-		return false;
-	}
-
-	public boolean requiresTimestamps() {
-		return false;
-	}
-
-	private int calculateTimeToWait(int n) {
+	private int calculateTimeToWait(int n) { 
 		int t = (int) Math.pow(2, n+K); 
 		return t;
+	}
+
+	public String getDescription() {
+		return "Polite busy-waiting [K=" + K + "Max backoff=" + MAX_BACKOFF_TIMES + "]";
 	}
 
 }

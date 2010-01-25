@@ -3,15 +3,12 @@ package org.deuce.transaction.tl2cm;
 import org.deuce.transaction.tl2cm.cm.Aggressive;
 import org.deuce.transaction.tl2cm.cm.ContentionManager;
 import org.deuce.transaction.tl2cm.cm.Karma;
+import org.deuce.transaction.tl2cm.cm.KarmaLockStealer;
+import org.deuce.transaction.tl2cm.cm.LockSkipper;
 import org.deuce.transaction.tl2cm.cm.Polite;
 import org.deuce.transaction.tl2cm.cm.Polka;
 import org.deuce.transaction.tl2cm.cm.Suicide;
-import org.deuce.transaction.tl2cm.contexts.ArrayContextsMap;
-import org.deuce.transaction.tl2cm.contexts.CHMContextsMap;
-import org.deuce.transaction.tl2cm.contexts.COWALContextsMap;
-import org.deuce.transaction.tl2cm.contexts.ContextsMap;
-import org.deuce.transaction.tl2cm.contexts.HashMapContextsMap;
-import org.deuce.transaction.tl2cm.contexts.RWLockContextsMap;
+import org.deuce.transaction.tl2cm.cm.Timestamp;
 import org.deuce.transform.Exclude;
 
 /**
@@ -19,11 +16,10 @@ import org.deuce.transform.Exclude;
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  */
-@Exclude
+@Exclude 
 public class Factory {
 
 	private static final String TL2CM_CONTENTIONMANAGER = "org.deuce.transaction.tl2cm.ContentionManager";
-	private static final String TL2CM_CONTEXTSMAP = "org.deuce.transaction.tl2cm.ContextsMap";
 	
 	public static ContentionManager createContentionManager() {
 		String cmId = System.getProperty(TL2CM_CONTENTIONMANAGER);
@@ -35,43 +31,30 @@ public class Factory {
 		else if ("Aggressive".equals(cmId)) {
 			cm = new Aggressive();
 		}
-		if ("Polite".equals(cmId)) {
+		else if ("Polite".equals(cmId)) {
 			cm = new Polite(2);
 		}
 		else if ("Karma".equals(cmId)) {
-			cm = new Karma(4);
+			cm = new Karma(4); 
+		}
+		else if ("KarmaLockStealer".equals(cmId)) {
+			cm = new KarmaLockStealer(4);
 		}
 		else if ("Polka".equals(cmId)) {
-			cm = new Polka(4);
-		} 
+			cm = new Polka(10);
+		}
+		else if ("Timestamp".equals(cmId)) {
+			cm = new Timestamp(4);
+		}
+		else if ("LockSkipper".equals(cmId)) {
+			cm = new LockSkipper();
+		}
 		else {
 			cm = new Suicide();	// This is the default CM
 		}
 		return cm;
 	}
 	
-	public static ContextsMap createContextsMap() {
-		String contextsMapStr = System.getProperty(TL2CM_CONTEXTSMAP);
-		if ("CHM".equals(contextsMapStr)) {
-			return new CHMContextsMap();
-		}
-		else if ("COWAL".equals(contextsMapStr)) {
-			return new COWALContextsMap();
-		}
-		else if ("RWL".equals(contextsMapStr)) {
-			return new RWLockContextsMap();
-		}
-		else if ("ARR".equals(contextsMapStr)) {
-			return new ArrayContextsMap();
-		}
-		else if ("HM".equals(contextsMapStr)) {
-			return new HashMapContextsMap();
-		}
-		else {
-			return new HashMapContextsMap();
-		}
-	}
-
 	private static int getConstant() {
 		String c = System.getProperty("constant");
 		if (c != null) {
