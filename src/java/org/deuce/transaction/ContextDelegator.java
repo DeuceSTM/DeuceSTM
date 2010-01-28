@@ -329,27 +329,36 @@ public class ContextDelegator {
 	}
 	
 	static public <T> void onArrayWriteAccess( T[] arr,  int index, T value, Context context) {
+		T t = arr[index]; // dummy access just to check the index in range
 		context.onWriteAccess(arr, value, OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index);
 	}
 	static public void onArrayWriteAccess( byte[] arr, int index, byte value, Context context) {
+		byte t = arr[index]; // dummy access just to check the index in range
 		context.onWriteAccess(arr, value, BYTE_ARR_BASE + BYTE_ARR_SCALE*index);
 	}
 	static public void onArrayWriteAccess( char[] arr, int index, char value, Context context) {
+		char t = arr[index]; // dummy access just to check the index in range
 		context.onWriteAccess(arr, value, CHAR_ARR_BASE + CHAR_ARR_SCALE*index);
 	}
 	static public void onArrayWriteAccess( short[] arr, int index, short value, Context context) {
+		short t = arr[index]; // dummy access just to check the index in range
 		context.onWriteAccess(arr, value, SHORT_ARR_BASE + SHORT_ARR_SCALE*index);
 	}
 	static public void onArrayWriteAccess( int[] arr, int index, int value, Context context) {
+		int t = arr[index]; // dummy access just to check the index in range
 		context.onWriteAccess(arr, value, INT_ARR_BASE + INT_ARR_SCALE*index);
 	}
 	static public void onArrayWriteAccess( long[] arr, int index, long value, Context context) {
+		long t = arr[index]; // dummy access just to check the index in range
 		context.onWriteAccess(arr, value, LONG_ARR_BASE + LONG_ARR_SCALE*index);
 	}
 	static public void onArrayWriteAccess( float[] arr, int index, float value, Context context) {
+		float t = arr[index]; // dummy access just to check the index in range
 		context.onWriteAccess(arr, value, FLOAT_ARR_BASE + FLOAT_ARR_SCALE*index);
 	}
 	static public void onArrayWriteAccess( double[] arr, int index, double value, Context context) {
+		double t = arr[index]; // dummy access just to check the index in range
 		context.onWriteAccess(arr, value, DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index);
 	}
+	
 }
