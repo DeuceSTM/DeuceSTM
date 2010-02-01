@@ -118,5 +118,22 @@ public class SingleUpdate  extends TestCase{
     	stringArrvar[0] = new String("a");
     	stringArrvar[0] = null;
 	}
+	
+	public void testArrayOutofBoundAccess() {
+		try{
+			arrayOutofBoundAccess(-1);
+			Assert.fail("Expected ArrayIndexOutOfBoundsException");
+		}catch(ArrayIndexOutOfBoundsException e){}
+		
+		try{
+			arrayOutofBoundAccess(longArrVar.length);
+			Assert.fail("Expected ArrayIndexOutOfBoundsException");
+		}catch(ArrayIndexOutOfBoundsException e){}
+	}
+	
+	@Atomic
+	private void arrayOutofBoundAccess(int index) {
+		longArrVar[index] = 3;
+	}
 
 }
