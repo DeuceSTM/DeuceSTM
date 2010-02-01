@@ -43,7 +43,7 @@ final public class Context implements org.deuce.transaction.Context{
 		this.localClock = clock.get();
 	}
 	
-	public void init(int atomicBlockId){
+	public void init(int atomicBlockId, String metainf){
 		
 		this.readSet.clear(); 
 		this.writeSet.clear();

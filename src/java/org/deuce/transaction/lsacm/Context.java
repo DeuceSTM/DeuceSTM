@@ -108,7 +108,7 @@ final public class Context implements org.deuce.transaction.Context {
 		super.finalize();
 	}
 
-	public void init(int blockId) {
+	public void init(int blockId, String metainf) {
 		readSet.clear();
 		writeSet.clear();
 		endTime = clock.get();

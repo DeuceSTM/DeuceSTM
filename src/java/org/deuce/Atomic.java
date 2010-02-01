@@ -15,4 +15,5 @@ import java.lang.annotation.Target;
 @Retention(CLASS)
 public @interface Atomic {
 	int retries() default Integer.MAX_VALUE;
+	String metainf() default "";
 }

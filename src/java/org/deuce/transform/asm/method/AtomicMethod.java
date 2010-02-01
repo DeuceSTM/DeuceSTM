@@ -22,6 +22,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 	final static private AtomicInteger ATOMIC_BLOCK_COUNTER = new AtomicInteger(0);
 	
 	private Integer retries = Integer.getInteger("org.deuce.transaction.retries", Integer.MAX_VALUE);
+	private String metainf = "";//Integer.getInteger("org.deuce.transaction.retries", Integer.MAX_VALUE);
 	
 	final private String className;
 	final private String methodName;
@@ -60,6 +61,9 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 					if( name.equals("retries"))
 						AtomicMethod.this.retries = (Integer)value;
 					
+					if( name.equals("metainf"))
+						AtomicMethod.this.metainf = (String)value;
+					
 					visitAnnotation.visit(name, value);
 				}
 				public AnnotationVisitor visitAnnotation(String name, String desc) {
@@ -88,7 +92,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		boolean result = true;
 		for( int i=10 ; i>0 ; --i)
 		{
-			context.init();
+			context.init(atomicBlockId, metainf));
 			try
 			{
 				result = foo(s,context);
@@ -167,11 +171,12 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		Label l10 = new Label();
 		mv.visitJumpInsn(GOTO, l10);
 		
-		Label l11 = new Label(); // context.init(atomicBlockId);
+		Label l11 = new Label(); // context.init(atomicBlockId, metainf);
 		mv.visitLabel(l11);
 		mv.visitVarInsn(ALOAD, contextIndex);
 		mv.visitLdcInsn(ATOMIC_BLOCK_COUNTER.getAndIncrement());
-		mv.visitMethodInsn(INVOKEINTERFACE, Context.CONTEXT_INTERNAL, "init", "(I)V");
+		mv.visitLdcInsn(metainf);
+		mv.visitMethodInsn(INVOKEINTERFACE, Context.CONTEXT_INTERNAL, "init", "(ILjava/lang/String;)V");
 		
 		/* result = foo( context, ...)  */ 
 		mv.visitLabel(l0);

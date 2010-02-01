@@ -54,7 +54,7 @@ final public class Context implements org.deuce.transaction.Context {
 		id = threadID.incrementAndGet();
 	}
 
-	public void init(int blockId) {
+	public void init(int blockId, String metainf) {
 		readSet.clear();
 		writeSet.clear();
 		startTime = endTime = clock.get();

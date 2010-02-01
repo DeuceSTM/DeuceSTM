@@ -27,8 +27,9 @@ public interface Context
 	/**
 	 * Called before the transaction was started
 	 * @param atomicBlockId a unique id for atomic block
+	 * @param metainf a meta information on the current atomic block.
 	 */
-	void init(int atomicBlockId);
+	void init(int atomicBlockId, String metainf);
 
 	/**
 	 * Called on commit
