@@ -20,7 +20,9 @@ public class ExcludeIncludeStore {
 	static{
 		excludeIncludeStore.excludeClass.add("java/lang/Object");
 		excludeIncludeStore.excludeClass.add("java/lang/Thread");
-		excludeIncludeStore.excludeClass.add("java/lang/Throwable");		
+		excludeIncludeStore.excludeClass.add("java/lang/Throwable");
+		//Always ignore TransactionException so user can explicitly throw this exception
+		excludeIncludeStore.excludeClass.add("org/deuce/transaction/TransactionException");
 	}
 
 	
