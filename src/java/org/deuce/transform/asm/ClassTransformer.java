@@ -131,7 +131,8 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 		}
 		Method newMethod = createNewMethod(name, desc);
 
-		MethodVisitor copyMethod =  super.visitMethod(access | Opcodes.ACC_SYNTHETIC, name, newMethod.getDescriptor(),
+		// Create a new duplicate SYNTHETIC method and remove the final marker if has one. 
+		MethodVisitor copyMethod =  super.visitMethod((access | Opcodes.ACC_SYNTHETIC) & ~Opcodes.ACC_FINAL, name, newMethod.getDescriptor(),
 				signature, exceptions);
 
 		return new MethodTransformer( originalMethod, copyMethod, className,
