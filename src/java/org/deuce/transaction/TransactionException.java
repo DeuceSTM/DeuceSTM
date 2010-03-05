@@ -3,6 +3,13 @@ package org.deuce.transaction;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.transform.Exclude;
 
+/**
+ * If thrown under the context of an active transaction the current transaction
+ * context will be rolled back and a new retry will be initialized.
+ * 
+ * @author Guy Korland
+ * @since 1.0
+ */
 @Exclude
 public class TransactionException extends RuntimeException {
 

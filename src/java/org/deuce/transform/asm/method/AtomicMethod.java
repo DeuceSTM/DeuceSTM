@@ -10,6 +10,7 @@ import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.Method;
+import org.deuce.transaction.AbortTransactionException;
 import org.deuce.transaction.Context;
 import org.deuce.transaction.ContextDelegator;
 import org.deuce.transaction.TransactionException;
@@ -92,10 +93,14 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		boolean result = true;
 		for( int i=10 ; i>0 ; --i)
 		{
-			context.init(atomicBlockId, metainf));
+			context.init(atomicBlockId, metainf);
 			try
 			{
 				result = foo(s,context);
+			}
+			catch( AbortTransactionException ex)
+			{
+				throw ex;
 			}
 			catch( TransactionException ex)
 			{
@@ -136,6 +141,8 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 
 		Label l0 = new Label();
 		Label l1 = new Label();
+		Label l25 = new Label();
+		mv.visitTryCatchBlock(l0, l1, l25, AbortTransactionException.ABORT_TRANSACTION_EXCEPTION_INTERNAL);  // try{
 		Label l2 = new Label();
 		mv.visitTryCatchBlock(l0, l1, l2, TransactionException.TRANSACTION_EXCEPTION_INTERNAL);  // try{ 
 		Label l3 = new Label();
@@ -203,6 +210,25 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		mv.visitLabel(l1);
 		Label l12 = new Label();
 		mv.visitJumpInsn(GOTO, l12);
+
+		/*catch( AbortTransactionException ex)
+		{
+			throw ex;
+		}*/
+		mv.visitLabel(l25);
+		mv.visitVarInsn(ASTORE, exceptionIndex);
+		Label l27 = new Label();
+		mv.visitLabel(l27);
+		mv.visitVarInsn(ALOAD, exceptionIndex);
+		mv.visitInsn(ATHROW);
+		Label l28 = new Label();
+		mv.visitLabel(l28);
+		mv.visitJumpInsn(GOTO, l12);
+		
+		/*catch( TransactionException ex)
+		{
+			commit = false;
+		}*/
 		mv.visitLabel(l2);
 		mv.visitVarInsn(ASTORE, exceptionIndex);
 		Label l13 = new Label();
@@ -212,6 +238,11 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		Label l14 = new Label();
 		mv.visitLabel(l14);
 		mv.visitJumpInsn(GOTO, l12);
+		
+		/*catch( Throwable ex)
+		{
+			throwable = ex;
+		}*/
 		mv.visitLabel(l3);
 		mv.visitVarInsn(ASTORE, exceptionIndex);
 		Label l15 = new Label();
@@ -296,6 +327,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		if( returnReolver != null)
 			mv.visitLocalVariable("result", returnReolver.toString(), null, l8, l24, resultIndex);
 		mv.visitLocalVariable("i", "I", null, l9, l23, indexIndex);
+		mv.visitLocalVariable("ex", "Lorg/deuce/transaction/AbortTransactionException;", null, l27, l28, exceptionIndex);
 		mv.visitLocalVariable("ex", "Lorg/deuce/transaction/TransactionException;", null, l13, l14, exceptionIndex);
 		mv.visitLocalVariable("ex", "Ljava/lang/Throwable;", null, l15, l12, exceptionIndex);
 		

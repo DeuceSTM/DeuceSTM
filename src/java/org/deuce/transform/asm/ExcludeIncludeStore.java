@@ -2,6 +2,8 @@ package org.deuce.transform.asm;
 
 import java.util.HashSet;
 
+import org.deuce.transaction.AbortTransactionException;
+import org.deuce.transaction.TransactionException;
 import org.deuce.transform.util.IgnoreTree;
 
 /**
@@ -22,7 +24,8 @@ public class ExcludeIncludeStore {
 		excludeIncludeStore.excludeClass.add("java/lang/Thread");
 		excludeIncludeStore.excludeClass.add("java/lang/Throwable");
 		//Always ignore TransactionException so user can explicitly throw this exception
-		excludeIncludeStore.excludeClass.add("org/deuce/transaction/TransactionException");
+		excludeIncludeStore.excludeClass.add(TransactionException.TRANSACTION_EXCEPTION_INTERNAL);
+		excludeIncludeStore.excludeClass.add(AbortTransactionException.ABORT_TRANSACTION_EXCEPTION_INTERNAL);
 	}
 
 	
