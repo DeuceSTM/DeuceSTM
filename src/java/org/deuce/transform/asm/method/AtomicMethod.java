@@ -100,6 +100,7 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 			}
 			catch( AbortTransactionException ex)
 			{
+				context.rollback(); 
 				throw ex;
 			}
 			catch( TransactionException ex)
@@ -218,6 +219,8 @@ public class AtomicMethod extends MethodAdapter implements Opcodes{
 		mv.visitLabel(l25);
 		mv.visitVarInsn(ASTORE, exceptionIndex);
 		Label l27 = new Label();
+		mv.visitVarInsn(ALOAD, contextIndex);
+		mv.visitMethodInsn(INVOKEINTERFACE, Context.CONTEXT_INTERNAL, "rollback", "()V");
 		mv.visitLabel(l27);
 		mv.visitVarInsn(ALOAD, exceptionIndex);
 		mv.visitInsn(ATHROW);
