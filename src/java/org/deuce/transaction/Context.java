@@ -39,7 +39,7 @@ public interface Context
 
 	/**
 	 * Called on rollback, rollback might be called more than once in a row.
-	 * But, can't be called after {@link #commit()} without an {@link #init()} call in between. 
+	 * But, can't be called after {@link #commit()} without an {@link #init(int, String)} call in between. 
 	 */
 	void rollback();
 

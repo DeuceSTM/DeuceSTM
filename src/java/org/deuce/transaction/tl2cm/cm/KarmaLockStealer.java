@@ -6,7 +6,7 @@ import org.deuce.transform.Exclude;
 
 /**
  * The Karma contention manager resolves conflicts by comparing the priorities of
- * the conflicting threads. For more information regarding priorities see {@link Context.getPriority()}. The
+ * the conflicting threads. For more information regarding priorities see {@link org.deuce.transaction.tl2cm.Context#getPriority()}. The
  * thread that is supposed to wait waits for a constant period of time.
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
