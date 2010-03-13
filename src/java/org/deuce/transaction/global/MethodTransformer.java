@@ -100,8 +100,11 @@ public class MethodTransformer extends MethodAdapter{
 
 	private void callMethod( MethodVisitor methodVisitor, Type[] types, boolean isNonStatic) {
 
-		if( isNonStatic)
+		int offset = 0;
+		if( isNonStatic){
 			methodVisitor.visitVarInsn(Opcodes.ALOAD, 0); // load this
+			offset = 1;
+		}
 
 		for( int i=0 ; i<types.length ;++i) {
 			switch( types[i].getSort()) {
@@ -110,19 +113,19 @@ public class MethodTransformer extends MethodAdapter{
 			case Type.CHAR:
 			case Type.SHORT:
 			case Type.INT:
-				methodVisitor.visitVarInsn(Opcodes.ILOAD, i + 1);
+				methodVisitor.visitVarInsn(Opcodes.ILOAD, i + offset);
 				break;
 			case Type.LONG:
-				methodVisitor.visitVarInsn(Opcodes.LLOAD, i + 1);
+				methodVisitor.visitVarInsn(Opcodes.LLOAD, i + offset);
 				break;
 			case Type.FLOAT:
-				methodVisitor.visitVarInsn(Opcodes.FLOAD, i + 1);
+				methodVisitor.visitVarInsn(Opcodes.FLOAD, i + offset);
 				break;
 			case Type.DOUBLE:
-				methodVisitor.visitVarInsn(Opcodes.DLOAD, i + 1);
+				methodVisitor.visitVarInsn(Opcodes.DLOAD, i + offset);
 				break;
 			default:
-				methodVisitor.visitVarInsn(Opcodes.ALOAD, i + 1);
+				methodVisitor.visitVarInsn(Opcodes.ALOAD, i + offset);
 			break;
 			}
 		}
