@@ -1,0 +1,3 @@
+#!/bin/sh
+lines=$(grep -n "#" tmp1SSCA2.java | cut -d: -f1 | sed '1q')
+sed '/^#/d' tmp1SSCA2.java > tmpSSCA2.java
