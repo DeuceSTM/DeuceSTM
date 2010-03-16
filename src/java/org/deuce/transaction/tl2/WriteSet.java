@@ -6,6 +6,7 @@ import java.util.Iterator;
 import org.deuce.transaction.tl2.field.ReadFieldAccess;
 import org.deuce.transaction.tl2.field.WriteFieldAccess;
 import org.deuce.transform.Exclude;
+import org.deuce.trove.THashMap;
 
 /**
  * Represents the transaction write set.
@@ -16,7 +17,7 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class WriteSet implements Iterable<WriteFieldAccess>{
 	
-	final private HashMap<WriteFieldAccess,WriteFieldAccess> writeSet = new HashMap<WriteFieldAccess,WriteFieldAccess>( 50);
+	final private THashMap<WriteFieldAccess,WriteFieldAccess> writeSet = new THashMap<WriteFieldAccess,WriteFieldAccess>( 50);
 	final private BloomFilter bloomFilter = new BloomFilter();
 	
 	public void clear() {

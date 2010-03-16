@@ -1,11 +1,13 @@
 package org.deuce.transaction.lsa;
 
+
 import java.util.HashMap;
 
 import org.deuce.transaction.lsa.field.Field.Type;
 import org.deuce.transaction.lsa.field.WriteFieldAccess;
 import org.deuce.transaction.lsa.LockTable;
 import org.deuce.transform.Exclude;
+import org.deuce.trove.THashMap;
 
 /**
  * @author Pascal Felber
