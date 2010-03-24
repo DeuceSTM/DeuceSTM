@@ -1,6 +1,7 @@
 package org.deuce.test.basic;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicReference;
 
 import junit.framework.TestCase;
 
@@ -17,28 +18,46 @@ import org.junit.Assert;
  */
 public class AtomicBlockIDTest extends TestCase{
 
+	
+	
 	public void testAbort() throws Exception {
+		final AtomicReference<Exception> error = new AtomicReference<Exception>();
 		
-		Field declaredField = ContextDelegator.class.getDeclaredField("THREAD_CONTEXT");
-		declaredField.setAccessible(true);
-		ThreadLocal<Context> threadLocal = (ThreadLocal<Context>) declaredField.get(Thread.currentThread());
-		MockContext context = new MockContext();
-		threadLocal.set(context);
-		
-		blockA();
-		Assert.assertEquals("a", context.getMetainf());
-		int atomicBlockIdA = context.getAtomicBlockId();
-		
-		blockB();
-		Assert.assertEquals("", context.getMetainf());
-		int atomicBlockIdB = context.getAtomicBlockId();
-		Assert.assertFalse(atomicBlockIdA==atomicBlockIdB);
-		
-		blockC();
-		Assert.assertEquals("", context.getMetainf());
-		int atomicBlockIdC = context.getAtomicBlockId();
-		Assert.assertFalse(atomicBlockIdA==atomicBlockIdC);
-		Assert.assertFalse(atomicBlockIdB==atomicBlockIdC);
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Field declaredField;
+				try {
+					declaredField = ContextDelegator.class.getDeclaredField("THREAD_CONTEXT");
+
+					declaredField.setAccessible(true);
+					ThreadLocal<Context> threadLocal = (ThreadLocal<Context>) declaredField.get(Thread.currentThread());
+					MockContext context = new MockContext();
+					threadLocal.set(context);
+
+					blockA();
+					Assert.assertEquals("a", context.getMetainf());
+					int atomicBlockIdA = context.getAtomicBlockId();
+
+					blockB();
+					Assert.assertEquals("", context.getMetainf());
+					int atomicBlockIdB = context.getAtomicBlockId();
+					Assert.assertFalse(atomicBlockIdA==atomicBlockIdB);
+
+					blockC();
+					Assert.assertEquals("", context.getMetainf());
+					int atomicBlockIdC = context.getAtomicBlockId();
+					Assert.assertFalse(atomicBlockIdA==atomicBlockIdC);
+					Assert.assertFalse(atomicBlockIdB==atomicBlockIdC);
+				} catch (Exception e) {
+					error.equals(e);
+				} 
+			}
+		});
+		thread.start();
+		thread.join();
+		if(error.get() != null)
+			throw error.get();
 	}
 
 	@Atomic(metainf="a",retries=2)
