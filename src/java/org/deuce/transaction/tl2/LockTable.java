@@ -51,8 +51,9 @@ public class LockTable {
 	
 
 	public static void checkLock(int lockIndex, int clock, int expected) {
-		int lock = checkLock( lockIndex, clock);
-		if( lock != expected || (lock & LOCK) != 0)
+		int lock = locks.get(lockIndex);
+		
+		if( lock != expected || clock < (lock & UNLOCK) || (lock & LOCK) != 0)
 			throw FAILURE_EXCEPTION;
 	}
 

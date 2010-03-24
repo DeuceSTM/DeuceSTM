@@ -11,7 +11,7 @@ import org.deuce.transform.Exclude;
  * @since 1.0
  */
 @Exclude
-public class Pool<T>{
+final public class Pool<T>{
 	
 	private static final int DEFAULT_CAPACITY = 1024;
 	private T[] pool = (T[]) new Object[DEFAULT_CAPACITY];

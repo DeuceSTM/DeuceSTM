@@ -22,7 +22,7 @@ public class ReadFieldAccess{
 	public void init( Object reference, long field){
 		this.reference = reference;
 		this.field = field;
-		this.hash = hash(reference, field) & LockTable.MASK;
+		this.hash = (System.identityHashCode( reference) + (int)field) & LockTable.MASK;
 	}
 
 	@Override
@@ -34,10 +34,6 @@ public class ReadFieldAccess{
 	@Override
 	final public int hashCode(){
 		return hash;
-	}
-
-	private static int hash(Object obj, long field){
-		return System.identityHashCode( obj) + (int)field;
 	}
 
 	public void clear(){

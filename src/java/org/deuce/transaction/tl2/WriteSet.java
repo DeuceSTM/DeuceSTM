@@ -17,11 +17,10 @@ import org.deuce.trove.THashMap;
 @Exclude
 public class WriteSet implements Iterable<WriteFieldAccess>{
 	
-	final private THashMap<WriteFieldAccess,WriteFieldAccess> writeSet = new THashMap<WriteFieldAccess,WriteFieldAccess>( 50);
-	final private BloomFilter bloomFilter = new BloomFilter();
+	final private THashMap<WriteFieldAccess,WriteFieldAccess> writeSet = 
+		new THashMap<WriteFieldAccess,WriteFieldAccess>( 16);
 	
 	public void clear() {
-		bloomFilter.clear();
 		writeSet.clear();
 	}
 
@@ -36,16 +35,13 @@ public class WriteSet implements Iterable<WriteFieldAccess>{
 	}
 
 	public void put(WriteFieldAccess write) {
-		// Add to bloom filter
-		bloomFilter.add( write.hashCode());
-
 		// Add to write set
 		writeSet.put( write, write);
 	}
 	
 	public WriteFieldAccess contains(ReadFieldAccess read) {
 		// Check if it is already included in the write set
-		return bloomFilter.contains(read.hashCode()) ? writeSet.get( read): null;
+		return writeSet.get( read);
 	}
 	
 	public int size() {

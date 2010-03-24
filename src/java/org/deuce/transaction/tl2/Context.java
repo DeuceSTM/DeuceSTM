@@ -31,6 +31,8 @@ final public class Context implements org.deuce.transaction.Context{
 
 	final private ReadSet readSet = new ReadSet();
 	final private WriteSet writeSet = new WriteSet();
+	
+	private ReadFieldAccess currentReadFieldAccess = null;
 		
 	//Used by the thread to mark locks it holds.
 	final private byte[] locksMarker = new byte[LockTable.LOCKS_SIZE /8 + 1];
@@ -44,7 +46,7 @@ final public class Context implements org.deuce.transaction.Context{
 	}
 	
 	public void init(int atomicBlockId, String metainf){
-		
+		this.currentReadFieldAccess = null;
 		this.readSet.clear(); 
 		this.writeSet.clear();
 		this.localClock = clock.get();	
@@ -95,7 +97,7 @@ final public class Context implements org.deuce.transaction.Context{
 
 	private WriteFieldAccess onReadAccess0( Object obj, long field){
 
-		ReadFieldAccess current = readSet.getCurrent();
+		ReadFieldAccess current = currentReadFieldAccess;
 		int hash = current.hashCode();
 
 		// Check the read is still valid
@@ -114,6 +116,7 @@ final public class Context implements org.deuce.transaction.Context{
 	public void beforeReadAccess(Object obj, long field) {
 		
 		ReadFieldAccess next = readSet.getNext();
+		currentReadFieldAccess = next;
 		next.init(obj, field);
 
 		// Check the read is still valid
@@ -166,7 +169,7 @@ final public class Context implements org.deuce.transaction.Context{
 		if( writeAccess == null)
 			return value;
 		
-		return ((IntWriteFieldAccess)writeAccess).getValue();  
+		return ((IntWriteFieldAccess)writeAccess).getValue();
 	}
 	
 	public long onReadAccess(Object obj, long value, long field) {
@@ -256,57 +259,75 @@ final public class Context implements org.deuce.transaction.Context{
 		addWriteAccess0(next);
 	}
 	
-	private Pool<ObjectWriteFieldAccess> objectPool = new Pool<ObjectWriteFieldAccess>( new ResourceFactory<ObjectWriteFieldAccess>(){
+	private static class ObjectResourceFactory implements ResourceFactory<ObjectWriteFieldAccess>{
+		@Override
 		public ObjectWriteFieldAccess newInstance() {
 			return new ObjectWriteFieldAccess();
 		}
-	});
-	
-	private Pool<BooleanWriteFieldAccess> booleanPool = new Pool<BooleanWriteFieldAccess>( new ResourceFactory<BooleanWriteFieldAccess>(){
+	}
+	final private Pool<ObjectWriteFieldAccess> objectPool = new Pool<ObjectWriteFieldAccess>(new ObjectResourceFactory());
+
+	private static class BooleanResourceFactory implements ResourceFactory<BooleanWriteFieldAccess>{
+		@Override
 		public BooleanWriteFieldAccess newInstance() {
 			return new BooleanWriteFieldAccess();
 		}
-	});
-	
-	private Pool<ByteWriteFieldAccess> bytePool = new Pool<ByteWriteFieldAccess>( new ResourceFactory<ByteWriteFieldAccess>(){
+	}
+	final private Pool<BooleanWriteFieldAccess> booleanPool = new Pool<BooleanWriteFieldAccess>(new BooleanResourceFactory());
+
+	private static class ByteResourceFactory implements ResourceFactory<ByteWriteFieldAccess>{
+		@Override
 		public ByteWriteFieldAccess newInstance() {
 			return new ByteWriteFieldAccess();
 		}
-	});
-	
-	private Pool<CharWriteFieldAccess> charPool = new Pool<CharWriteFieldAccess>( new ResourceFactory<CharWriteFieldAccess>(){
+	}
+	final private Pool<ByteWriteFieldAccess> bytePool = new Pool<ByteWriteFieldAccess>( new ByteResourceFactory());
+
+	private static class CharResourceFactory implements ResourceFactory<CharWriteFieldAccess>{
+		@Override
 		public CharWriteFieldAccess newInstance() {
 			return new CharWriteFieldAccess();
 		}
-	});
-	
-	private Pool<ShortWriteFieldAccess> shortPool = new Pool<ShortWriteFieldAccess>( new ResourceFactory<ShortWriteFieldAccess>(){
+	}
+	final private Pool<CharWriteFieldAccess> charPool = new Pool<CharWriteFieldAccess>(new CharResourceFactory());
+
+	private static class ShortResourceFactory implements ResourceFactory<ShortWriteFieldAccess>{
+		@Override
 		public ShortWriteFieldAccess newInstance() {
 			return new ShortWriteFieldAccess();
 		}
-	});
-	
-	private Pool<IntWriteFieldAccess> intPool = new Pool<IntWriteFieldAccess>( new ResourceFactory<IntWriteFieldAccess>(){
+	}
+	final private Pool<ShortWriteFieldAccess> shortPool = new Pool<ShortWriteFieldAccess>( new ShortResourceFactory());
+
+	private static class IntResourceFactory implements ResourceFactory<IntWriteFieldAccess>{
+		@Override
 		public IntWriteFieldAccess newInstance() {
 			return new IntWriteFieldAccess();
 		}
-	});
-	
-	private Pool<LongWriteFieldAccess> longPool = new Pool<LongWriteFieldAccess>( new ResourceFactory<LongWriteFieldAccess>(){
+	}
+	final private Pool<IntWriteFieldAccess> intPool = new Pool<IntWriteFieldAccess>( new IntResourceFactory());
+
+	private static class LongResourceFactory implements ResourceFactory<LongWriteFieldAccess>{
+		@Override
 		public LongWriteFieldAccess newInstance() {
 			return new LongWriteFieldAccess();
 		}
-	});
+	}
+	final private Pool<LongWriteFieldAccess> longPool = new Pool<LongWriteFieldAccess>( new LongResourceFactory());
 	
-	private Pool<FloatWriteFieldAccess> floatPool = new Pool<FloatWriteFieldAccess>( new ResourceFactory<FloatWriteFieldAccess>(){
+	private static class FloatResourceFactory implements ResourceFactory<FloatWriteFieldAccess>{
+		@Override
 		public FloatWriteFieldAccess newInstance() {
 			return new FloatWriteFieldAccess();
 		}
-	});
+	}
+	final private Pool<FloatWriteFieldAccess> floatPool = new Pool<FloatWriteFieldAccess>( new FloatResourceFactory());
 	
-	private Pool<DoubleWriteFieldAccess> doublePool = new Pool<DoubleWriteFieldAccess>( new ResourceFactory<DoubleWriteFieldAccess>(){
+	private static class DoubleResourceFactory implements ResourceFactory<DoubleWriteFieldAccess>{
+		@Override
 		public DoubleWriteFieldAccess newInstance() {
 			return new DoubleWriteFieldAccess();
 		}
-	});
+	}
+	final private Pool<DoubleWriteFieldAccess> doublePool = new Pool<DoubleWriteFieldAccess>( new DoubleResourceFactory());
 }

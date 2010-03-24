@@ -16,7 +16,6 @@ public class ReadSet{
 	private static final int DEFAULT_CAPACITY = 1024;
 	private ReadFieldAccess[] readSet = new ReadFieldAccess[DEFAULT_CAPACITY];
 	private int nextAvaliable = 0;
-	private ReadFieldAccess currentReadFieldAccess = null;
 	
 	public ReadSet(){
 		fillArray( 0);
@@ -40,12 +39,7 @@ public class ReadSet{
 			readSet = tmpReadSet;
 			fillArray( orignLength);
 		}
-		currentReadFieldAccess = readSet[ nextAvaliable++];
-		return currentReadFieldAccess;
-	}
-	
-	public ReadFieldAccess getCurrent(){
-		return currentReadFieldAccess;
+		return readSet[ nextAvaliable++];
 	}
 	
     public void checkClock(int clock) {
