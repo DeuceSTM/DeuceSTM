@@ -17,10 +17,10 @@ public class WriteSet {
 
 	private static final int DEFAULT_CAPACITY = 16;
 
-	final private HashMap<Integer, WriteFieldAccess> entries;
+	final private THashMap<Integer, WriteFieldAccess> entries;
 
 	public WriteSet(int initialCapacity) {
-		entries = new HashMap<Integer, WriteFieldAccess>(initialCapacity);
+		entries = new THashMap<Integer, WriteFieldAccess>(initialCapacity);
 	}
 
 	public WriteSet() {
