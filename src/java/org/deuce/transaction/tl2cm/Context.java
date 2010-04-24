@@ -26,6 +26,7 @@ import org.deuce.transaction.tl2cm.WriteSetIterator.WriteSetIteratorElement;
 import org.deuce.transaction.tl2cm.cm.ContentionManager;
 import org.deuce.transaction.tl2cm.cm.ContentionManager.Action;
 import org.deuce.transform.Exclude;
+import org.deuce.trove.TObjectProcedure;
 
 /**
  * Context class for TL2 STM with Contention Management support. This class queries its 
@@ -60,6 +61,34 @@ final public class Context implements org.deuce.transaction.Context {
 	private final AtomicInteger timestamp;
 	private int atomicBlockId;
 	private int versionOfLastReadLock;
+	
+	private final TObjectProcedure<WriteFieldAccess> putProcedure = new TObjectProcedure<WriteFieldAccess>(){
+
+		@Override
+		public boolean execute(WriteFieldAccess writeField) {
+			writeField.put();
+			return true;
+		}
+		
+	};
+	
+	private static class UpdateAndUnlockProcedure implements TObjectProcedure<WriteFieldAccess>{
+
+		private int newClock;
+
+		@Override
+		public boolean execute(WriteFieldAccess writeField) {
+			LockTable.updateAndUnlock(writeField.hashCode(), newClock);
+			return true;
+		}
+		
+		
+		public void setNewClock(int newClock){
+			this.newClock = newClock;
+		}
+	}
+	
+	private final UpdateAndUnlockProcedure updateAndUnlockProcedure = new UpdateAndUnlockProcedure();
 
 	// Static initialization
 	static {
@@ -131,13 +160,12 @@ final public class Context implements org.deuce.transaction.Context {
 					// Get a new version number
 					int newClock = clock.incrementAndGet();
 					// Write values to memory
-					for (WriteFieldAccess writeField : writeSet) {
-						writeField.put(); 
-					}
+					writeSet.forEach(putProcedure);
+					
+					updateAndUnlockProcedure.setNewClock(newClock);
 					// Update and release locks
-					for (WriteFieldAccess writeField : writeSet) {
-						LockTable.updateAndUnlock(writeField.hashCode(), newClock);
-					}
+					writeSet.forEach(updateAndUnlockProcedure);
+					
 					if (cm.requiresPriorities()) {
 						priority.set(0);
 					}

@@ -128,6 +128,11 @@ public class THashSet<E> extends TObjectHash<E>
         this(collection.size(), strategy);
         addAll(collection);
     }
+    
+    public E get(Object obj){
+    	int index = index((E) obj);
+    	return index >= 0 ? (E)_set[index] : null;
+    }
 
     /**
      * Inserts a value into the set.
@@ -147,6 +152,15 @@ public class THashSet<E> extends TObjectHash<E>
 
         postInsertHook(old == FREE);
         return true;            // yes, we added something
+    }
+    
+    public boolean replace(E obj){
+    	int index = index(obj);
+    	if(index >= 0){
+    		_set[index] = obj;
+    		return true;
+    	}    	
+    	return false;
     }
 
     public boolean equals(Object other) {

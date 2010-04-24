@@ -1,12 +1,11 @@
 package org.deuce.transaction.tl2;
 
-import java.util.HashMap;
-import java.util.Iterator;
 
 import org.deuce.transaction.tl2.field.ReadFieldAccess;
 import org.deuce.transaction.tl2.field.WriteFieldAccess;
 import org.deuce.transform.Exclude;
-import org.deuce.trove.THashMap;
+import org.deuce.trove.THashSet;
+import org.deuce.trove.TObjectProcedure;
 
 /**
  * Represents the transaction write set.
@@ -15,10 +14,9 @@ import org.deuce.trove.THashMap;
  * @since 0.7
  */
 @Exclude
-public class WriteSet implements Iterable<WriteFieldAccess>{
+public class WriteSet{
 	
-	final private THashMap<WriteFieldAccess,WriteFieldAccess> writeSet = 
-		new THashMap<WriteFieldAccess,WriteFieldAccess>( 16);
+	final private THashSet<WriteFieldAccess> writeSet = new THashSet<WriteFieldAccess>( 16);
 	
 	public void clear() {
 		writeSet.clear();
@@ -28,15 +26,14 @@ public class WriteSet implements Iterable<WriteFieldAccess>{
 		return writeSet.isEmpty();
 	}
 
-	public Iterator<WriteFieldAccess> iterator() {
-		// Use the value and not the key since the key might hold old key.
-		// Might happen if the same field was update more than once.
-		return writeSet.values().iterator();
+	public boolean forEach(TObjectProcedure<WriteFieldAccess> procedure){
+		return writeSet.forEach(procedure);
 	}
-
+	
 	public void put(WriteFieldAccess write) {
 		// Add to write set
-		writeSet.put( write, write);
+		if(!writeSet.add( write))
+			writeSet.replace(write);
 	}
 	
 	public WriteFieldAccess contains(ReadFieldAccess read) {

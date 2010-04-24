@@ -20,7 +20,12 @@ public class LockTable {
 
 	final private static AtomicIntegerArray locks =  new AtomicIntegerArray(LOCKS_SIZE); // array of 2^20 entries of 32-bit lock words
 
-	public static void lock( int lockIndex, byte[] contextLocks) throws TransactionException{
+	/**
+	 * 
+	 * @return <code>true</code> if lock otherwise false.
+	 * @throws TransactionException incase the lock is hold by other thread.
+	 */
+	public static boolean lock( int lockIndex, byte[] contextLocks) throws TransactionException{
 		final int lock = locks.get(lockIndex); 
 		final int selfLockIndex = lockIndex>>>DIVIDE_8;
 		final byte selfLockByte = contextLocks[selfLockIndex];
@@ -28,7 +33,7 @@ public class LockTable {
 		
 		if( (lock & LOCK) != 0){  //is already locked?
 			if( (selfLockByte & selfLockBit) != 0) // check for self locking
-				return;
+				return false;
 			throw FAILURE_EXCEPTION; 
 		}
 
@@ -38,6 +43,7 @@ public class LockTable {
 			throw FAILURE_EXCEPTION;
 		
 		contextLocks[selfLockIndex] |= selfLockBit; //mark in self locks
+		return true;
 	}
 
 	public static int checkLock(int lockIndex, int clock) {

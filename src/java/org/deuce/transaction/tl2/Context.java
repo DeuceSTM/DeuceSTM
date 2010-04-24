@@ -17,6 +17,7 @@ import org.deuce.transaction.tl2.field.WriteFieldAccess;
 import org.deuce.transaction.tl2.pool.Pool;
 import org.deuce.transaction.tl2.pool.ResourceFactory;
 import org.deuce.transform.Exclude;
+import org.deuce.trove.TObjectProcedure;
 
 /**
  * TL2 implementation
@@ -27,7 +28,7 @@ import org.deuce.transform.Exclude;
 @Exclude
 final public class Context implements org.deuce.transaction.Context{
 	
-	final private static AtomicInteger clock = new AtomicInteger( 0);
+	final static AtomicInteger clock = new AtomicInteger( 0);
 
 	final private ReadSet readSet = new ReadSet();
 	final private WriteSet writeSet = new WriteSet();
@@ -40,6 +41,18 @@ final public class Context implements org.deuce.transaction.Context{
 	//Marked on beforeRead, used for the double lock check
 	private int localClock;
 	private int lastReadLock;
+	
+	final private LockProcedure lockProcedure = new LockProcedure(locksMarker);
+	
+	final private TObjectProcedure<WriteFieldAccess> putProcedure = new TObjectProcedure<WriteFieldAccess>(){
+
+		@Override
+		public boolean execute(WriteFieldAccess writeField) {
+			writeField.put();
+			return true;
+		}
+		
+	};
 	
 	public Context(){
 		this.localClock = clock.get();
@@ -65,30 +78,20 @@ final public class Context implements org.deuce.transaction.Context{
         if (writeSet.isEmpty()) // if the writeSet is empty no need to lock a thing. 
         	return true;
         		
-		int lockedCounter = 0;//used to count how many fields where locked if unlock is needed 
 		try
 		{
-			for( WriteFieldAccess writeField : writeSet){
-				LockTable.lock( writeField.hashCode(), locksMarker);
-				++lockedCounter;
-			}
-			readSet.checkClock( localClock);
+			// pre commit validation phase
+			writeSet.forEach(lockProcedure);
+			readSet.checkClock(localClock);
 		}
 		catch( TransactionException exception){
-			for( WriteFieldAccess writeField : writeSet){
-				if( lockedCounter-- == 0)
-					break;
-				LockTable.unLock( writeField.hashCode(),locksMarker);
-			}
+			lockProcedure.unlockAll();
 			return false;
 		}
 
-		final int newClock = clock.incrementAndGet();
-
-		for( WriteFieldAccess writeField : writeSet){
-			writeField.put(); // commit value to field
-			LockTable.setAndReleaseLock( writeField.hashCode(), newClock, locksMarker);
-		}
+		// commit new values and release locks
+		writeSet.forEach(putProcedure);
+		lockProcedure.setAndUnlockAll();
 		return true;
 	}
 	
