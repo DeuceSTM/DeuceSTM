@@ -3,20 +3,27 @@ package org.deuce.transform.asm.method;
 import java.util.HashMap;
 
 
+import org.deuce.Atomic;
+import org.deuce.Unsafe;
 import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.Attribute;
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
+import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transform.asm.FieldsHolder;
 
 public class MethodTransformer implements MethodVisitor{
 
+	final static private String UNSAFE_DESCRIPTOR = Type.getDescriptor(Unsafe.class);
+	
 	private MethodVisitor originalMethod;
 
-	final private MethodVisitor copyMethod;
+	final private MethodVisitor originalCopyMethod;
+	
+	private MethodVisitor copyMethod;
 	final private String className;
 	final private String methodName;
 	final private String descriptor; // original descriptor
@@ -31,6 +38,7 @@ public class MethodTransformer implements MethodVisitor{
 		this.originalMethod = originalMethod;
 		this.newMethod = newMethod;
 		this.isStatic = (access & Opcodes.ACC_STATIC) != 0;
+		this.originalCopyMethod = copyMethod;
 		
 		// The AnalyzerAdapter delegates the call to the DuplicateMethod, while the DuplicateMethod uses
 		// the analyzer for stack state in the original method.
@@ -57,6 +65,9 @@ public class MethodTransformer implements MethodVisitor{
 			originalMethod = new AtomicMethod( originalMethod, className, methodName,
 					descriptor, newMethod, isStatic);
 
+		if( UNSAFE_DESCRIPTOR.equals(desc)) // if marked as Unsafe no just duplicate the method as is.
+			copyMethod = originalCopyMethod;
+		
 		if( !desc.contains("org/junit")) // TODO find another way
 			return new MethodAnnotationVisitor( originalMethod.visitAnnotation(desc, visible),
 					copyMethod.visitAnnotation(desc, visible));
