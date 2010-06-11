@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="Duece" default="agent" basedir=".">
+<project name="Deuce" default="agent" basedir=".">
 
 	<target name="agent" depends="compile">
 		<jar destfile="bin/deuceAgent.jar">
