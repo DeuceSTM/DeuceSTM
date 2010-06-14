@@ -16,10 +16,7 @@ public class ReadFieldAccess {
 	public ReadFieldAccess() { }
 
 	public ReadFieldAccess(Object reference, long field, int hash, int lock) {
-		this.reference = reference;
-		this.field = field;
-		this.hash = hash;
-		this.lock = lock;
+		init(reference, field, hash, lock);
 	}
 
 	public void init(Object reference, long field, int hash, int lock) {
