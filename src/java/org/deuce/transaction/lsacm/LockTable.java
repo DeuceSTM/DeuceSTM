@@ -35,7 +35,7 @@ public class LockTable {
 	final public static long LOCKED_WRITE = -1L;
 	final public static long LOCKED_READ = -2L;
 
-	// Array 32-bit lock words
+	// Array of 64-bit lock words
 	final private static AtomicLongArray locks = new AtomicLongArray(ARRAYSIZE);
 
 	public static long lock(Context context, int hash, int id, boolean write) throws TransactionException {

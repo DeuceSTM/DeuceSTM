@@ -20,7 +20,7 @@ public class LockTable {
 	final private static int LOCK = 1 << 31;
 	final private static int IDMASK = LOCK - 1;
 
-	// Array 32-bit lock words
+	// Array of 32-bit lock words
 	final private static AtomicIntegerArray locks = new AtomicIntegerArray(ARRAYSIZE);
 
 	public static int lock(int hash, int id) throws TransactionException {

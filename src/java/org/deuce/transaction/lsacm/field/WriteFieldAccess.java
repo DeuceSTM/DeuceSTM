@@ -58,6 +58,6 @@ public class WriteFieldAccess extends ReadFieldAccess {
 
 	public void writeField() {
 		if (write)
-			Field.putValue(getReference(), getField(), value, type);
+			Field.putValue(reference, field, value, type);
 	}
 }
