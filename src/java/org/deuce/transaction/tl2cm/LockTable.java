@@ -6,10 +6,8 @@ import org.deuce.transform.Exclude;
 
 /**
  * Table of locks for accessed locations. Each lock is comprised of a 64-bit number that encodes
- * a version counter and the thread Id of the lock owner. The lock is unlocked if and only if the 
- * owner equals </code>NO_OWNER</code>.
- * 
- * <p>The layout of the lock variable is: <code>|  owner (32 bits)  |  version (32 bits)  |</code></p>
+ * a version counter, the thread Id of the lock owner and the local clock value of the lock owner. * 
+ * The lock is unlocked if and only if the owner field equals </code>NO_OWNER</code>.
  * 
  * <p>Based on Guy Korland's and Pascal Felber's work on <code>org.deuce.transaction.tl2.*</code> 
  * and <code>org.deuce.transaction.lsa*</code></p>
@@ -19,109 +17,119 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class LockTable {
 
+	public static final int OWNERCLOCK_SIZE = 21;
 	private static final int NO_OWNER = 0;
 	private static final int SIZE = 1 << 20;
-	private static final int MASK = SIZE - 1;
+	private static final int HASH_MASK = 0xFFFFF;
 	private static AtomicLongArray locks;
 	
 	static {
 		long[] array = new long[SIZE];
-		long initialLock = generateLock(0, NO_OWNER);
+		long initialLock = generateLock(NO_OWNER, 0, 0);
 		for (int i=0; i<SIZE; i++) {
 			array[i] = initialLock;
 		}
 		locks = new AtomicLongArray(array);
 	}
 	
-	public static long getLock(int hash) {
-		return locks.get(hash);
+	public static final long getLock(int hash) {
+		int lockIndex = hash & HASH_MASK;
+		return locks.get(lockIndex);
 	}
 	
 	/**
 	 * Locks the location specified by the hash code
 	 * @param hash hash code of the location to lock
-	 * @param threadId Id of thread 
-	 * @return threadId if the lock is acquired, -1 if the lock is not acquired but the lock owner
-	 * could not be obtained or the thread Id of the lock owner otherwise.
+	 * @param owner thread Id of acquiring thread
+	 * @param ownerClock local clock value of the acquiring thread
+	 * @return array of 3 elements. The first element is a status indicator:</br>
+	 * <li> 0 if the lock was acquired</li>
+	 * <li> 1 if the lock wasn't acquired and the owner is known</li>
+	 * <li> 2 if the lock wasn't acquired and the owner is unknown</li>
+	 * The second element is the original lock value (if available) and the 
+	 * third element if the new lock value (if available).
 	 */
-	//TODO: need to return the lock variable here. The new one if succeeded and the old one if not
-	// -1 if I don't know who's the owner
-	public static long lock(int hash, int threadId, int version) {
-		long lock = locks.get(hash);
+	public static final long[] lock(int hash, int owner, int ownerClock) {
+		// read the lock
+		int lockIndex = hash & HASH_MASK;
+		long lock = locks.get(lockIndex);
+
+		// prepare the result object
+		long[] res = new long[3];
+		res[1] = lock;
+		
 		// try to acquire the lock if it is free 
 		if (!isLocked(lock)) {
-			long newLock = generateLock(threadId, version);
-			boolean cas = locks.compareAndSet(hash, lock, newLock);
+			long newLock = generateLock(owner, ownerClock, getVersion(lock));
+			boolean cas = locks.compareAndSet(lockIndex, lock, newLock);
 			if (cas) {
-				return newLock;
+				// 0 means lock acquired
+				res[0] = 0L;
+				res[2] = newLock;
 			}
 			else {
-				// to indicate that the lock wasn't locked when we 
+				// 2 means the lock wasn't locked when we 
 				// entered the method but someone stole it before us
-				return -1; 
+				res[0] = 2L; 
 			}
 		}
 		else {
-			return lock;
+			// 1 means the lock could not be acquired
+			if (getOwner(lock) == owner) {
+				res[0] = 0;
+				res[2] = lock;
+			}
+			else {
+				res[0] = 1L;
+			}
 		}
+		return res;
 	}
 	
-	public static boolean forceLock(int hash, long expectedLock, int threadId, int version) {
-		long newLock = generateLock(threadId, version);
-		return locks.compareAndSet(hash, expectedLock, newLock);
-	}
-
 	/**
-	 * Unlocks the location specified by the hash code.
-	 * @param hash hash code of location to unlock
-	 * @param threadId Id of thread 
+	 * Attempts to lock the lock even though it might be owned by some other thread
+	 * @param hash hash code of the location to lock
+	 * @param owner thread Id of acquiring thread
+	 * @param ownerClock local clock value of the acquiring thread
+	 * @param version version of new lock value 
+	 * @param expectedLock the expected lock value
+	 * @return true if lock acquired, false otherwise
 	 */
-	public static void unLock(int hash, int threadId, int version) {
-		long lock = locks.get(hash);
+	public static final boolean forceLock(int hash, int owner, int ownerClock, int version, long expectedLock) {
+		long newLock = generateLock(owner, ownerClock, version);
+		int lockIndex = hash & HASH_MASK;
+		return locks.compareAndSet(lockIndex, expectedLock, newLock);
+	}
+	
+	/**
+	 * Unlocks the lock if still owned by calling thread
+	 * @param hash hash code of the location to lock
+	 * @param threadId thread Id of the calling thread
+	 */
+	public static final void unLock(int hash, int threadId) {
+		int lockIndex = hash & HASH_MASK;
+		long lock = locks.get(lockIndex);
 		// If I'm still the owner try to release the lock
 		if (getOwner(lock) == threadId) {
-			// If the version is -1 it indicates that we should
-			// use the version of the lock
-			if (version == -1) {
-				version = getVersion(lock);
-			}
-			long newLock = generateLock(NO_OWNER, version);
+			long newLock = generateLock(NO_OWNER, 0, getVersion(lock));
 			// doesn't matter if the CAS succeeds or not. If it does,
 			// the the lock is released. If not, then the lock was 
 			// already taken by force by another thread
-			locks.compareAndSet(hash, lock, newLock);
+			locks.compareAndSet(lockIndex, lock, newLock);
 		}
 		////logger.log(Level.INFO, "unlocking location {0} - new value is {1}", new Object[]{hash, lockToStr(newLock)});
 	}
-
 	
 	/**
-	 * Checks that the location the transaction just read is still valid, i.e
-	 * it's version has not changed from the one observed in <code>checkBeforeRead</code> 
-	 * and that the location is not locked.
-	 *
-	 * @param hash hash 
-	 * @param observedLockVersion the lock version observed by the transaction in <code>checkBeforeRead</code>
-	 * @return -2 if the location is locked, -1 if the location's version is 
-	 * not as expected, 0 otherwise
+	 * Updates the locks version and unlock it
+	 * @param hash hash code of the location to lock
+	 * @param updatedVersion new version to put on lock
 	 */
-	public static int checkAfterRead(int hash, long observedLockVersion) {
-		long lock = locks.get(hash);
-		if (isLocked(lock)) {
-			return -2;
-		}
-		else if (observedLockVersion != getVersion(lock)) {
-			return -1;
-		}
-		else {
-			return 0;
-		}
-	}
-
-	public static void updateAndUnlock(int hash, int updatedVersion) {
-		long newLock = generateLock(NO_OWNER, updatedVersion);
-		locks.set(hash, newLock);
-		////logger.log(Level.INFO, "setAndReleaseLock() end | hash={0} TID={1} lock=[{2}]", new Object[]{hash, threadId, lockToStr(newLock)});
+	public static final void updateAndUnlock(int hash, int updatedVersion) {
+		long newLock = generateLock(NO_OWNER, 0, updatedVersion);
+		int lockIndex = hash & HASH_MASK;
+		locks.set(lockIndex, newLock);
+		//logger.log(Level.INFO, "setAndReleaseLock() end | hash={0} TID={1} lock=[{2}]", new Object[]{hash, threadId, lockToStr(newLock)});
 	}
 	
 	public static final boolean isLocked(long lock) {
@@ -133,17 +141,24 @@ public class LockTable {
 	}
 	
 	public static final int getOwner(long lock) {
-		return (int) (lock >> 32);
+		int ownerSection = (int)(lock >> 32);
+		return ownerSection >> OWNERCLOCK_SIZE;
 	}
 	
-	public static final long generateLock(int owner, int version) {
-		long lock = (((long)owner) << 32) | version;
+	public static final int getOwnerClock(long lock) {
+		int ownerSection = (int)(lock >> 32);
+		return ownerSection & ((1<<OWNERCLOCK_SIZE)-1);
+	}
+	
+	public static final long generateLock(int owner, int ownerClock, int version) {
+		int ownerSection = (owner << OWNERCLOCK_SIZE) | ownerClock;
+		long lock = (((long)ownerSection) << 32) | version;
 		return lock;
 	}
 	
-	public static int hash(Object obj, long field) {
+	public static final int hash(Object obj, long field) {
 		int hash = System.identityHashCode(obj) + (int) field;
-		return hash & MASK;
+		return hash & HASH_MASK;
 	}
 	
 //	public static String lockToStr(long lock) {

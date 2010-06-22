@@ -4,11 +4,11 @@ import org.deuce.transaction.tl2cm.cm.Aggressive;
 import org.deuce.transaction.tl2cm.cm.ContentionManager;
 import org.deuce.transaction.tl2cm.cm.Karma;
 import org.deuce.transaction.tl2cm.cm.KarmaLockStealer;
-import org.deuce.transaction.tl2cm.cm.LockSkipper;
+import org.deuce.transaction.tl2cm.cm.KillPrioLockStealer;
+import org.deuce.transaction.tl2cm.cm.LockStealer;
 import org.deuce.transaction.tl2cm.cm.Polite;
 import org.deuce.transaction.tl2cm.cm.Polka;
 import org.deuce.transaction.tl2cm.cm.Suicide;
-import org.deuce.transaction.tl2cm.cm.Timestamp;
 import org.deuce.transform.Exclude;
 
 /**
@@ -38,16 +38,16 @@ public class Factory {
 			cm = new Karma(4); 
 		}
 		else if ("KarmaLockStealer".equals(cmId)) {
-			cm = new KarmaLockStealer(4);
+			cm = new KarmaLockStealer();
 		}
 		else if ("Polka".equals(cmId)) {
 			cm = new Polka(10);
 		}
-		else if ("Timestamp".equals(cmId)) {
-			cm = new Timestamp(4);
+		else if ("LockStealer".equals(cmId)) {
+			cm = new LockStealer();
 		}
-		else if ("LockSkipper".equals(cmId)) {
-			cm = new LockSkipper();
+		else if ("KillPrioLockStealer".equals(cmId)) {
+			cm = new KillPrioLockStealer();
 		}
 		else {
 			cm = new Suicide();	// This is the default CM

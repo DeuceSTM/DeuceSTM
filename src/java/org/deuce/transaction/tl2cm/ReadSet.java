@@ -1,31 +1,28 @@
 package org.deuce.transaction.tl2cm;
 
-import org.deuce.transaction.tl2.field.ReadFieldAccess;
+import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
 import org.deuce.transform.Exclude;
 
 /**
- * Represents the transaction read set.
- * And acts as a recycle pool of the {@link ReadFieldAccess}.
- *  
- * @author Guy Korland
- * @since 0.7
+ * Represents the transaction read set. Based on Guy Korland's work on <code>org.deuce.transaction.tl2.*</code>
+ * 
+ * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  */
 @Exclude
 public class ReadSet{
 	
+//	private static final Logger logger = Logger.getLogger(Context.TL2CM_LOGGER);
 	private static final int DEFAULT_CAPACITY = 1024;
 	private ReadFieldAccess[] readSet = new ReadFieldAccess[DEFAULT_CAPACITY];
 	private int nextAvaliable = 0;
 	private ReadFieldAccess currentReadFieldAccess = null;
+	
 	
 	public ReadSet(){
 		fillArray( 0);
 	}
 	
 	public void clear() {
-		for (int i = 0; i < nextAvaliable; i++) {
-			readSet[i].clear();
-		}
 		nextAvaliable = 0;
 	}
 
@@ -51,9 +48,10 @@ public class ReadSet{
 		return currentReadFieldAccess;
 	}
 	
-    public boolean isConsistent(int version) {
+    public boolean validate(int version) {
         for (int i = 0; i < nextAvaliable; i++) {
-        	int hash = readSet[i].hashCode();
+        	ReadFieldAccess field = readSet[i];
+			int hash = field.hashCode();
         	long lock = LockTable.getLock(hash);
         	int lockVersion = LockTable.getVersion(lock);
         	if (lockVersion > version) {
@@ -64,7 +62,7 @@ public class ReadSet{
     }
     
     public int size() {
-    	return nextAvaliable-1;
+    	return nextAvaliable;
     }
     
     public interface ReadSetListener{

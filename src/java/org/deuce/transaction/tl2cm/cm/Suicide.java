@@ -1,7 +1,8 @@
 package org.deuce.transaction.tl2cm.cm;
 
+import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
+import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
 import org.deuce.transaction.tl2cm.Context;
-import org.deuce.transaction.tl2.field.WriteFieldAccess;
 import org.deuce.transform.Exclude;
 
 /**
@@ -13,10 +14,17 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class Suicide extends AbstractContentionManager {
 
-	public Action resolve(WriteFieldAccess contentionPoint, Context contending, Context other) {
+	public Action resolveWriteConflict(WriteFieldAccess writeField, Context me, Context other) {
+		me.kill(-1);
 		return Action.RESTART;
 	}
 
+	@Override
+	public Action resolveReadConflict(ReadFieldAccess readField, Context me, Context other) {
+		me.kill(-1);
+		return Action.RESTART;
+	}
+	
 	public String getDescription() {
 		return "Suicide";
 	}
