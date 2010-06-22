@@ -1,9 +1,8 @@
 package org.deuce.transaction.tl2cm.cm;
 
-import org.deuce.transaction.tl2cm.cm.ContentionManager.Action;
+import org.deuce.transaction.tl2cm.Context;
 import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
 import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
-import org.deuce.transaction.tl2cm.Context;
 import org.deuce.transform.Exclude;
 
 /**

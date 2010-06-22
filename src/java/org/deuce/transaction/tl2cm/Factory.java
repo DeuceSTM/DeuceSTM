@@ -24,7 +24,6 @@ public class Factory {
 	public static ContentionManager createContentionManager() {
 		String cmId = System.getProperty(TL2CM_CONTENTIONMANAGER);
 		ContentionManager cm = null;
-		int constant = getConstant();
 		if ("Suicide".equals(cmId)) {
 			cm = new Suicide();
 		}
@@ -50,20 +49,9 @@ public class Factory {
 			cm = new KillPrioLockStealer();
 		}
 		else {
-			cm = new Suicide();	// This is the default CM
+			cm = new KillPrioLockStealer();	// This is the default CM
 		}
 		return cm;
-	}
-	
-	private static int getConstant() {
-		String c = System.getProperty("constant");
-		if (c != null) {
-			int constant = Integer.valueOf(c);
-			return constant;
-		}
-		else {
-			return 1;
-		}
 	}
 
 }
