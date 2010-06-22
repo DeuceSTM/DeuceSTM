@@ -117,7 +117,6 @@ public class LockTable {
 			// already taken by force by another thread
 			locks.compareAndSet(lockIndex, lock, newLock);
 		}
-		////logger.log(Level.INFO, "unlocking location {0} - new value is {1}", new Object[]{hash, lockToStr(newLock)});
 	}
 	
 	/**
@@ -129,7 +128,6 @@ public class LockTable {
 		long newLock = generateLock(NO_OWNER, 0, updatedVersion);
 		int lockIndex = hash & HASH_MASK;
 		locks.set(lockIndex, newLock);
-		//logger.log(Level.INFO, "setAndReleaseLock() end | hash={0} TID={1} lock=[{2}]", new Object[]{hash, threadId, lockToStr(newLock)});
 	}
 	
 	public static final boolean isLocked(long lock) {
@@ -160,20 +158,6 @@ public class LockTable {
 		int hash = System.identityHashCode(obj) + (int) field;
 		return hash & HASH_MASK;
 	}
-	
-//	public static String lockToStr(long lock) {
-//		if (logger.isLoggable(Level.INFO)) {
-//			StringBuilder sb = new StringBuilder("locked=");
-//			sb.append(isLocked(lock));
-//			sb.append(" version=");
-//			sb.append(getVersion(lock));
-//			sb.append(" owner=");
-//			sb.append(getOwner(lock));
-//			String str = sb.toString();
-//			return str;
-//		}
-//		return "insufficient log level";
-//	}
 	
 }
 

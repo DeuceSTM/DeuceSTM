@@ -6,12 +6,11 @@ import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
 import org.deuce.transform.Exclude;
 
 /**
- * The Karma contention manager resolves conflicts by comparing the priorities of
- * the conflicting threads. For more information regarding priorities see {@link org.deuce.transaction.tl2cm.Context#getPriority()}. The
- * thread that is supposed to wait waits for a constant period of time.
+ * The Karma LockStealer contention manager resolves conflicts exactly the same as the {@code Karma} contention manager. The only
+ * difference is that Karma LockStealer will not suffice with killing the other transaction, it will also attempt to steal its lock.
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
- * @since 1.2
+ * @since 1.4
  */  
 @Exclude
 public class KarmaLockStealer extends AbstractContentionManager {

@@ -5,6 +5,16 @@ import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
 import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
 import org.deuce.transform.Exclude;
 
+/**
+ * A contention manager that is able to revoke a lock from another transaction.<br>
+ * When a read conflict is encountered, {@code LockStealer} will attempt to kill the other transaction and if successful will continue
+ * with its execution. Otherwise, it aborts.<br>
+ * When a write conflict is encountered, {@code LockStealer} will attempt to kill the other transaction and if successful will try to 
+ * steal the lock its holding to allow its own execution to continue. Otherwise it aborts.
+ * 
+ * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
+ * @since 1.4
+ */
 @Exclude
 public class LockStealer extends AbstractContentionManager {
 

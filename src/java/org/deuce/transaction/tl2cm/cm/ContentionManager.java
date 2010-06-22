@@ -41,42 +41,45 @@ public interface ContentionManager {
 	}
 
 	/**
-	 * Notifies this contention manager that a new transaction has begun
+	 * Notifies this contention manager to clear any internal bookkeeping it might keep
 	 */
 	public void init();
 
 	/**
-	 * Resolves the conflict between the two threads
-	 * @param writeField The resource the threads are contending on
-	 * @param me The thread that attempts to acquire the resource
-	 * @param other The thread the holds the resource
-	 * @return Action to perform by contending thread
+	 * Resolves the conflict that is caused when {@code me} tries to read the shared object that 
+	 * is represented by {@code readField} while at the same time {@code other} is holding
+	 * the lock that is associated with that object.
+	 * @param readField object descriptor
+	 * @param me the context of the thread that attempts to read the shared object
+	 * @param other the context of the thread that is holding the lock associated with the shared object
+	 * @return Action to perform by calling thread
+	 */
+	public Action resolveReadConflict(ReadFieldAccess readField, Context me, Context other);
+	
+	/**
+	 * Resolves the conflict that is caused when {@code me} tries to write to the shared object that
+	 * is represented by {@code writeField} while at the same time {@code other} is holding 
+	 * the lock that is associated with that object.
+	 * @param writeField object descriptor
+	 * @param me the context of the thread that attempts to write to the shared object
+	 * @param other the context of the thread that is holding the lock associated with the shared object
+	 * @return Action to perform by calling thread
 	 */
 	public Action resolveWriteConflict(WriteFieldAccess writeField, Context me, Context other);
 	
-	
-	public Action resolveReadConflict(ReadFieldAccess readField, Context me, Context other);
-
 	/**
 	 * Whether or not this contention manager requires the STM system to
-	 * collect priorities based on work done by transactions
+	 * collect priorities based on how many objects were accessed by the current transaction
 	 * @return true is this contention manager requires priorities, false otherwise
 	 */
 	public boolean requiresPriorities();
 	
 	/**
 	 * Whether or not this contention manger requires the STM system to
-	 * collect priorities based on killing patterns of transactions
+	 * collect priorities based on how many transactions were killed by the current transaction
 	 * @return true is this contention manager requires priorities, false otherwise
 	 */
 	public boolean requiresKillPriorities();
-
-	/**
-	 * Whether or not this contention manager requires the STM system to
-	 * maintain timestamps for each thread
-	 * @return true is this contention manager requires timestamps, false otherwise
-	 */
-	public boolean requiresTimestamps();
 
 	/**
 	 * Gets a description of this contention manager

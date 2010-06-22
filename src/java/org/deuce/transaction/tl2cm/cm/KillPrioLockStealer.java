@@ -5,6 +5,14 @@ import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
 import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
 import org.deuce.transform.Exclude;
 
+/**
+ * The Kill Priority LockStealer contention manager resolves conflicts exactly the same as Karma LockStelaer. The only difference is 
+ * that it uses a different priority mechanism; the priority of a transaction is the number of transactions it killed so far. When a 
+ * transaction kills another transaction the killing transaction increments its priority by 1 + # of transaction the killed transaction killed.
+ * 
+ * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
+ * @since 1.4
+ */
 @Exclude
 public class KillPrioLockStealer extends AbstractContentionManager {
 

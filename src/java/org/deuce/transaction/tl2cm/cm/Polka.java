@@ -22,29 +22,11 @@ public class Polka extends AbstractContentionManager {
 		C = k;
 	}
 	
-	public Action resolveWriteConflict(WriteFieldAccess writeField, Context me, Context other) {
-		int myPrio = me.getPriority();
-		int otherPrio = other.getPriority();
-		int diff = (myPrio + counter) - otherPrio;
-		if (diff > 0 && counter > 0) {
-			int statusRecord = other.getStatusRecord();
-			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED || other.kill(Context.getTxLocalClock(statusRecord))) {
-//				logger.log(Level.SEVERE, "TID={0} is stealing hash={1} from TID={2}", new Object[]{contending.getThreadId(), contentionPoint.hashCode(), other.getThreadId()});
-				return Action.RETRY;
-			}
-			else {
-				me.kill(-1);
-				return Action.RESTART;
-			}
-		}
-		
-		counter++;
-		diff = Math.abs(diff);
-		int t = (int) Math.pow(diff, counter) * C;
-		for (int i=0; i<t; i++);
-		return Action.RETRY;
+	@Override
+	public void init() {
+		counter = 0;
 	}
-	
+
 	@Override
 	public Action resolveReadConflict(ReadFieldAccess readField, Context me, Context other) {
 		int statusRecord = other.getStatusRecord();
@@ -66,6 +48,27 @@ public class Polka extends AbstractContentionManager {
 		for (int i=0; i<t; i++);
 		return Action.RETRY;
 	}
+
+	public Action resolveWriteConflict(WriteFieldAccess writeField, Context me, Context other) {
+		int myPrio = me.getPriority();
+		int otherPrio = other.getPriority();
+		int diff = (myPrio + counter) - otherPrio;
+		if (diff > 0 && counter > 0) {
+			int statusRecord = other.getStatusRecord();
+			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED || other.kill(Context.getTxLocalClock(statusRecord))) {
+				return Action.RETRY;
+			}
+			else {
+				me.kill(-1);
+				return Action.RESTART;
+			}
+		}
+		counter++;
+		diff = Math.abs(diff);
+		int t = (int) Math.pow(diff, counter) * C;
+		for (int i=0; i<t; i++);
+		return Action.RETRY;
+	}
 	
 	public boolean requiresPriorities() {
 		return true;
@@ -73,11 +76,6 @@ public class Polka extends AbstractContentionManager {
 	
 	public String getDescription() {
 		return "Polka busy-waiting [C=" + C + "]";
-	}
-	
-	@Override
-	public void init() {
-		counter = 0;
 	}
 
 }

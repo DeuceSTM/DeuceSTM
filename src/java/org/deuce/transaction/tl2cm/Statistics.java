@@ -8,10 +8,10 @@ import java.util.Map;
 import org.deuce.transform.Exclude;
 
 /**
- * This class provides statistics collecting functionality for TL2CM STM. 
+ * This class provides statistics collecting functionality for TL2CM
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
-*/
+ */
 @Exclude
 public class Statistics {
 

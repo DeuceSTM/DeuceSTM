@@ -7,8 +7,7 @@ import org.deuce.transform.Exclude;
 
 /**
  * The Karma contention manager resolves conflicts by comparing the priorities of
- * the conflicting threads. For more information regarding priorities see {@link Context.getPriority()}. The
- * thread that is supposed to wait waits for a constant period of time.
+ * the conflicting threads. Karma employs a constant back-off period between subsequent attempts to acquire a lock. 
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  * @since 1.2
@@ -21,6 +20,29 @@ public class Karma extends AbstractContentionManager {
 	
 	public Karma(int k) {
 		BACKOFF_PERIOD = (int) Math.pow(10, k);
+	}
+
+	@Override
+	public void init() {
+		counter = 0;
+	}
+
+	public Action resolveReadConflict(ReadFieldAccess readField, Context me, Context other) {
+		int statusRecord = other.getStatusRecord();
+		int myPrio = me.getPriority();
+		int otherPrio = other.getPriority();
+		if (myPrio + counter > otherPrio) {
+			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED || other.kill(Context.getTxLocalClock(statusRecord))) {
+				return Action.CONTINUE;
+			}
+			else {
+				me.kill(-1);
+				return Action.RESTART;
+			}
+		}
+		counter++;
+		for (int i=0; i<BACKOFF_PERIOD; i++);
+		return Action.RETRY;
 	}
 
 	public Action resolveWriteConflict(WriteFieldAccess writeField, Context me, Context other) {
@@ -42,35 +64,12 @@ public class Karma extends AbstractContentionManager {
 		return Action.RETRY;
 	}
 	 
-	@Override
-	public Action resolveReadConflict(ReadFieldAccess readField, Context me, Context other) {
-		int statusRecord = other.getStatusRecord();
-		int myPrio = me.getPriority();
-		int otherPrio = other.getPriority();
-		if (myPrio > otherPrio) {
-			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED || other.kill(Context.getTxLocalClock(statusRecord))) {
-				return Action.CONTINUE;
-			}
-			else {
-				me.kill(-1);
-				return Action.RESTART;
-			}
-		}
-		for (int i=0; i<BACKOFF_PERIOD; i++);
-		return Action.RETRY;
-	}
-	
 	public boolean requiresPriorities() {
 		return true;
 	}
 
 	public String getDescription() {
-		return "Karma busy-waiting backoff [Backoff=" + BACKOFF_PERIOD + "]";
-	}
-
-	@Override
-	public void init() {
-		counter = 0;
+		return "Karma [Backoff=" + BACKOFF_PERIOD + "]";
 	}
 
 }

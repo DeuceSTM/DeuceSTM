@@ -1,22 +1,15 @@
 package org.deuce.transaction.tl2cm.cm;
 
-import org.deuce.transaction.tl2cm.Context;
-import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
-
+/**
+ * This class provides default implementation for contention managers
+ * 
+ * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
+ * @since 1.2
+ */
 abstract public class AbstractContentionManager implements ContentionManager {
 
 	@Override
-	public Action resolveReadConflict(ReadFieldAccess readField, Context me, Context other) {
-		return Action.RESTART;
-	}
-	
-	@Override
 	public boolean requiresPriorities() {
-		return false;
-	}
-	
-	@Override
-	public boolean requiresTimestamps() {
 		return false;
 	}
 	
