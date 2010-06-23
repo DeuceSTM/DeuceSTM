@@ -319,7 +319,6 @@ final public class Context implements org.deuce.transaction.Context {
 		ReadFieldAccess current = readSet.getCurrent();
 		int hash = current.hashCode();
 		long lock = LockTable.getLock(hash);
-		int version = LockTable.getVersion(lock);
 		// We want to make sure the lock hasn't changed
 		// to be sure we read a consistent value from memory 
 		while (LockTable.isLocked(lock)) {
@@ -339,6 +338,7 @@ final public class Context implements org.deuce.transaction.Context {
 				break;
 			}
 		}
+		int version = LockTable.getVersion(lock);
 		if (version > lastReadLockVersion) {
 			stats.reportAbort(AbortType.SPECULATION_READVERSION);
 //			trace("onReadAccess | abort due to read version. Expected {0} but got {1}", lastReadVersion, version);

@@ -18,6 +18,11 @@ public class KarmaLockStealer extends AbstractContentionManager {
 	private int counter = 0;
 	
 	@Override
+	public void init() {
+		counter = 0;
+	}
+
+	@Override
 	public Action resolveReadConflict(ReadFieldAccess readField, Context me, Context other) {
 		int statusRecord = other.getStatusRecord();
 		int myPrio = me.getPriority();
@@ -58,11 +63,6 @@ public class KarmaLockStealer extends AbstractContentionManager {
 	
 	public String getDescription() {
 		return "KarmaLockStealer";
-	}
-
-	@Override
-	public void init() {
-		counter = 0;
 	}
 
 }
