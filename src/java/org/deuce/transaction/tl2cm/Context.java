@@ -67,8 +67,6 @@ final public class Context implements org.deuce.transaction.Context {
 	private int localClock;
 	private int attempts;
 	
-//	public static final String TL2CM_LOGGER = "org.deuce.transaction.tl2cm";
-//	private static final Logger logger = Logger.getLogger(TL2CM_LOGGER);
 	private final Statistics stats = new Statistics(threadId);	
 	
 	// Static initialization
@@ -115,7 +113,6 @@ final public class Context implements org.deuce.transaction.Context {
 		int statusRecord = generateStatusRecord(TX_RUNNING, localClock);
 		this.statusRecord.set(statusRecord);
 		this.stats.reportTxStart();
-//		trace("init");
 	}
 
 	public final boolean commit() {
@@ -148,23 +145,19 @@ final public class Context implements org.deuce.transaction.Context {
 
 					this.stats.reportCommit(attempts);
 					resetPriorities();
-//					trace("commit");
 					return true;
 				}
 				else {
 					this.stats.reportAbort(AbortType.COMMIT_KILLED); 
-//					trace("Abort due to kill by other thread");
 				}
 			}
 			else {
 				this.stats.reportAbort(AbortType.COMMIT_READSET_VALIDATION); 
-//				trace("Abort due to Read Set Validation");
 			}
 		}
 		else {
 			this.stats.reportWriteSetValidationFailureDuringCommit(lockedCounter+1);
 			this.stats.reportAbort(AbortType.COMMIT_WRITESET_LOCKING);
-//			trace("Abort due to WriteSet Locking");
 		}
 		
 		// Commit did not succeed, roll-back all the changes
@@ -246,7 +239,7 @@ final public class Context implements org.deuce.transaction.Context {
 		return str;
 	}
 
-	private void resetPriorities() {
+	private final void resetPriorities() {
 		if (cm.requiresPriorities()) {
 			karma.set(0);
 		}
@@ -285,7 +278,6 @@ final public class Context implements org.deuce.transaction.Context {
 					Context otherCtx = threads[lockOwner];
 					Action action = cm.resolveWriteConflict(writeField, this, otherCtx);
 					if (action.equals(Action.RESTART)) {
-//							trace("lockWriteSet | Action=RESTART hash={0}, otherCtx={1}", hash, lockOwner);
 						killedByCM = true;
 						break;
 					}
@@ -302,7 +294,6 @@ final public class Context implements org.deuce.transaction.Context {
 				}
 				
 				if (res[0] == 0 || lockedByForce){
-//					trace("lockWriteSet | locked hash={0}", hash);
 					lockedCounter++;
 					if (cm.requiresPriorities()) {
 						karma.addAndGet(10);
@@ -327,7 +318,6 @@ final public class Context implements org.deuce.transaction.Context {
 			Action action = cm.resolveReadConflict(current, this, ownerCtx);
 			if (action.equals(Action.RESTART)) {
 				stats.reportAbort(AbortType.SPECULATION_LOCATION_LOCKED);
-				//			trace("onReadAccess | abort due to locked location. hash={0}", hash);
 				throw FAILURE_EXCEPTION;
 			}
 			if (action.equals(Action.RETRY)) {
@@ -341,7 +331,6 @@ final public class Context implements org.deuce.transaction.Context {
 		int version = LockTable.getVersion(lock);
 		if (version > lastReadLockVersion) {
 			stats.reportAbort(AbortType.SPECULATION_READVERSION);
-//			trace("onReadAccess | abort due to read version. Expected {0} but got {1}", lastReadVersion, version);
 			throw FAILURE_EXCEPTION;
 		}
 		if (cm.requiresPriorities()) {
@@ -352,7 +341,6 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	private final void addWriteAccess0(WriteFieldAccess write) {
-//		trace("adding write to hash={0}", new Object[]{write.hashCode()});
 		writeSet.put(write);
 	}
 
@@ -374,16 +362,6 @@ final public class Context implements org.deuce.transaction.Context {
 		return this.statusRecord.get();
 	}
 	
-//	private void trace(String message, Object... params) {
-//		if (logger.isLoggable(Level.INFO)) {
-//			StringBuilder sb = new StringBuilder(message);
-//			sb.append(" | ");
-//			sb.append(this.toString());
-//			String str = sb.toString();
-//			logger.log(Level.INFO, str, params);
-//		}
-//	}
-
 	public final void beforeReadAccess(Object obj, long field) {
 		ReadFieldAccess current = readSet.getNext();
 		current.init(obj, field);
@@ -394,7 +372,6 @@ final public class Context implements org.deuce.transaction.Context {
 		lastReadLockVersion = LockTable.getVersion(lock);
 		if (lastReadLockVersion > rv) {
 			stats.reportAbort(AbortType.SPECULATION_READVERSION);
-//			trace("beforeReadAccess | abort due to read version. hash={0}, ver={1}", hash, version);
 			throw FAILURE_EXCEPTION;
 		}
 	}

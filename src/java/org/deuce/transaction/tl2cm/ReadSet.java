@@ -11,7 +11,6 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class ReadSet{
 	
-//	private static final Logger logger = Logger.getLogger(Context.TL2CM_LOGGER);
 	private static final int DEFAULT_CAPACITY = 1024;
 	private ReadFieldAccess[] readSet = new ReadFieldAccess[DEFAULT_CAPACITY];
 	private int nextAvaliable = 0;
