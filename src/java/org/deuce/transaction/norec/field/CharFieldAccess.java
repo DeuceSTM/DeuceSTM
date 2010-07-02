@@ -9,7 +9,7 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class CharFieldAccess extends FieldAccess {
 
-	private char value;
+	final private char value;
 
 	public CharFieldAccess(Object reference, long field, char value) {
 		super(reference, field);
@@ -18,10 +18,6 @@ public class CharFieldAccess extends FieldAccess {
 
 	public char getValue() {
 		return value;
-	}
-
-	public void setValue(char value) {
-		this.value = value;
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class BooleanFieldAccess extends FieldAccess {
 
-	private boolean value;
+	final private boolean value;
 
 	public BooleanFieldAccess(Object reference, long field, boolean value) {
 		super(reference, field);
@@ -18,10 +18,6 @@ public class BooleanFieldAccess extends FieldAccess {
 
 	public boolean getValue() {
 		return value;
-	}
-
-	public void setValue(boolean value) {
-		this.value = value;
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class ShortFieldAccess extends FieldAccess {
 
-	private short value;
+	final private short value;
 
 	public ShortFieldAccess(Object reference, long field, short value) {
 		super(reference, field);
@@ -18,10 +18,6 @@ public class ShortFieldAccess extends FieldAccess {
 
 	public short getValue() {
 		return value;
-	}
-
-	public void setValue(short value) {
-		this.value = value;
 	}
 
 	@Override

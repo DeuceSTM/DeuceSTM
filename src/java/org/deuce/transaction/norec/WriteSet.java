@@ -22,6 +22,7 @@ public class WriteSet {
 	private static final int DEFAULT_CAPACITY = 16;
 
 	final private THashSet<FieldAccess> entries;
+	final private FieldAccess tempFieldAccess = new FieldAccess();
 
 	public WriteSet(int initialCapacity) {
 		entries = new THashSet<FieldAccess>(initialCapacity);
@@ -40,7 +41,8 @@ public class WriteSet {
 	}
 
 	public FieldAccess get(Object obj, long field) {
-		return entries.get(new FieldAccess(obj, field));
+		tempFieldAccess.init(obj, field);
+		return entries.get(tempFieldAccess);
 	}
 
 	public void add(Object obj, long field, Object value) {
@@ -95,10 +97,6 @@ public class WriteSet {
 		FieldAccess w = new ShortFieldAccess(obj, field, value);
 		if(!entries.add(w))
 			entries.replace(w);
-	}
-
-	public boolean contains(Object obj, long field) {
-		return entries.contains(new FieldAccess(obj, field));
 	}
 
 	public void commit() {

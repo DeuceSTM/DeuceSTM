@@ -12,7 +12,13 @@ public class FieldAccess {
 	protected long field;
 	private int hash;
 
-	public FieldAccess(Object reference, long field) {
+	public FieldAccess(){}
+	
+	protected FieldAccess(Object reference, long field) {
+		init(reference, field);
+	}
+	
+	public void init(Object reference, long field){
 		this.reference = reference;
 		this.field = field;
 		this.hash = System.identityHashCode(reference) + (int)field;
@@ -26,7 +32,7 @@ public class FieldAccess {
 		return field;
 	}
 
-	public void writeField() { }
+	public void writeField(){}
 
 	public boolean validate() {
 		return false;

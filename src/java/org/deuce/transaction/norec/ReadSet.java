@@ -23,7 +23,7 @@ public class ReadSet {
 	private static final int DEFAULT_CAPACITY = 1024;
 
 	private ArrayList<FieldAccess> entries;
-
+	
 	public ReadSet(int initialCapacity) {
 		entries = new ArrayList<FieldAccess>(initialCapacity);
 	}
@@ -86,9 +86,5 @@ public class ReadSet {
 				return false;
 		}
 		return true;
-	}
-
-	public boolean contains(Object obj, long field) {
-		return entries.contains(new FieldAccess(obj, field));
 	}
 }

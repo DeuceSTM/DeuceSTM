@@ -37,64 +37,72 @@ final public class Context implements org.deuce.transaction.Context {
 	final private ReadSet readSet = new ReadSet(1024);
 	final private WriteSet writeSet = new WriteSet(32);
 
-	private int ts;
+	private int timeStamp;
 
 	public Context() {
 	}
 
+	@Override
 	public void init(int blockId, String metainf) {
 		readSet.clear();
 		writeSet.clear();
 		do {
-			ts = clock.get();
-		} while((ts & LOCK) != 0);
+			timeStamp = clock.get();
+		} while((timeStamp & LOCK) != 0);
 	}
 
+	@Override
 	public boolean commit() {
-		if (!writeSet.isEmpty()) {
-			// Acquire global lock (make clock odd)
-			while (!clock.compareAndSet(ts, ts | LOCK)) {
-				ts = validate();
-				if (ts < 0)
-					return false;
-			}
-			// Write values
-			writeSet.commit();
-			// Release global lock (make clock even)
-			clock.set(ts + 2);
+		if (writeSet.isEmpty())
+			return true;
+		
+		// Acquire global lock (make clock odd)
+		while (!clock.compareAndSet(timeStamp, timeStamp | LOCK)) {
+			timeStamp = validate();
+			if (timeStamp < 0)
+				return false;
 		}
+		// Write values
+		writeSet.commit();
+		// Release global lock (make clock even)
+		clock.set(timeStamp + 2);
+		
 		return true;
 	}
 
+	@Override
 	public void rollback() {
 		// Nothing to be done
 	}
 
+	@Override
 	public void beforeReadAccess(Object obj, long field) {
 	}
 
 	private int validate() {
-		int c = clock.get();
+		int lastClock = clock.get();
 		while(true) {
-			while((c & LOCK) != 0)
-				c = clock.get();
+			while((lastClock & LOCK) != 0)
+				lastClock = clock.get();
+			
 			if (!readSet.validate())
 				return -1;
-			int t = clock.get();
-			if (c == t)
+			
+			int tempClock = clock.get();
+			if (lastClock == tempClock)
 				break;
-			c = t;
+			lastClock = tempClock;
 		}
-		return c;
+		return lastClock;
 	}
 
 	private FieldAccess onReadAccess(Object obj, long field, Type type) {
 		// Did we already write this field?
 		FieldAccess f = writeSet.get(obj, field);
 		if (f == null) {
-			while (ts != clock.get()) {
-				ts = validate();
-				if (ts < 0)
+			while (timeStamp != clock.get()) {
+				timeStamp = validate();
+				if (timeStamp < 0)
 					throw VALIDATE_FAILURE_EXCEPTION;
 				f = Field.newFieldAccess(obj, field, type);
 			}
@@ -102,6 +110,7 @@ final public class Context implements org.deuce.transaction.Context {
 		return f;
 	}
 
+	@Override
 	public Object onReadAccess(Object obj, Object value, long field) {
 		ObjectFieldAccess f = (ObjectFieldAccess) onReadAccess(obj, field, Type.OBJECT);
 		if (f != null) {
@@ -113,6 +122,7 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
+	@Override
 	public boolean onReadAccess(Object obj, boolean value, long field) {
 		BooleanFieldAccess f = (BooleanFieldAccess) onReadAccess(obj, field, Type.BOOLEAN);
 		if (f != null) {
@@ -124,6 +134,7 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
+	@Override
 	public byte onReadAccess(Object obj, byte value, long field) {
 		ByteFieldAccess f = (ByteFieldAccess) onReadAccess(obj, field, Type.BYTE);
 		if (f != null) {
@@ -135,6 +146,7 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
+	@Override
 	public char onReadAccess(Object obj, char value, long field) {
 		CharFieldAccess f = (CharFieldAccess) onReadAccess(obj, field, Type.CHAR);
 		if (f != null) {
@@ -146,6 +158,7 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
+	@Override
 	public short onReadAccess(Object obj, short value, long field) {
 		ShortFieldAccess f = (ShortFieldAccess) onReadAccess(obj, field, Type.SHORT);
 		if (f != null) {
@@ -157,6 +170,7 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
+	@Override
 	public int onReadAccess(Object obj, int value, long field) {
 		IntFieldAccess f = (IntFieldAccess) onReadAccess(obj, field, Type.INT);
 		if (f != null) {
@@ -168,6 +182,7 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
+	@Override
 	public long onReadAccess(Object obj, long value, long field) {
 		LongFieldAccess f = (LongFieldAccess) onReadAccess(obj, field, Type.LONG);
 		if (f != null) {
@@ -179,6 +194,7 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
+	@Override
 	public float onReadAccess(Object obj, float value, long field) {
 		FloatFieldAccess f = (FloatFieldAccess) onReadAccess(obj, field, Type.FLOAT);
 		if (f != null) {
@@ -190,6 +206,7 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
+	@Override
 	public double onReadAccess(Object obj, double value, long field) {
 		DoubleFieldAccess f = (DoubleFieldAccess) onReadAccess(obj, field, Type.DOUBLE);
 		if (f != null) {
@@ -201,38 +218,47 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, Object value, long field) {
 		writeSet.add(obj, field, value);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, boolean value, long field) {
 		writeSet.add(obj, field, value);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, byte value, long field) {
 		writeSet.add(obj, field, value);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, char value, long field) {
 		writeSet.add(obj, field, value);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, short value, long field) {
 		writeSet.add(obj, field, value);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, int value, long field) {
 		writeSet.add(obj, field, value);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, long value, long field) {
 		writeSet.add(obj, field, value);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, float value, long field) {
 		writeSet.add(obj, field, value);
 	}
-
+	
+	@Override
 	public void onWriteAccess(Object obj, double value, long field) {
 		writeSet.add(obj, field, value);
 	}

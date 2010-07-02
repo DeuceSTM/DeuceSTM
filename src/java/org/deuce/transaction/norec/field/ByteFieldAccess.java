@@ -9,7 +9,7 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class ByteFieldAccess extends FieldAccess {
 
-	private byte value;
+	final private byte value;
 
 	public ByteFieldAccess(Object reference, long field, byte value) {
 		super(reference, field);
@@ -18,10 +18,6 @@ public class ByteFieldAccess extends FieldAccess {
 
 	public byte getValue() {
 		return value;
-	}
-
-	public void setValue(byte value) {
-		this.value = value;
 	}
 
 	@Override

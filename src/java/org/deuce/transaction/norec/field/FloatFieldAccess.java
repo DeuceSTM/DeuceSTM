@@ -9,7 +9,7 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class FloatFieldAccess extends FieldAccess {
 
-	private float value;
+	final private float value;
 
 	public FloatFieldAccess(Object reference, long field, float value) {
 		super(reference, field);
@@ -18,10 +18,6 @@ public class FloatFieldAccess extends FieldAccess {
 
 	public float getValue() {
 		return value;
-	}
-
-	public void setValue(float value) {
-		this.value = value;
 	}
 
 	@Override

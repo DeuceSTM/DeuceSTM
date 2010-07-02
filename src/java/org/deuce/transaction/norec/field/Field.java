@@ -37,8 +37,9 @@ public class Field {
 			return new DoubleFieldAccess(reference, field, unsafe.getDouble(reference, field));
 		case OBJECT:
 			return new ObjectFieldAccess(reference, field, unsafe.getObject(reference, field));
+		default:
+			throw new RuntimeException("Unknown type " + type);
 		}
-		return null;
 	}
 
 	static public Object getValue(Object reference, long field, Type type) {
@@ -62,8 +63,9 @@ public class Field {
 			return unsafe.getDouble(reference, field);
 		case OBJECT:
 			return unsafe.getObject(reference, field);
+		default:
+			throw new RuntimeException("Unknown type " + type);
 		}
-		return null;
 	}
 
 	static public void putValue(Object reference, long field, Object value, Type type) {
@@ -96,6 +98,8 @@ public class Field {
 		case OBJECT:
 			unsafe.putObject(reference, field, value);
 			break;
+		default:
+			throw new RuntimeException("Unknown type " + type);
 		}
 	}
 }

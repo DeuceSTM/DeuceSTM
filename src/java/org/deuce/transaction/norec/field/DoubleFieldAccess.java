@@ -9,7 +9,7 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class DoubleFieldAccess extends FieldAccess {
 
-	private double value;
+	final private double value;
 
 	public DoubleFieldAccess(Object reference, long field, double value) {
 		super(reference, field);
@@ -18,10 +18,6 @@ public class DoubleFieldAccess extends FieldAccess {
 
 	public double getValue() {
 		return value;
-	}
-
-	public void setValue(double value) {
-		this.value = value;
 	}
 
 	@Override
