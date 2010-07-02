@@ -2,12 +2,14 @@
 
 <project name="Deuce" default="agent" basedir=".">
 
-	<target name="agent" depends="compile">
+	<target name="full" depends="agent,tests,junit"/>
+	
+	<target name="agent" depends="compile-source">
 		<jar destfile="bin/deuceAgent.jar">
 			<fileset dir="bin/classes"/>
 			<manifest>
 				<attribute name="Implementation-Vendor" value="deuce.org" />
-				<attribute name="Implementation-Version" value="1.3"/>
+				<attribute name="Implementation-Version" value="1.4"/>
 				<attribute name="Premain-Class" value="org.deuce.transform.asm.Agent" />
 				<attribute name="Main-Class" value="org.deuce.transform.asm.Agent"/>
 				<attribute name="Can-Redefine-Classes" value="true"/>
@@ -16,21 +18,47 @@
 			</manifest>
 		</jar>
 	</target>
+	
+	<target name="tests" depends="compile-tests">
+			<jar destfile="bin/deuceTests.jar">
+				<fileset dir="bin/tests"/>
+				<manifest>
+					<attribute name="Implementation-Vendor" value="deuce.org" />
+					<attribute name="Implementation-Version" value="1.4"/>
+					<attribute name="Compatible" value="1.6"/>
+				</manifest>
+			</jar>
+		</target>
 
-	<target name="Tests">
-		<junit>
-			<classpath>
-				<pathelement location="${build.tests}"/>
-				<pathelement path="bin/deuceAgent.jar"/>
-			</classpath>
+	<target name="junit" depends="agent,tests">
+		<mkdir dir="bin/junit"/>
+		<junit fork="yes">
+			<jvmarg value="-javaagent:bin/deuceAgent.jar"/>
+			<sysproperty key="org.deuce.transaction.contextClass" value="org.deuce.transaction.norec.Context"/>
+			<formatter type="xml"/>
+			<formatter type="brief" usefile="false"/>
+			<classpath path="lib/junit.jar"/>
+			<batchTest todir="bin/junit" >
+				<fileset dir="bin/tests" includes="org/deuce/utest/**/*Test.class" />
+			</batchTest>
 		</junit>
 	</target>
 
-	<target name="compile">
+	<target name="compile-source">
 		<mkdir dir="bin/classes"/>
 		<javac fork="true" srcdir="src"  source="1.6" target="1.6"
 			destdir="bin/classes"
 		 	includes="java/**"
-		 	excludes="test/**"/>
+			excludes="test/**"
+		/>
+	</target>
+	
+	<target name="compile-tests" depends="compile-source">
+		<mkdir dir="bin/tests"/>
+		<javac fork="true" srcdir="src" source="1.6" target="1.6"
+			destdir="bin/tests"
+			classpath="bin/classes;lib/junit.jar"
+		 	includes="test/**"
+			excludes="java/**"/>
 	</target>
 </project>
