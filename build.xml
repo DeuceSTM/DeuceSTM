@@ -1,10 +1,8 @@
 <?xml version="1.0"?>
 
-<project name="Deuce" default="agent" basedir=".">
+<project name="Deuce" default="agent-jar" basedir=".">
 
-	<target name="full" depends="agent,tests,junit"/>
-	
-	<target name="agent" depends="compile-source">
+	<target name="agent-jar" depends="compile-source">
 		<jar destfile="bin/deuceAgent.jar">
 			<fileset dir="bin/classes"/>
 			<manifest>
@@ -19,31 +17,57 @@
 		</jar>
 	</target>
 	
-	<target name="tests" depends="compile-tests">
-			<jar destfile="bin/deuceTests.jar">
-				<fileset dir="bin/tests"/>
-				<manifest>
-					<attribute name="Implementation-Vendor" value="deuce.org" />
-					<attribute name="Implementation-Version" value="1.4"/>
-					<attribute name="Compatible" value="1.6"/>
-				</manifest>
-			</jar>
-		</target>
+	<target name="tests-jar" depends="compile-tests">
+		<jar destfile="bin/deuceTests.jar">
+			<fileset dir="bin/tests"/>
+			<manifest>
+				<attribute name="Implementation-Vendor" value="deuce.org" />
+				<attribute name="Implementation-Version" value="1.4"/>
+				<attribute name="Compatible" value="1.6"/>
+			</manifest>
+		</jar>
+	</target>
 
-	<target name="junit" depends="agent,tests">
+	<target name="Tests" depends="agent-jar,tests-jar">
+		<antcall target="junits">
+			<param name="sysprop" value="org.deuce.transaction.contextClass"/>
+			<param name="value" value="org.deuce.transaction.norec.Context"/>
+		</antcall>
+		<antcall target="junits">
+			<param name="sysprop" value="org.deuce.transaction.contextClass"/>
+			<param name="value" value="org.deuce.transaction.tl2.Context"/>
+		</antcall>
+		<antcall target="junits">
+			<param name="sysprop" value="org.deuce.transaction.contextClass"/>
+			<param name="value" value="org.deuce.transaction.tl2cm.Context"/>
+		</antcall>
+		<antcall target="junits">
+			<param name="sysprop" value="org.deuce.transaction.contextClass"/>
+			<param name="value" value="org.deuce.transaction.lsa.Context"/>
+		</antcall>
+		<antcall target="junits">
+			<param name="sysprop" value="org.deuce.transaction.global"/>
+			<param name="value" value="true"/>
+		</antcall>
+	</target>
+	
+	<target name="junits">
 		<mkdir dir="bin/junit"/>
+		<echo message="Test ${sysprop}=${value}"/>
 		<junit fork="yes">
-			<jvmarg value="-javaagent:bin/deuceAgent.jar"/>
-			<sysproperty key="org.deuce.transaction.contextClass" value="org.deuce.transaction.norec.Context"/>
+			<jvmarg value="-javaagent:${basedir}/bin/deuceAgent.jar"/>
+			<sysproperty key="${sysprop}" value="${value}"/>
 			<formatter type="xml"/>
 			<formatter type="brief" usefile="false"/>
-			<classpath path="lib/junit.jar"/>
-			<batchTest todir="bin/junit" >
-				<fileset dir="bin/tests" includes="org/deuce/utest/**/*Test.class" />
+			<classpath path="${basedir}/lib/junit.jar:${basedir}/bin/tests"/>
+			<batchTest todir="${basedir}/bin/junit">
+				<fileset dir="${basedir}/bin/tests" 
+					includes="org/deuce/utest/**/*Test.class"
+					excludes="org/deuce/utest/basic/StaticFieldInheritanceTest.class"/>
 			</batchTest>
 		</junit>
 	</target>
-
+	
 	<target name="compile-source">
 		<mkdir dir="bin/classes"/>
 		<javac fork="true" srcdir="src"  source="1.6" target="1.6"
