@@ -14,6 +14,12 @@ import org.deuce.transform.asm.ExcludeIncludeStore;
 import org.deuce.transform.asm.FieldsHolder;
 import org.deuce.transform.util.Util;
 
+/**
+ * Responsible for creating the mirror version for the original 
+ * method that includes instrumentation.
+ *  
+ * @author Guy Korland
+ */
 public class DuplicateMethod extends MethodAdapter{
 
 	final static public String LOCAL_VARIBALE_NAME = "__transactionContext__";
