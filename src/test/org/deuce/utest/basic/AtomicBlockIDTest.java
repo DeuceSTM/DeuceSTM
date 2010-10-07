@@ -220,6 +220,10 @@ public class AtomicBlockIDTest extends TestCase{
 			return atomicBlockId;
 		}
 		
+		@Override
+		public void onIrrevocableAccess() {
+		}
+		
 	}
 }
 

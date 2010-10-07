@@ -262,4 +262,8 @@ final public class Context implements org.deuce.transaction.Context {
 	public void onWriteAccess(Object obj, double value, long field) {
 		writeSet.add(obj, field, value);
 	}
+	
+	@Override
+	public void onIrrevocableAccess() {
+	}
 }

@@ -64,4 +64,7 @@ public interface Context
 	void onWriteAccess( Object obj, long value, long field);
 	void onWriteAccess( Object obj, float value, long field);
 	void onWriteAccess( Object obj, double value, long field);
+	
+	/** Called before entering an irrevocable block*/
+	void onIrrevocableAccess();
 }

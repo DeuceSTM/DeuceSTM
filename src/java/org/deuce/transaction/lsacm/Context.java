@@ -108,6 +108,7 @@ final public class Context implements org.deuce.transaction.Context {
 		super.finalize();
 	}
 
+	@Override
 	public void init(int blockId, String metainf) {
 		readSet.clear();
 		writeSet.clear();
@@ -122,6 +123,7 @@ final public class Context implements org.deuce.transaction.Context {
 		vr = (VR_THRESHOLD > 0 && VR_THRESHOLD <= attempts);
 	}
 
+	@Override
 	public boolean commit() {
 		if (!writeSet.isEmpty()) {
 			int v = status.get();
@@ -148,6 +150,7 @@ final public class Context implements org.deuce.transaction.Context {
 		return true;
 	}
 
+	@Override
 	public void rollback() {
 		if (!writeSet.isEmpty()) {
 			int v = status.get();
@@ -220,6 +223,7 @@ final public class Context implements org.deuce.transaction.Context {
 		return false;
 	}
 
+	@Override
 	public void beforeReadAccess(Object obj, long field) {
 		if (vr) {
 			readHash = LockTable.hash(obj, field);
@@ -345,75 +349,97 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
+	@Override
 	public Object onReadAccess(Object obj, Object value, long field) {
 		return (onReadAccess(obj, field, Type.OBJECT) ? readValue : value);
 	}
 
+	@Override
 	public boolean onReadAccess(Object obj, boolean value, long field) {
 		return (onReadAccess(obj, field, Type.BOOLEAN) ? (Boolean) readValue : value);
 	}
 
+	@Override
 	public byte onReadAccess(Object obj, byte value, long field) {
 		return (onReadAccess(obj, field, Type.BYTE) ? ((Number) readValue).byteValue() : value);
 	}
 
+	@Override
 	public char onReadAccess(Object obj, char value, long field) {
 		return (onReadAccess(obj, field, Type.CHAR) ? (Character) readValue : value);
 	}
 
+	@Override
 	public short onReadAccess(Object obj, short value, long field) {
 		return (onReadAccess(obj, field, Type.SHORT) ? ((Number) readValue).shortValue() : value);
 	}
 
+	@Override
 	public int onReadAccess(Object obj, int value, long field) {
 		return (onReadAccess(obj, field, Type.INT) ? ((Number) readValue).intValue() : value);
 	}
 
+	@Override
 	public long onReadAccess(Object obj, long value, long field) {
 		return (onReadAccess(obj, field, Type.LONG) ? ((Number) readValue).longValue() : value);
 	}
 
+	@Override
 	public float onReadAccess(Object obj, float value, long field) {
 		return (onReadAccess(obj, field, Type.FLOAT) ? ((Number) readValue).floatValue() : value);
 	}
 
+	@Override
 	public double onReadAccess(Object obj, double value, long field) {
 		return (onReadAccess(obj, field, Type.DOUBLE) ? ((Number) readValue).doubleValue() : value);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, Object value, long field) {
 		onWriteAccess(obj, field, value, Type.OBJECT);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, boolean value, long field) {
 		onWriteAccess(obj, field, (Object) value, Type.BOOLEAN);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, byte value, long field) {
 		onWriteAccess(obj, field, (Object) value, Type.BYTE);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, char value, long field) {
 		onWriteAccess(obj, field, (Object) value, Type.CHAR);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, short value, long field) {
 		onWriteAccess(obj, field, (Object) value, Type.SHORT);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, int value, long field) {
 		onWriteAccess(obj, field, (Object) value, Type.INT);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, long value, long field) {
 		onWriteAccess(obj, field, (Object) value, Type.LONG);
 	}
-
+	
+	@Override
 	public void onWriteAccess(Object obj, float value, long field) {
 		onWriteAccess(obj, field, (Object) value, Type.FLOAT);
 	}
 
+	@Override
 	public void onWriteAccess(Object obj, double value, long field) {
 		onWriteAccess(obj, field, (Object) value, Type.DOUBLE);
+	}
+	
+	@Override
+	public void onIrrevocableAccess() {
 	}
 }
