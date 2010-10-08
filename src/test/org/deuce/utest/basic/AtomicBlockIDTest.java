@@ -25,13 +25,16 @@ public class AtomicBlockIDTest extends TestCase{
 		
 		Thread thread = new Thread(new Runnable() {
 			@Override
-			public void run() {
-				Field declaredField;
-				try {
-					declaredField = ContextDelegator.class.getDeclaredField("THREAD_CONTEXT");
-
+			public void run(){
+				Context originalInstance = ContextDelegator.getInstance(); // save the real context before setting the moke
+				ThreadLocal<Context> threadLocal = null;
+				try
+				{
+					
+					Field declaredField = ContextDelegator.class.getDeclaredField("THREAD_CONTEXT");
 					declaredField.setAccessible(true);
-					ThreadLocal<Context> threadLocal = (ThreadLocal<Context>) declaredField.get(Thread.currentThread());
+					threadLocal = (ThreadLocal<Context>) declaredField.get(Thread.currentThread());
+
 					MockContext context = new MockContext();
 					threadLocal.set(context);
 
@@ -52,6 +55,10 @@ public class AtomicBlockIDTest extends TestCase{
 				} catch (Exception e) {
 					error.equals(e);
 				} 
+				finally{
+					if(threadLocal != null)
+						threadLocal.set(originalInstance); // restore the real context
+				}
 			}
 		});
 		thread.start();
