@@ -20,6 +20,8 @@ public class ContextDelegator {
 	
 	final static public String BEFORE_READ_METHOD_NAME = "beforeReadAccess";
 	final static public String BEFORE_READ_METHOD_DESC = "(Ljava/lang/Object;J" + Context.CONTEXT_DESC +")V";
+	final static public String IRREVOCABLE_METHOD_NAME = "onIrrevocableAccess";
+	final static public String IRREVOCABLE_METHOD_DESC = "(" + Context.CONTEXT_DESC + ")V";
 	
 	final static public String WRITE_METHOD_NAME = "onWriteAccess";
 	final static public String WRITE_ARR_METHOD_NAME = "onArrayWriteAccess";
@@ -100,15 +102,15 @@ public class ContextDelegator {
 	@Exclude
 	private static class ContextThreadLocal extends ThreadLocal<Context>
 	{
-		private Class<?> contextClass;  
+		private Class<? extends Context> contextClass;  
 
 		public ContextThreadLocal(){
 			String className = System.getProperty( "org.deuce.transaction.contextClass");
 			if( className != null){
 				try {
-					this.contextClass = Class.forName(className);
+					this.contextClass = (Class<? extends Context>) Class.forName(className);
 					return;
-				} catch (ClassNotFoundException e) {
+				} catch (Exception e) {
 					e.printStackTrace(); // TODO add logger
 				}
 			}
@@ -118,7 +120,7 @@ public class ContextDelegator {
 		@Override
 		protected synchronized Context initialValue() {
 			try {
-				return (Context)this.contextClass.newInstance();
+				return this.contextClass.newInstance();
 			} catch (Exception e) {
 				throw new TransactionException( e);
 			}
@@ -359,6 +361,10 @@ public class ContextDelegator {
 	static public void onArrayWriteAccess( double[] arr, int index, double value, Context context) {
 		double t = arr[index]; // dummy access just to check the index in range
 		context.onWriteAccess(arr, value, DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index);
+	}
+	
+	static public void onIrrevocableAccess(Context context) {
+		context.onIrrevocableAccess();
 	}
 	
 }

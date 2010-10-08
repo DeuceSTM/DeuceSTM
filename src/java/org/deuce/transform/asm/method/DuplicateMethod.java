@@ -35,7 +35,7 @@ public class DuplicateMethod extends MethodAdapter{
 	public DuplicateMethod(MethodVisitor mv, boolean isstatic, Method newMethod, FieldsHolder fieldsHolder) {
 		super(mv);
 		this.fieldsHolder = fieldsHolder;
-		this.argumentsSize = calcArgumentsSize( isstatic, newMethod); 
+		this.argumentsSize = Util.calcArgumentsSize( isstatic, newMethod); 
 	}
 	
 	public void setAnalyzer(AnalyzerAdapter analyzerAdapter) {
@@ -298,14 +298,6 @@ public class DuplicateMethod extends MethodAdapter{
 	 */
 	private int newIndex( int currIndex){
 		return currIndex + 1 < this.argumentsSize ? currIndex : currIndex + 1;
-	}
-	
-	private int calcArgumentsSize( boolean isStatic, Method newMethod){
-		int size = isStatic ? 0 : 1; // if not static "this" is the first argument
-		for( Type type : newMethod.getArgumentTypes()){
-			size += type.getSize();
-		}
-		return size;
 	}
 	
 	private String getArrayMemberType( String arrayType){

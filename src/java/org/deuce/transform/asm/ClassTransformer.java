@@ -10,6 +10,7 @@ import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.Context;
+import org.deuce.transaction.ContextDelegator;
 import org.deuce.transform.Exclude;
 import org.deuce.transform.asm.method.MethodTransformer;
 import org.deuce.transform.asm.method.StaticMethodTransformer;
@@ -100,7 +101,7 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 	}
 
 	@Override
-	public MethodVisitor visitMethod(int access, String name, String desc, String signature,
+	public MethodVisitor visitMethod(final int access, String name, String desc, String signature,
 			String[] exceptions) {
 
 		MethodVisitor originalMethod =  super.visitMethod(access, name, desc, signature, exceptions);
@@ -150,8 +151,17 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 				signature, exceptions);
 		copyMethod.visitCode();
 		
+		final boolean isStatic = (access & Opcodes.ACC_STATIC) != 0;
+		
+		//Call onIrrevocableAccess
+		int argumentsSize = Util.calcArgumentsSize(isStatic, newMethod);
+		copyMethod.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+		copyMethod.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+				ContextDelegator.IRREVOCABLE_METHOD_NAME, ContextDelegator.IRREVOCABLE_METHOD_DESC);
+		
+		
 		// load the arguments before calling the original method
-		final boolean isStatic = (access & ~Opcodes.ACC_STATIC) != 0;
+		
 		int place = 0; // place on the stack
 		if(!isStatic){
 			copyMethod.visitVarInsn(Opcodes.ALOAD, 0); // load this
