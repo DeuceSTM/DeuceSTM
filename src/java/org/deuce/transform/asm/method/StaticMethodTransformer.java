@@ -4,9 +4,10 @@ import java.util.List;
 
 import org.deuce.objectweb.asm.MethodAdapter;
 import org.deuce.objectweb.asm.MethodVisitor;
-import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.transform.asm.Field;
+
+import static org.deuce.objectweb.asm.Opcodes.*;
 
 public class StaticMethodTransformer extends MethodAdapter {
 
@@ -42,19 +43,19 @@ public class StaticMethodTransformer extends MethodAdapter {
 	private void addField( Field field) {
 		staticMethod.visitLdcInsn(Type.getObjectType(className));
 		staticMethod.visitLdcInsn(field.getFieldName());
-		staticMethod.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Class", "getDeclaredField",
+		staticMethod.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Class", "getDeclaredField",
 		"(Ljava/lang/String;)Ljava/lang/reflect/Field;");
-		staticMethod.visitMethodInsn(Opcodes.INVOKESTATIC, "org/deuce/reflection/AddressUtil",
+		staticMethod.visitMethodInsn(INVOKESTATIC, "org/deuce/reflection/AddressUtil",
 				"getAddress", "(Ljava/lang/reflect/Field;)J");
-		staticMethod.visitFieldInsn(Opcodes.PUTSTATIC, fieldsHolderName, field.getFieldNameAddress(), "J");
+		staticMethod.visitFieldInsn(PUTSTATIC, fieldsHolderName, field.getFieldNameAddress(), "J");
 	}
 
 	private void addClassBase(String staticFieldBase) {
 		staticMethod.visitLdcInsn(Type.getObjectType(className));
 		staticMethod.visitLdcInsn(staticFieldBase);
-		staticMethod.visitMethodInsn(Opcodes.INVOKESTATIC, "org/deuce/reflection/AddressUtil",
+		staticMethod.visitMethodInsn(INVOKESTATIC, "org/deuce/reflection/AddressUtil",
 				"staticFieldBase", "(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Object;");
-		staticMethod.visitFieldInsn(Opcodes.PUTSTATIC, fieldsHolderName, CLASS_BASE, "Ljava/lang/Object;");
+		staticMethod.visitFieldInsn(PUTSTATIC, fieldsHolderName, CLASS_BASE, "Ljava/lang/Object;");
 	}
 
 	@Override
