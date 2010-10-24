@@ -1,19 +1,17 @@
 package org.deuce.transform.asm.method;
 
 import java.util.HashMap;
-
-
-import org.deuce.Atomic;
 import org.deuce.Unsafe;
 import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.Attribute;
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodVisitor;
-import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transform.asm.FieldsHolder;
+
+import static org.deuce.objectweb.asm.Opcodes.*;
 
 public class MethodTransformer implements MethodVisitor{
 
@@ -37,7 +35,7 @@ public class MethodTransformer implements MethodVisitor{
 		
 		this.originalMethod = originalMethod;
 		this.newMethod = newMethod;
-		this.isStatic = (access & Opcodes.ACC_STATIC) != 0;
+		this.isStatic = (access & ACC_STATIC) != 0;
 		this.originalCopyMethod = copyMethod;
 		
 		// The AnalyzerAdapter delegates the call to the DuplicateMethod, while the DuplicateMethod uses
@@ -68,11 +66,11 @@ public class MethodTransformer implements MethodVisitor{
 		if( UNSAFE_DESCRIPTOR.equals(desc)) // if marked as Unsafe no just duplicate the method as is.
 			copyMethod = originalCopyMethod;
 		
-		if( !desc.contains("org/junit")) // TODO find another way
-			return new MethodAnnotationVisitor( originalMethod.visitAnnotation(desc, visible),
-					copyMethod.visitAnnotation(desc, visible));
-		else	
+		if( desc.contains("org/junit")) // TODO find another way
 			return originalMethod.visitAnnotation(desc, visible);
+		
+		return new MethodAnnotationVisitor( originalMethod.visitAnnotation(desc, visible),
+				copyMethod.visitAnnotation(desc, visible));
 	}
 
 	public AnnotationVisitor visitAnnotationDefault() {
