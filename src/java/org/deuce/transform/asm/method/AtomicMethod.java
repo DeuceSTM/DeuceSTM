@@ -7,7 +7,6 @@ import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodAdapter;
 import org.deuce.objectweb.asm.MethodVisitor;
-import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.AbortTransactionException;
@@ -16,8 +15,16 @@ import org.deuce.transaction.ContextDelegator;
 import org.deuce.transaction.TransactionException;
 import org.deuce.transform.asm.type.TypeCodeResolver;
 import org.deuce.transform.asm.type.TypeCodeResolverFactory;
+import static org.deuce.objectweb.asm.Opcodes.*;
 
-public class AtomicMethod extends MethodAdapter implements Opcodes{
+/**
+ * Used to replaced the original @atomic method with a method that run the transaction loop.
+ * On each round the transaction contest reinitialized and the duplicated method is called with the 
+ * transaction context.
+ *  
+ * @author Guy Korland
+ */
+public class AtomicMethod extends MethodAdapter{
 
 	final static public String ATOMIC_DESCRIPTOR = Type.getDescriptor(Atomic.class);
 	final static private AtomicInteger ATOMIC_BLOCK_COUNTER = new AtomicInteger(0);
