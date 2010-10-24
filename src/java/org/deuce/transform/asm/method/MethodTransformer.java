@@ -1,21 +1,27 @@
 package org.deuce.transform.asm.method;
 
 import java.util.HashMap;
+
+import org.deuce.Irrevocable;
 import org.deuce.Unsafe;
 import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.Attribute;
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodVisitor;
+import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
+import org.deuce.transaction.ContextDelegator;
 import org.deuce.transform.asm.FieldsHolder;
+import org.deuce.transform.util.Util;
 
 import static org.deuce.objectweb.asm.Opcodes.*;
 
 public class MethodTransformer implements MethodVisitor{
 
 	final static private String UNSAFE_DESCRIPTOR = Type.getDescriptor(Unsafe.class);
+	final static private String IRREVOCABLE_DESCRIPTOR = Type.getDescriptor(Irrevocable.class);
 	
 	private MethodVisitor originalMethod;
 
@@ -27,6 +33,7 @@ public class MethodTransformer implements MethodVisitor{
 	final private String descriptor; // original descriptor
 	final private HashMap<Label, Label> labelMap = new HashMap<Label, Label>();
 	final private boolean isStatic;
+	private boolean isIrrevocable;
 	final private Method newMethod;
 
 	public MethodTransformer(MethodVisitor originalMethod, MethodVisitor copyMethod, 
@@ -36,7 +43,7 @@ public class MethodTransformer implements MethodVisitor{
 		this.originalMethod = originalMethod;
 		this.newMethod = newMethod;
 		this.isStatic = (access & ACC_STATIC) != 0;
-		this.originalCopyMethod = copyMethod;
+		this.originalCopyMethod = copyMethod; // save duplicate method without instrumentation.
 		
 		// The AnalyzerAdapter delegates the call to the DuplicateMethod, while the DuplicateMethod uses
 		// the analyzer for stack state in the original method.
@@ -53,6 +60,14 @@ public class MethodTransformer implements MethodVisitor{
 	public void visitCode() {
 		originalMethod.visitCode();
 		copyMethod.visitCode();
+
+		if(isIrrevocable){ //Call onIrrevocableAccess
+			int argumentsSize = Util.calcArgumentsSize(isStatic, newMethod);
+			copyMethod.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+			copyMethod.visitMethodInsn( Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+					ContextDelegator.IRREVOCABLE_METHOD_NAME, ContextDelegator.IRREVOCABLE_METHOD_DESC);
+		}
+	
 	}
 
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
@@ -65,6 +80,12 @@ public class MethodTransformer implements MethodVisitor{
 
 		if( UNSAFE_DESCRIPTOR.equals(desc)) // if marked as Unsafe no just duplicate the method as is.
 			copyMethod = originalCopyMethod;
+
+		//Is marked as @Irrevocable
+		if(IRREVOCABLE_DESCRIPTOR.equals(desc)){
+			copyMethod = originalCopyMethod; // no need to instrument call
+			isIrrevocable = true;
+		}
 		
 		if( desc.contains("org/junit")) // TODO find another way
 			return originalMethod.visitAnnotation(desc, visible);
