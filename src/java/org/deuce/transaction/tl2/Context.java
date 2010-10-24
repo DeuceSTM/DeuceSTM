@@ -1,6 +1,7 @@
 package org.deuce.transaction.tl2;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.tl2.field.BooleanWriteFieldAccess;
@@ -37,27 +38,25 @@ final public class Context implements org.deuce.transaction.Context{
 		
 	//Used by the thread to mark locks it holds.
 	final private byte[] locksMarker = new byte[LockTable.LOCKS_SIZE /8 + 1];
+	final private LockProcedure lockProcedure = new LockProcedure(locksMarker);
 	
 	//Marked on beforeRead, used for the double lock check
 	private int localClock;
 	private int lastReadLock;
 	
-	final private LockProcedure lockProcedure = new LockProcedure(locksMarker);
-	
 	final private TObjectProcedure<WriteFieldAccess> putProcedure = new TObjectProcedure<WriteFieldAccess>(){
-
 		@Override
 		public boolean execute(WriteFieldAccess writeField) {
 			writeField.put();
 			return true;
 		}
-		
 	};
 	
 	public Context(){
 		this.localClock = clock.get();
 	}
 	
+	@Override
 	public void init(int atomicBlockId, String metainf){
 		this.currentReadFieldAccess = null;
 		this.readSet.clear(); 
@@ -74,6 +73,7 @@ final public class Context implements org.deuce.transaction.Context{
 		this.doublePool.clear();
 	}
 	
+	@Override
 	public boolean commit(){
         if (writeSet.isEmpty()) // if the writeSet is empty no need to lock a thing. 
         	return true;
@@ -95,6 +95,7 @@ final public class Context implements org.deuce.transaction.Context{
 		return true;
 	}
 	
+	@Override
 	public void rollback(){
 	}
 
@@ -355,4 +356,5 @@ final public class Context implements org.deuce.transaction.Context{
 	@Override
 	public void onIrrevocableAccess() {
 	}
+	
 }
