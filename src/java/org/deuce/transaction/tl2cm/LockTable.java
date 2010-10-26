@@ -17,7 +17,8 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class LockTable {
 
-	public static final int OWNERCLOCK_SIZE = 21;
+	public static final int OWNERSIZE = 8;	// Allowing for 2^OWNERSIZE threads in the system
+	public static final int OWNERCLOCK_SIZE = 31 - OWNERSIZE;
 	private static final int NO_OWNER = 0;
 	private static final int SIZE = 1 << 20;
 	private static final int HASH_MASK = 0xFFFFF;

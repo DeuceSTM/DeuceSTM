@@ -16,7 +16,7 @@ import org.deuce.transform.Exclude;
  * @since 1.4
  */
 @Exclude
-public class LockStealer extends AbstractContentionManager {
+public class AggressiveLS extends AbstractContentionManager {
 
 	@Override
 	public Action resolveReadConflict(ReadFieldAccess readField, Context me, Context other) {

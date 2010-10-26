@@ -1,11 +1,11 @@
 package org.deuce.transaction.tl2cm;
 
 import org.deuce.transaction.tl2cm.cm.Aggressive;
+import org.deuce.transaction.tl2cm.cm.AggressiveLS;
 import org.deuce.transaction.tl2cm.cm.ContentionManager;
 import org.deuce.transaction.tl2cm.cm.Karma;
-import org.deuce.transaction.tl2cm.cm.KarmaLockStealer;
-import org.deuce.transaction.tl2cm.cm.KillPrioLockStealer;
-import org.deuce.transaction.tl2cm.cm.LockStealer;
+import org.deuce.transaction.tl2cm.cm.KarmaLS;
+import org.deuce.transaction.tl2cm.cm.KillPrioLS;
 import org.deuce.transaction.tl2cm.cm.Polite;
 import org.deuce.transaction.tl2cm.cm.Polka;
 import org.deuce.transaction.tl2cm.cm.Suicide;
@@ -36,20 +36,20 @@ public class Factory {
 		else if ("Karma".equals(cmId)) {
 			cm = new Karma(4); 
 		}
-		else if ("KarmaLockStealer".equals(cmId)) {
-			cm = new KarmaLockStealer();
+		else if ("KarmaLS".equals(cmId)) {
+			cm = new KarmaLS();
 		}
 		else if ("Polka".equals(cmId)) {
 			cm = new Polka(10);
 		}
-		else if ("LockStealer".equals(cmId)) {
-			cm = new LockStealer();
+		else if ("AggressiveLS".equals(cmId)) {
+			cm = new AggressiveLS();
 		}
-		else if ("KillPrioLockStealer".equals(cmId)) {
-			cm = new KillPrioLockStealer();
+		else if ("KillPrioLS".equals(cmId)) {
+			cm = new KillPrioLS();
 		}
 		else {
-			cm = new KillPrioLockStealer();	// This is the default CM
+			cm = new KillPrioLS();	// This is the default CM
 		}
 		return cm;
 	}

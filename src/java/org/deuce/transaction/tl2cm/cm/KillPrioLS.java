@@ -14,19 +14,19 @@ import org.deuce.transform.Exclude;
  * @since 1.4
  */
 @Exclude
-public class KillPrioLockStealer extends AbstractContentionManager {
+public class KillPrioLS extends AbstractContentionManager {
 
 	@Override
 	public Action resolveReadConflict(ReadFieldAccess readField, Context me, Context other) {
 		int statusRecord = other.getStatusRecord();
 		int myPrio = me.getKillPriority();
 		int otherPrio = other.getKillPriority();
-		if (myPrio >= otherPrio) {
+		if (myPrio >= otherPrio) {	// If we do > then all priorities will remain 0 since no one will kill
 			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED) {
 				return Action.CONTINUE;
 			}
 			else if (other.kill(Context.getTxLocalClock(statusRecord))) {
-				me.increaseKillPriority(otherPrio+1);
+				me.changeKillPriority(otherPrio+1);
 				return Action.CONTINUE;
 			}
 			else {
@@ -41,13 +41,13 @@ public class KillPrioLockStealer extends AbstractContentionManager {
 		int statusRecord = other.getStatusRecord();
 		int myPrio = me.getKillPriority();
 		int otherPrio = other.getKillPriority();
-		if (myPrio >= otherPrio) {
+		if (myPrio >= otherPrio) {	// If we do > then all priorities will remain 0 since no one will kill
 			// It is not allowed to steal a lock before the other transaction is aborted
 			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED) {
 				return Action.STEAL_LOCK;
 			}
 			else if (other.kill(Context.getTxLocalClock(statusRecord))) {
-				me.increaseKillPriority(otherPrio+1);
+				me.changeKillPriority(otherPrio+1);
 				return Action.STEAL_LOCK;
 			}
 			else {

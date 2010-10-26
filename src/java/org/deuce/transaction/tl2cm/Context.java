@@ -47,7 +47,6 @@ final public class Context implements org.deuce.transaction.Context {
 	
 	// Instance members - specific to each thread
 	private final ContentionManager cm = Factory.createContentionManager();
-	private final int threadId = threadIdCounter.getAndIncrement();
 	private final ReadSet readSet = new ReadSet();
 	private final WriteSet writeSet = new WriteSet();
 	private final AtomicInteger statusRecord = new AtomicInteger(0);
@@ -61,13 +60,13 @@ final public class Context implements org.deuce.transaction.Context {
 			return true;
 		}
 	};
+	private final int threadId;
 	private int rv;
 	private int atomicBlockId;
 	private int lastReadLockVersion;
 	private int localClock;
 	private int attempts;
-	
-	private final Statistics stats = new Statistics(threadId);	
+	private final Statistics stats;	
 	
 	// Static initialization
 	static {
@@ -82,6 +81,13 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 	
 	public Context() {
+		threadId = threadIdCounter.getAndIncrement();
+		int maxThreads = (int) Math.pow(2, LockTable.OWNERSIZE);
+		if (threadId > maxThreads) {
+			System.err.println("Too many threads in the system. Max number of threads allowed is " + maxThreads);
+			System.exit(1);
+		}
+		stats = new Statistics(threadId);
 		this.localClock = 0;
 		threads[threadId] = this;
 	}
@@ -208,11 +214,15 @@ final public class Context implements org.deuce.transaction.Context {
 		return karma.get();
 	}
 
+	public final void changePriority(int delta) {
+		karma.addAndGet(delta);
+	}
+	
 	public final int getKillPriority() {
 		return killKarma.get();
 	}
 
-	public final void increaseKillPriority(int delta) {
+	public final void changeKillPriority(int delta) {
 		killKarma.addAndGet(delta);
 	}
 	
@@ -376,7 +386,6 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
-	@Override
 	public Object onReadAccess(Object obj, Object value, long field) {
 		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if (writeAccess == null)
@@ -385,7 +394,6 @@ final public class Context implements org.deuce.transaction.Context {
 		return ((ObjectWriteFieldAccess) writeAccess).getValue();
 	}
 
-	@Override
 	public boolean onReadAccess(Object obj, boolean value, long field) {
 		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if (writeAccess == null)
@@ -394,7 +402,6 @@ final public class Context implements org.deuce.transaction.Context {
 		return ((BooleanWriteFieldAccess) writeAccess).getValue();
 	}
 
-	@Override
 	public byte onReadAccess(Object obj, byte value, long field) {
 		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if (writeAccess == null)
@@ -403,7 +410,6 @@ final public class Context implements org.deuce.transaction.Context {
 		return ((ByteWriteFieldAccess) writeAccess).getValue();
 	}
 
-	@Override
 	public char onReadAccess(Object obj, char value, long field) {
 		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if (writeAccess == null)
@@ -412,7 +418,6 @@ final public class Context implements org.deuce.transaction.Context {
 		return ((CharWriteFieldAccess) writeAccess).getValue();
 	}
 
-	@Override
 	public short onReadAccess(Object obj, short value, long field) {
 		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if (writeAccess == null)
@@ -422,7 +427,6 @@ final public class Context implements org.deuce.transaction.Context {
 
 	}
 
-	@Override
 	public int onReadAccess(Object obj, int value, long field) {
 		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if (writeAccess == null)
@@ -431,7 +435,6 @@ final public class Context implements org.deuce.transaction.Context {
 		return ((IntWriteFieldAccess) writeAccess).getValue();
 	}
 
-	@Override
 	public long onReadAccess(Object obj, long value, long field) {
 		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if (writeAccess == null)
@@ -440,7 +443,6 @@ final public class Context implements org.deuce.transaction.Context {
 		return ((LongWriteFieldAccess) writeAccess).getValue();
 	}
 
-	@Override
 	public float onReadAccess(Object obj, float value, long field) {
 		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if (writeAccess == null)
@@ -449,7 +451,6 @@ final public class Context implements org.deuce.transaction.Context {
 		return ((FloatWriteFieldAccess) writeAccess).getValue();
 	}
 
-	@Override
 	public double onReadAccess(Object obj, double value, long field) {
 		WriteFieldAccess writeAccess = onReadAccess0(obj, field);
 		if (writeAccess == null)
@@ -458,14 +459,12 @@ final public class Context implements org.deuce.transaction.Context {
 		return ((DoubleWriteFieldAccess) writeAccess).getValue();
 	}
 
-	@Override
 	public void onWriteAccess(Object obj, Object value, long field) {
 		ObjectWriteFieldAccess next = objectPool.getNext();
 		next.set(value, obj, field);
 		addWriteAccess0(next);
 	}
 
-	@Override
 	public void onWriteAccess(Object obj, boolean value, long field) {
 
 		BooleanWriteFieldAccess next = booleanPool.getNext();
@@ -473,7 +472,6 @@ final public class Context implements org.deuce.transaction.Context {
 		addWriteAccess0(next);
 	}
 
-	@Override
 	public void onWriteAccess(Object obj, byte value, long field) {
 
 		ByteWriteFieldAccess next = bytePool.getNext();
@@ -481,7 +479,6 @@ final public class Context implements org.deuce.transaction.Context {
 		addWriteAccess0(next);
 	}
 
-	@Override
 	public void onWriteAccess(Object obj, char value, long field) {
 
 		CharWriteFieldAccess next = charPool.getNext();
@@ -489,7 +486,6 @@ final public class Context implements org.deuce.transaction.Context {
 		addWriteAccess0(next);
 	}
 
-	@Override
 	public void onWriteAccess(Object obj, short value, long field) {
 
 		ShortWriteFieldAccess next = shortPool.getNext();
@@ -497,7 +493,6 @@ final public class Context implements org.deuce.transaction.Context {
 		addWriteAccess0(next);
 	}
 
-	@Override
 	public void onWriteAccess(Object obj, int value, long field) {
 
 		IntWriteFieldAccess next = intPool.getNext();
@@ -512,7 +507,6 @@ final public class Context implements org.deuce.transaction.Context {
 		addWriteAccess0(next);
 	}
 
-	@Override
 	public void onWriteAccess(Object obj, float value, long field) {
 
 		FloatWriteFieldAccess next = floatPool.getNext();
@@ -520,7 +514,6 @@ final public class Context implements org.deuce.transaction.Context {
 		addWriteAccess0(next);
 	}
 
-	@Override
 	public void onWriteAccess(Object obj, double value, long field) {
 
 		DoubleWriteFieldAccess next = doublePool.getNext();
@@ -616,7 +609,4 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 	final private Pool<DoubleWriteFieldAccess> doublePool = new Pool<DoubleWriteFieldAccess>( new DoubleResourceFactory());
 
-	@Override
-	public void onIrrevocableAccess() {
-	}
 }

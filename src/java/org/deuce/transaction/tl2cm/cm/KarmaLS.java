@@ -13,7 +13,7 @@ import org.deuce.transform.Exclude;
  * @since 1.4
  */  
 @Exclude
-public class KarmaLockStealer extends AbstractContentionManager {
+public class KarmaLS extends AbstractContentionManager {
 
 	private int counter = 0;
 	
