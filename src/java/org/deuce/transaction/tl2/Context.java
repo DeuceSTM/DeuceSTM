@@ -2,6 +2,7 @@ package org.deuce.transaction.tl2;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.tl2.field.BooleanWriteFieldAccess;
@@ -28,7 +29,7 @@ import org.deuce.trove.TObjectProcedure;
  */
 @Exclude
 final public class Context implements org.deuce.transaction.Context{
-	
+
 	final static AtomicInteger clock = new AtomicInteger( 0);
 
 	final private ReadSet readSet = new ReadSet();
@@ -43,6 +44,10 @@ final public class Context implements org.deuce.transaction.Context{
 	//Marked on beforeRead, used for the double lock check
 	private int localClock;
 	private int lastReadLock;
+
+	//Global lock used to allow only one irrevocable transaction solely. 
+	final private static ReentrantReadWriteLock irrevocableAccessLock = new ReentrantReadWriteLock();
+	private boolean irrevocableState = false;
 	
 	final private TObjectProcedure<WriteFieldAccess> putProcedure = new TObjectProcedure<WriteFieldAccess>(){
 		@Override
@@ -71,32 +76,52 @@ final public class Context implements org.deuce.transaction.Context{
 		this.longPool.clear();
 		this.floatPool.clear();
 		this.doublePool.clear();
+		
+		//Lock according to the transaction irrevocable state
+		if(irrevocableState)
+			irrevocableAccessLock.writeLock().lock();
+		else
+			irrevocableAccessLock.readLock().lock();
 	}
 	
 	@Override
 	public boolean commit(){
-        if (writeSet.isEmpty()) // if the writeSet is empty no need to lock a thing. 
-        	return true;
-        		
 		try
 		{
-			// pre commit validation phase
-			writeSet.forEach(lockProcedure);
-			readSet.checkClock(localClock);
-		}
-		catch( TransactionException exception){
-			lockProcedure.unlockAll();
-			return false;
-		}
+			if (writeSet.isEmpty()) // if the writeSet is empty no need to lock a thing. 
+				return true;
 
-		// commit new values and release locks
-		writeSet.forEach(putProcedure);
-		lockProcedure.setAndUnlockAll();
-		return true;
+			try
+			{
+				// pre commit validation phase
+				writeSet.forEach(lockProcedure);
+				readSet.checkClock(localClock);
+			}
+			catch( TransactionException exception){
+				lockProcedure.unlockAll();
+				return false;
+			}
+
+			// commit new values and release locks
+			writeSet.forEach(putProcedure);
+			lockProcedure.setAndUnlockAll();
+			return true;
+		}
+		finally{
+			if(irrevocableState){
+				irrevocableState = false;
+				irrevocableAccessLock.writeLock().unlock();
+			}
+			else{
+				irrevocableAccessLock.readLock().unlock();
+			}
+			
+		}
 	}
 	
 	@Override
 	public void rollback(){
+		irrevocableAccessLock.readLock().unlock();
 	}
 
 	private WriteFieldAccess onReadAccess0( Object obj, long field){
@@ -355,6 +380,11 @@ final public class Context implements org.deuce.transaction.Context{
 	
 	@Override
 	public void onIrrevocableAccess() {
+		if(irrevocableState) // already in irrevocable state so no need to restart transaction.
+			return;
+		
+		irrevocableState = true;
+		throw TransactionException.STATIC_TRANSACTION;
 	}
 	
 }
