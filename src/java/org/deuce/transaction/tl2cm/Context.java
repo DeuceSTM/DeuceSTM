@@ -608,5 +608,8 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 	final private Pool<DoubleWriteFieldAccess> doublePool = new Pool<DoubleWriteFieldAccess>( new DoubleResourceFactory());
-
+	
+	@Override
+	public void onIrrevocableAccess() {
+	}
 }
