@@ -1,0 +1,70 @@
+//===----------------------------------------------------------------------===//
+//                  Steps for building Deuce STM
+//===----------------------------------------------------------------------===//
+
+
+//===----------------------- Contact
+
+Contact information: Guy Korland
+
+//===----------------------- Installation
+
+Running Deuce can be done in two options:
+   1. Online e.g. java -javaagent:bin/deuceAgent.jar -cp my.jar myMain
+   2. Offline e.g. java -jar deuceAgent.jar my.jar out_my.jar
+
+1. Introduction
+
+Another option is to check-out the latest version from Deuce SVN repository: 
+   http://code.google.com/p/deuce/source 
+
+Deuce comes with few benchmarks and unit tests which are not part of the 
+downloaded but can be checkout from the SVN. The tests are JUnit3 tests and 
+can be run by any tool that can run JUnit tests. All the tests are under 
+src/test directory.
+
+Also under the src/test exist few known benchmarks which are 
+already adapted to run under Deuce including JSTAMP, STMBENCH7, IntSet 
+and Bank. 
+
+1.1 Naming convention
+
+Under deuce svn you can find the /src directory
+
+Under the src directory you can find two directories: 
+   /java --> deuce agent sources.
+   /test --> deuce unit tests and benchmarks sources.
+
+1.2 Quick installation instructions
+
+Download: http://www.deucestm.org/download/deuceAgent-1.3.0.jar
+More information can be found here: http://www.deucestm.org/documentation
+
+1.3 System requirements
+
+   - Operating system: Any-OS
+
+   - Processor: Any-Processor
+
+   - Compiler: JDK6+ 
+
+   - Libs and other inst req.: JDK6+
+
+
+//===----------------------- SVN Information
+
+Download the latest version of Deuce from: http://www.deucestm.org/download.
+
+
+//===----------------------- VELOX project
+
+European research consortium VELOX supports programming of multi-core systems
+
+Research project will aim to make parallel programming easier for
+the masses by developing integrated Transactional Memory systems
+for multi-core computers.
+
+This document was prepared by Javier Arias. If you have any comment or 
+suggestion feel free to send an email to javier.arias@bsc.es.
+
+
