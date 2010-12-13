@@ -32,22 +32,27 @@
 		<antcall target="junits">
 			<param name="sysprop" value="org.deuce.transaction.contextClass"/>
 			<param name="value" value="org.deuce.transaction.norec.Context"/>
+			<param name="exclude" value="org/deuce/utest/basic/IrrevocableContextTest.class"/>
 		</antcall>
 		<antcall target="junits">
 			<param name="sysprop" value="org.deuce.transaction.contextClass"/>
 			<param name="value" value="org.deuce.transaction.tl2.Context"/>
+			<param name="exclude" value=""/>
 		</antcall>
 		<antcall target="junits">
 			<param name="sysprop" value="org.deuce.transaction.contextClass"/>
 			<param name="value" value="org.deuce.transaction.tl2cm.Context"/>
+			<param name="exclude" value="org/deuce/utest/basic/IrrevocableContextTest.class"/>
 		</antcall>
 		<antcall target="junits">
 			<param name="sysprop" value="org.deuce.transaction.contextClass"/>
 			<param name="value" value="org.deuce.transaction.lsa.Context"/>
+			<param name="exclude" value="org/deuce/utest/basic/IrrevocableContextTest.class"/>
 		</antcall>
 		<antcall target="junits">
 			<param name="sysprop" value="org.deuce.transaction.global"/>
 			<param name="value" value="true"/>
+			<param name="exclude" value="org/deuce/**"/>
 		</antcall>
 	</target>
 	
@@ -63,7 +68,7 @@
 			<batchTest todir="${basedir}/bin/junit">
 				<fileset dir="${basedir}/bin/tests" 
 					includes="org/deuce/utest/**/*Test.class"
-					excludes="org/deuce/utest/basic/StaticFieldInheritanceTest.class"/>
+					excludes="org/deuce/utest/basic/StaticFieldInheritanceTest.class,${exclude}"/>
 			</batchTest>
 		</junit>
 	</target>
