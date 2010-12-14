@@ -1,6 +1,7 @@
 package org.deuce.transaction.norec;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.norec.field.BooleanFieldAccess;
@@ -36,6 +37,10 @@ final public class Context implements org.deuce.transaction.Context {
 
 	final private ReadSet readSet = new ReadSet(1024);
 	final private WriteSet writeSet = new WriteSet(32);
+	
+	//Global lock used to allow only one irrevocable transaction solely. 
+	final private static ReentrantReadWriteLock irrevocableAccessLock = new ReentrantReadWriteLock();
+	private boolean irrevocableState = false;
 
 	private int timeStamp;
 
@@ -49,30 +54,48 @@ final public class Context implements org.deuce.transaction.Context {
 		do {
 			timeStamp = clock.get();
 		} while((timeStamp & LOCK) != 0);
+		
+		//Lock according to the transaction irrevocable state
+		if(irrevocableState)
+			irrevocableAccessLock.writeLock().lock();
+		else
+			irrevocableAccessLock.readLock().lock();
 	}
 
 	@Override
 	public boolean commit() {
-		if (writeSet.isEmpty())
+		try{
+			if (writeSet.isEmpty())
+				return true;
+
+			// Acquire global lock (make clock odd)
+			while (!clock.compareAndSet(timeStamp, timeStamp | LOCK)) {
+				timeStamp = validate();
+				if (timeStamp < 0)
+					return false;
+			}
+			// Write values
+			writeSet.commit();
+			// Release global lock (make clock even)
+			clock.set(timeStamp + 2);
+
 			return true;
-		
-		// Acquire global lock (make clock odd)
-		while (!clock.compareAndSet(timeStamp, timeStamp | LOCK)) {
-			timeStamp = validate();
-			if (timeStamp < 0)
-				return false;
 		}
-		// Write values
-		writeSet.commit();
-		// Release global lock (make clock even)
-		clock.set(timeStamp + 2);
-		
-		return true;
+		finally{
+			if(irrevocableState){
+				irrevocableState = false;
+				irrevocableAccessLock.writeLock().unlock();
+			}
+			else{
+				irrevocableAccessLock.readLock().unlock();
+			}
+
+		}
 	}
 
 	@Override
 	public void rollback() {
-		// Nothing to be done
+		irrevocableAccessLock.readLock().unlock();
 	}
 
 	@Override
@@ -265,5 +288,10 @@ final public class Context implements org.deuce.transaction.Context {
 	
 	@Override
 	public void onIrrevocableAccess() {
+		if(irrevocableState) // already in irrevocable state so no need to restart transaction.
+			return;
+
+		irrevocableState = true;
+		throw TransactionException.STATIC_TRANSACTION;
 	}
 }

@@ -3,6 +3,7 @@ package org.deuce.transaction.lsacm;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.deuce.transaction.TransactionException;
@@ -56,6 +57,10 @@ final public class Context implements org.deuce.transaction.Context {
 	final private static int VR_THRESHOLD = Integer.getInteger("org.deuce.transaction.lsacm.vr", 0);
 
 	final private static ContentionManager cm;
+
+	//Global lock used to allow only one irrevocable transaction solely. 
+	final private static ReentrantReadWriteLock irrevocableAccessLock = new ReentrantReadWriteLock();
+	private boolean irrevocableState = false;
 
 	final private ReadSet readSet = new ReadSet(1024);
 	final private WriteSet writeSet = new WriteSet(32);
@@ -121,33 +126,51 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 		attempts++;
 		vr = (VR_THRESHOLD > 0 && VR_THRESHOLD <= attempts);
+
+		//Lock according to the transaction irrevocable state
+		if(irrevocableState)
+			irrevocableAccessLock.writeLock().lock();
+		else
+			irrevocableAccessLock.readLock().lock();
 	}
 
 	@Override
 	public boolean commit() {
-		if (!writeSet.isEmpty()) {
-			int v = status.get();
-			int s = v & STATUS_MASK;
-			if (s == TX_ACTIVE && status.compareAndSet(v, v + (TX_COMMITTING - TX_ACTIVE))) {
-				long newClock = clock.incrementAndGet();
-				if (newClock != startTime.get() + 1 && !readSet.validate(this, id)) {
-					rollback();
+		try{
+			if (!writeSet.isEmpty()) {
+				int v = status.get();
+				int s = v & STATUS_MASK;
+				if (s == TX_ACTIVE && status.compareAndSet(v, v + (TX_COMMITTING - TX_ACTIVE))) {
+					long newClock = clock.incrementAndGet();
+					if (newClock != startTime.get() + 1 && !readSet.validate(this, id)) {
+						rollback();
+						return false;
+					}
+					// Write values and release locks
+					writeSet.commit(newClock);
+					status.set(v + (TX_COMMITTED - TX_ACTIVE));
+				} else {
+					// We have been killed: wait for our locks to have been released
+					while (s != TX_ABORTED)
+						s = status.get() & STATUS_MASK;
 					return false;
 				}
-				// Write values and release locks
-				writeSet.commit(newClock);
-				status.set(v + (TX_COMMITTED - TX_ACTIVE));
 			} else {
-				// We have been killed: wait for our locks to have been released
-				while (s != TX_ABORTED)
-					s = status.get() & STATUS_MASK;
-				return false;
+				// No need to set status to COMMITTED (we cannot be killed with an empty write set)
 			}
-		} else {
-			// No need to set status to COMMITTED (we cannot be killed with an empty write set)
+			attempts = 0;
+			return true;
 		}
-		attempts = 0;
-		return true;
+		finally{
+			if(irrevocableState){
+				irrevocableState = false;
+				irrevocableAccessLock.writeLock().unlock();
+			}
+			else{
+				irrevocableAccessLock.readLock().unlock();
+			}
+
+		}
 	}
 
 	@Override
@@ -171,6 +194,8 @@ final public class Context implements org.deuce.transaction.Context {
 		} else {
 			// No need to set status to ABORTED (at that point we do not hold locks anymore)
 		}
+		
+		irrevocableAccessLock.readLock().unlock();
 	}
 
 	public boolean conflict(int other, ConflictType type, int hash, long lock) {
@@ -298,7 +323,7 @@ final public class Context implements org.deuce.transaction.Context {
 					}
 					return b;
 				}
-	
+
 				// Try to extend snapshot
 				if (!(readWriteHint && extend())) {
 					throw EXTEND_FAILURE_EXCEPTION;
@@ -428,7 +453,7 @@ final public class Context implements org.deuce.transaction.Context {
 	public void onWriteAccess(Object obj, long value, long field) {
 		onWriteAccess(obj, field, (Object) value, Type.LONG);
 	}
-	
+
 	@Override
 	public void onWriteAccess(Object obj, float value, long field) {
 		onWriteAccess(obj, field, (Object) value, Type.FLOAT);
@@ -438,8 +463,13 @@ final public class Context implements org.deuce.transaction.Context {
 	public void onWriteAccess(Object obj, double value, long field) {
 		onWriteAccess(obj, field, (Object) value, Type.DOUBLE);
 	}
-	
+
 	@Override
 	public void onIrrevocableAccess() {
+		if(irrevocableState) // already in irrevocable state so no need to restart transaction.
+			return;
+
+		irrevocableState = true;
+		throw TransactionException.STATIC_TRANSACTION;
 	}
 }

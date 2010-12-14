@@ -2,6 +2,7 @@ package org.deuce.transaction.estm;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.deuce.transaction.TransactionException;
 //import org.deuce.transaction.estm.field.Field;
@@ -43,6 +44,10 @@ final public class Context implements org.deuce.transaction.Context {
 	final private static AtomicInteger clock = new AtomicInteger(0);
 	final private static AtomicInteger threadID = new AtomicInteger(0);
 	
+	//Global lock used to allow only one irrevocable transaction solely. 
+	final private static ReentrantReadWriteLock irrevocableAccessLock = new ReentrantReadWriteLock();
+	private boolean irrevocableState = false;
+	
 	/**
 	 * The last-read-entries contains up to k=2 entries.
 	 * 
@@ -76,22 +81,39 @@ final public class Context implements org.deuce.transaction.Context {
 		readSet.clear();
 		lreSet.clear();
 		lb = ub = clock.get();
+		
+		//Lock according to the transaction irrevocable state
+		if(irrevocableState)
+			irrevocableAccessLock.writeLock().lock();
+		else
+			irrevocableAccessLock.readLock().lock();
 	}
 
 	/**
 	 * The end delimiter of the transaction
 	 */
 	public boolean commit() {
-		if (!writeSet.isEmpty()) {
-			int newClock = clock.incrementAndGet();
-			if (newClock != lb + 1 && !readSet.validate(id)) {
-				rollback();
-				return false;
+		try{
+			if (!writeSet.isEmpty()) {
+				int newClock = clock.incrementAndGet();
+				if (newClock != lb + 1 && !readSet.validate(id)) {
+					rollback();
+					return false;
+				}
+				// Write values and release locks
+				writeSet.commit(newClock);
 			}
-			// Write values and release locks
-			writeSet.commit(newClock);
+			return true;
 		}
-		return true;
+		finally{
+			if(irrevocableState){
+				irrevocableState = false;
+				irrevocableAccessLock.writeLock().unlock();
+			}
+			else{
+				irrevocableAccessLock.readLock().unlock();
+			}
+		}
 	}
 
 	/**
@@ -100,6 +122,7 @@ final public class Context implements org.deuce.transaction.Context {
 	public void rollback() {
 		// Release locks
 		writeSet.rollback();
+		irrevocableAccessLock.readLock().unlock();
 	}
 
 	/**
@@ -354,5 +377,10 @@ final public class Context implements org.deuce.transaction.Context {
 
 	@Override
 	public void onIrrevocableAccess() {
+		if(irrevocableState) // already in irrevocable state so no need to restart transaction.
+			return;
+
+		irrevocableState = true;
+		throw TransactionException.STATIC_TRANSACTION;
 	}
 }

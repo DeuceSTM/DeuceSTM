@@ -2,6 +2,7 @@ package org.deuce.transaction.tl2cm;
 
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.tl2.pool.Pool;
@@ -44,6 +45,10 @@ final public class Context implements org.deuce.transaction.Context {
 	private static final AtomicInteger globalClock = new AtomicInteger(0);
 	private static final AtomicInteger threadIdCounter = new AtomicInteger(1);
 	private static final Context[] threads = new Context[256];
+	
+	//Global lock used to allow only one irrevocable transaction solely. 
+	final private static ReentrantReadWriteLock irrevocableAccessLock = new ReentrantReadWriteLock();
+	private boolean irrevocableState = false;
 	
 	// Instance members - specific to each thread
 	private final ContentionManager cm = Factory.createContentionManager();
@@ -119,66 +124,85 @@ final public class Context implements org.deuce.transaction.Context {
 		int statusRecord = generateStatusRecord(TX_RUNNING, localClock);
 		this.statusRecord.set(statusRecord);
 		this.stats.reportTxStart();
+		
+		//Lock according to the transaction irrevocable state
+		if(irrevocableState)
+			irrevocableAccessLock.writeLock().lock();
+		else
+			irrevocableAccessLock.readLock().lock();
 	}
 
 	public final boolean commit() {
-		this.stats.reportOnCommit(readSet.size(), writeSet.size());
-		// Read-only transactions don't have to do anything in order to commit
-		if (writeSet.isEmpty()) {
-			this.stats.reportCommit(attempts);
-			resetPriorities();
-			return true;
-		}
-		
-		// Writing transactions have to go through a different algorithm
-		int lockedCounter = lockWriteSet();
-		if (lockedCounter == writeSet.size()) {
-			boolean readSetValidated = readSet.validate(rv);
-			if (readSetValidated) {
-				int expectedStatusRecord = generateStatusRecord(TX_RUNNING, localClock);
-				int newStatusRecord = generateStatusRecord(TX_COMMITTED, localClock);
-				boolean committed = statusRecord.compareAndSet(expectedStatusRecord, newStatusRecord);
-				if (committed) {
-					// Get a new version number
-					int newClock = globalClock.incrementAndGet();
-					
-					// Write values to memory
-					writeSet.forEach(putProcedure);
+		try{
+			this.stats.reportOnCommit(readSet.size(), writeSet.size());
+			// Read-only transactions don't have to do anything in order to commit
+			if (writeSet.isEmpty()) {
+				this.stats.reportCommit(attempts);
+				resetPriorities();
+				return true;
+			}
 
-					// Update and release locks
-					updateAndUnlockProcedure.setNewClock(newClock);
-					writeSet.forEach(updateAndUnlockProcedure);
+			// Writing transactions have to go through a different algorithm
+			int lockedCounter = lockWriteSet();
+			if (lockedCounter == writeSet.size()) {
+				boolean readSetValidated = readSet.validate(rv);
+				if (readSetValidated) {
+					int expectedStatusRecord = generateStatusRecord(TX_RUNNING, localClock);
+					int newStatusRecord = generateStatusRecord(TX_COMMITTED, localClock);
+					boolean committed = statusRecord.compareAndSet(expectedStatusRecord, newStatusRecord);
+					if (committed) {
+						// Get a new version number
+						int newClock = globalClock.incrementAndGet();
 
-					this.stats.reportCommit(attempts);
-					resetPriorities();
-					return true;
+						// Write values to memory
+						writeSet.forEach(putProcedure);
+
+						// Update and release locks
+						updateAndUnlockProcedure.setNewClock(newClock);
+						writeSet.forEach(updateAndUnlockProcedure);
+
+						this.stats.reportCommit(attempts);
+						resetPriorities();
+						return true;
+					}
+					else {
+						this.stats.reportAbort(AbortType.COMMIT_KILLED); 
+					}
 				}
 				else {
-					this.stats.reportAbort(AbortType.COMMIT_KILLED); 
+					this.stats.reportAbort(AbortType.COMMIT_READSET_VALIDATION); 
 				}
 			}
 			else {
-				this.stats.reportAbort(AbortType.COMMIT_READSET_VALIDATION); 
+				this.stats.reportWriteSetValidationFailureDuringCommit(lockedCounter+1);
+				this.stats.reportAbort(AbortType.COMMIT_WRITESET_LOCKING);
 			}
+
+			// Commit did not succeed, roll-back all the changes
+			Iterator<WriteFieldAccess> iter = writeSet.iterator();
+			while (lockedCounter > 0) {
+				WriteFieldAccess field = iter.next();
+				int hash = field.hashCode();
+				LockTable.unLock(hash, threadId);
+				lockedCounter--;
+			}
+			return false;
+
 		}
-		else {
-			this.stats.reportWriteSetValidationFailureDuringCommit(lockedCounter+1);
-			this.stats.reportAbort(AbortType.COMMIT_WRITESET_LOCKING);
+		finally{
+			if(irrevocableState){
+				irrevocableState = false;
+				irrevocableAccessLock.writeLock().unlock();
+			}
+			else{
+				irrevocableAccessLock.readLock().unlock();
+			}
+
 		}
-		
-		// Commit did not succeed, roll-back all the changes
-		Iterator<WriteFieldAccess> iter = writeSet.iterator();
-		while (lockedCounter > 0) {
-			WriteFieldAccess field = iter.next();
-			int hash = field.hashCode();
-			LockTable.unLock(hash, threadId);
-			lockedCounter--;
-		}
-		return false;
 	}
 
 	public final void rollback() {
-
+		irrevocableAccessLock.readLock().unlock();
 	}
 	
 	public final boolean kill(int clockValue) {
@@ -611,5 +635,10 @@ final public class Context implements org.deuce.transaction.Context {
 	
 	@Override
 	public void onIrrevocableAccess() {
+		if(irrevocableState) // already in irrevocable state so no need to restart transaction.
+			return;
+
+		irrevocableState = true;
+		throw TransactionException.STATIC_TRANSACTION;
 	}
 }
