@@ -29,7 +29,7 @@ import org.deuce.transform.Exclude;
  */
 @Exclude
 public class Agent implements ClassFileTransformer {
-	private static final Logger logger = Logger.getLogger("org.deuce.agent");
+	final private static Logger logger = Logger.getLogger("org.deuce.agent");
 	final private static boolean VERBOSE = Boolean.getBoolean("org.deuce.verbose");
 	final private static boolean GLOBAL_TXN = Boolean.getBoolean("org.deuce.transaction.global");
 
@@ -127,7 +127,7 @@ public class Agent implements ClassFileTransformer {
 	/**
 	 * Used for offline instrumentation.
 	 * @param args input jar & output jar
-	 * e.g.: "C:\Java\jdk1.5.0_13\jre\lib\rt.jar" "C:\rt.jar"
+	 * e.g.: "C:\Java\jdk1.6.0_19\jre\lib\rt.jar" "C:\rt.jar"
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception{
