@@ -156,7 +156,7 @@ public class Agent implements ClassFileTransformer {
 			JarInputStream jarIS = new JarInputStream(new FileInputStream(inFileName));
 			JarOutputStream jarOS = new JarOutputStream(new FileOutputStream(outFilename), jarIS.getManifest());
 
-			logger.info("Start tranlating source:" + inFileName + " target:" + outFilename);
+			logger.info("Start translating source:" + inFileName + " target:" + outFilename);
 
 			String nextName = "";
 			try {
