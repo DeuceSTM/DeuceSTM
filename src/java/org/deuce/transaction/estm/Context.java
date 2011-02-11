@@ -98,7 +98,7 @@ final public class Context implements org.deuce.transaction.Context {
 			if (!writeSet.isEmpty()) {
 				int newClock = clock.incrementAndGet();
 				if (newClock != lb + 1 && !readSet.validate(id)) {
-					rollback();
+					writeSet.rollback(); // Release locks
 					return false;
 				}
 				// Write values and release locks

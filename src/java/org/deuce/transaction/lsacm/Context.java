@@ -144,7 +144,7 @@ final public class Context implements org.deuce.transaction.Context {
 				if (s == TX_ACTIVE && status.compareAndSet(v, v + (TX_COMMITTING - TX_ACTIVE))) {
 					long newClock = clock.incrementAndGet();
 					if (newClock != startTime.get() + 1 && !readSet.validate(this, id)) {
-						rollback();
+						rollback0();
 						return false;
 					}
 					// Write values and release locks
@@ -176,6 +176,12 @@ final public class Context implements org.deuce.transaction.Context {
 
 	@Override
 	public void rollback() {
+		rollback0();
+		
+		irrevocableAccessLock.readLock().unlock();
+	}
+	
+	private void rollback0() {
 		if (!writeSet.isEmpty()) {
 			int v = status.get();
 			int s = v & STATUS_MASK;
