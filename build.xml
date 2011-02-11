@@ -79,6 +79,7 @@
 			destdir="bin/classes"
 		 	includes="java/**"
 			excludes="test/**"
+			debug="true"
 		/>
 	</target>
 	
@@ -88,6 +89,8 @@
 			destdir="bin/tests"
 			classpath="bin/classes;lib/junit.jar"
 		 	includes="test/**"
-			excludes="java/**"/>
+			excludes="java/**"
+			debug="true"
+		/>
 	</target>
 </project>
