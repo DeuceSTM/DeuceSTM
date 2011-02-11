@@ -111,6 +111,13 @@ final public class Context implements org.deuce.transaction.Context {
 		this.longPool.clear();
 		this.floatPool.clear();
 		this.doublePool.clear();
+		
+		//Lock according to the transaction irrevocable state
+		if(irrevocableState)
+			irrevocableAccessLock.writeLock().lock();
+		else
+			irrevocableAccessLock.readLock().lock();
+		
 		this.rv = globalClock.get();
 		this.attempts++;
 		
@@ -124,12 +131,6 @@ final public class Context implements org.deuce.transaction.Context {
 		int statusRecord = generateStatusRecord(TX_RUNNING, localClock);
 		this.statusRecord.set(statusRecord);
 		this.stats.reportTxStart();
-		
-		//Lock according to the transaction irrevocable state
-		if(irrevocableState)
-			irrevocableAccessLock.writeLock().lock();
-		else
-			irrevocableAccessLock.readLock().lock();
 	}
 
 	public final boolean commit() {

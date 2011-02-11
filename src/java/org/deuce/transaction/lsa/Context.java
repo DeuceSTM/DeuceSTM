@@ -63,17 +63,18 @@ final public class Context implements org.deuce.transaction.Context {
 	public void init(int blockId, String metainf) {
 		readSet.clear();
 		writeSet.clear();
-		startTime = endTime = clock.get();
-		if (RO_HINT) {
-			atomicBlockId = blockId;
-			readWriteHint = readWriteMarkers.get(atomicBlockId);
-		}
-
+		
 		//Lock according to the transaction irrevocable state
 		if(irrevocableState)
 			irrevocableAccessLock.writeLock().lock();
 		else
 			irrevocableAccessLock.readLock().lock();
+		
+		startTime = endTime = clock.get();
+		if (RO_HINT) {
+			atomicBlockId = blockId;
+			readWriteHint = readWriteMarkers.get(atomicBlockId);
+		}
 	}
 
 	@Override

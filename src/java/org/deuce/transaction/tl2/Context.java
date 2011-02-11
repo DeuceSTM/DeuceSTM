@@ -66,7 +66,6 @@ final public class Context implements org.deuce.transaction.Context{
 		this.currentReadFieldAccess = null;
 		this.readSet.clear(); 
 		this.writeSet.clear();
-		this.localClock = clock.get();	
 		this.objectPool.clear();
 		this.booleanPool.clear();
 		this.bytePool.clear();
@@ -82,6 +81,8 @@ final public class Context implements org.deuce.transaction.Context{
 			irrevocableAccessLock.writeLock().lock();
 		else
 			irrevocableAccessLock.readLock().lock();
+		
+		this.localClock = clock.get();	
 	}
 	
 	@Override

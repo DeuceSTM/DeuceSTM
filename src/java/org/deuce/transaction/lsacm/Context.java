@@ -117,6 +117,13 @@ final public class Context implements org.deuce.transaction.Context {
 	public void init(int blockId, String metainf) {
 		readSet.clear();
 		writeSet.clear();
+		
+		//Lock according to the transaction irrevocable state
+		if(irrevocableState)
+			irrevocableAccessLock.writeLock().lock();
+		else
+			irrevocableAccessLock.readLock().lock();
+		
 		endTime = clock.get();
 		startTime.set(endTime);
 		status.set(((status.get() + (1 << STATUS_BITS)) & ~STATUS_MASK) | TX_ACTIVE);
@@ -126,12 +133,6 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 		attempts++;
 		vr = (VR_THRESHOLD > 0 && VR_THRESHOLD <= attempts);
-
-		//Lock according to the transaction irrevocable state
-		if(irrevocableState)
-			irrevocableAccessLock.writeLock().lock();
-		else
-			irrevocableAccessLock.readLock().lock();
 	}
 
 	@Override

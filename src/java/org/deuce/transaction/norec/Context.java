@@ -51,15 +51,16 @@ final public class Context implements org.deuce.transaction.Context {
 	public void init(int blockId, String metainf) {
 		readSet.clear();
 		writeSet.clear();
-		do {
-			timeStamp = clock.get();
-		} while((timeStamp & LOCK) != 0);
 		
 		//Lock according to the transaction irrevocable state
 		if(irrevocableState)
 			irrevocableAccessLock.writeLock().lock();
 		else
 			irrevocableAccessLock.readLock().lock();
+		
+		do {
+			timeStamp = clock.get();
+		} while((timeStamp & LOCK) != 0);
 	}
 
 	@Override

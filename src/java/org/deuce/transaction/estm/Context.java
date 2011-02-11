@@ -80,13 +80,14 @@ final public class Context implements org.deuce.transaction.Context {
 		writeSet.clear();
 		readSet.clear();
 		lreSet.clear();
-		lb = ub = clock.get();
 		
 		//Lock according to the transaction irrevocable state
 		if(irrevocableState)
 			irrevocableAccessLock.writeLock().lock();
 		else
 			irrevocableAccessLock.readLock().lock();
+		
+		lb = ub = clock.get();
 	}
 
 	/**
