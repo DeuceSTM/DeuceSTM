@@ -49,7 +49,7 @@ public class LockTable {
 	public static int checkLock(int lockIndex, int clock) {
 		int lock = locks.get(lockIndex);
 
-		if( clock < (lock & UNLOCK)) // check the clock without lock, TODO check if this is the best way
+		if( clock < (lock & UNLOCK) || (lock & LOCK) != 0)
 			throw FAILURE_EXCEPTION;
 		
 		return lock;
