@@ -53,7 +53,7 @@ public class ReadSet{
 			int hash = field.hashCode();
         	long lock = LockTable.getLock(hash);
         	int lockVersion = LockTable.getVersion(lock);
-        	if (lockVersion > version) {
+        	if (lockVersion > version || LockTable.isLocked(lock)) {
         		return false;
         	}
         }
