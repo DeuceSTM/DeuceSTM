@@ -3,10 +3,6 @@
 //===----------------------------------------------------------------------===//
 
 
-//===----------------------- Contact
-
-Contact information: Guy Korland
-
 //===----------------------- Installation
 
 Running Deuce can be done in two options:
@@ -14,9 +10,6 @@ Running Deuce can be done in two options:
    2. Offline e.g. java -jar deuceAgent.jar my.jar out_my.jar
 
 1. Introduction
-
-Another option is to check-out the latest version from Deuce SVN repository: 
-   http://code.google.com/p/deuce/source 
 
 Deuce comes with few benchmarks and unit tests which are not part of the 
 downloaded but can be checkout from the SVN. The tests are JUnit3 tests and 
@@ -49,23 +42,4 @@ More information can be found here: http://www.deucestm.org/documentation
    - Compiler: JDK6+ 
 
    - Libs and other inst req.: JDK6+
-
-
-//===----------------------- SVN Information
-
-Download the latest version of Deuce from: http://www.deucestm.org/download.
-
-
-//===----------------------- VELOX project
-
-European research consortium VELOX supports programming of multi-core systems
-
-Research project will aim to make parallel programming easier for
-the masses by developing integrated Transactional Memory systems
-for multi-core computers.
-
-This document was prepared by Javier Arias. If you have any comment or 
-suggestion feel free to send an email to javier.arias@bsc.es.
-
-
 
