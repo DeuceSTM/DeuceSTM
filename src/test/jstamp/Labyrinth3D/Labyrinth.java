@@ -70,7 +70,6 @@
 
 package jstamp.Labyrinth3D;
 
-import java.io.IOException;
 
 public class Labyrinth extends Thread{
 

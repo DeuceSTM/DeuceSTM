@@ -1,0 +1,94 @@
+Introduction
+------------
+This benchmark implements a gene sequencing program that reconstructs the gene
+sequence from segments of a larger gene.
+
+For example, given the segments TCGG, GCAG, ATCG, CAGC, and GATC, the program
+will try to construct the shortest gene that can be made from them.
+
+For example, if we slide around the above segments we can get:
+
+             TCGG
+        GCAG
+            ATCG
+      CAGC
+           GATC
+     =============
+      CAGCAGATCGG
+
+
+This gives a final sequence of length 11. Another possible solution is:
+
+        TCGG
+           GCAG
+       ATCG
+            CAGC
+      GATC
+     =============
+      GATCGGCAGC
+
+This solution has length 10. Both are consistent with the segments provided,
+but the second is the optimal solution since it is shorter.
+
+The algorithm used to sequence the gene has three phases:
+
+    1) Remove duplicate segments by using hash-set
+    2) Match segments using Rabin-Karp string search algorithm [3]
+       - Cycles are prevented by tracking starts/ends of matched chains
+    3) Build sequence
+
+The first two steps make up the bulk of the execution time and are parallelized.
+
+
+Compiling and Running
+---------------------
+
+To build the application, simply run:
+
+    make
+
+By default, this produces an executable named "Genome", which can then be
+run in the following manner:
+
+    ./Genome -g <gene_length> \
+             -s <segment_length> \
+             -n <number_of_segments> \
+             -t <number_of_threads>
+
+To produce the data in [1] and [2], the following values were used:
+
+    -g 256 -s 16 -n 16384
+
+For running without a simulator, use the default values:
+
+    -g 16384 -s 64 -n 16777216
+
+Current max parameters for which the benchmark works /completes in about 24 secs
+
+    -g 16384 -s 64 -n 1677216
+
+
+Workload Size
+-------------
+
+The size of the workload is determined by the -g, -s, and -n options. The
+gene sequencing example in "Introduction", would correspond to -g10 -s4 -n5.
+In general, the values for these three options should follow the following
+relationship: -s << -g << -n. Larger values increase the size of the workload.
+
+
+References
+----------
+
+[1] C. Cao Minh, J. Chung, C. Kozyrakis, and K. Olukotun. STAMP: Stanford 
+    Transactional Applications for Multi-processing. In IISWC '08: Proceedings
+    of The IEEE International Symposium on Workload Characterization,
+    September 2008. 
+
+[2] C. Cao Minh, M. Trautmann, J. Chung, A. McDonald, N. Bronson, J. Casper,
+    C. Kozyrakis, and K. Olukotun. An Effective Hybrid Transactional Memory
+    System with Strong Isolation Guarantees. In Proceedings of the 34th Annual
+    International Symposium on Computer Architecture, 2007.
+
+[3] R. M. Karp and M. O. Rabin. Efficient randomized pattern-matching
+    algorithms. IBM Journal of Research and Development, 1987.

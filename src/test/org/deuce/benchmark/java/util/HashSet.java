@@ -7,7 +7,10 @@
 
 package org.deuce.benchmark.java.util;
 
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 import org.deuce.Atomic;
 

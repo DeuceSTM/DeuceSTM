@@ -73,7 +73,6 @@
 
 package jstamp.Labyrinth3D;
 
-import java.util.*;
 
 
 public class Pair {

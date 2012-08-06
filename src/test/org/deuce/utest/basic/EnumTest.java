@@ -3,7 +3,6 @@ package org.deuce.utest.basic;
 import junit.framework.TestCase;
 
 import org.deuce.Atomic;
-import org.deuce.transaction.Context;
 
 /**
  * FieldsInheritanceTest

@@ -5,8 +5,8 @@ import java.util.ArrayList;
 
 import org.deuce.benchmark.stmbench7.annotations.NonAtomic;
 import org.deuce.benchmark.stmbench7.core.Operation;
-import org.deuce.benchmark.stmbench7.core.RuntimeError;
 import org.deuce.benchmark.stmbench7.core.OperationFailedException;
+import org.deuce.benchmark.stmbench7.core.RuntimeError;
 
 /**
  * A single thread of the STMBench7 benchmark. Executes operations assigned to

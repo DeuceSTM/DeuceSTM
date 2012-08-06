@@ -7,8 +7,6 @@ import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.lsa.field.Field;
 import org.deuce.transaction.lsa.field.Field.Type;
 import org.deuce.transaction.lsa.field.WriteFieldAccess;
-import org.deuce.transaction.lsa.ReadSet;
-import org.deuce.transaction.lsa.WriteSet;
 import org.deuce.transaction.util.BooleanArrayList;
 import org.deuce.transform.Exclude;
 

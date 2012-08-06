@@ -1,6 +1,5 @@
 package org.deuce.transaction.lsacm.field;
 
-import org.deuce.transaction.lsacm.field.Field;
 import org.deuce.transaction.lsacm.field.Field.Type;
 import org.deuce.transform.Exclude;
 

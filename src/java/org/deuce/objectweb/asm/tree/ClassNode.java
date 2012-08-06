@@ -29,14 +29,14 @@
  */
 package org.deuce.objectweb.asm.tree;
 
-import org.deuce.objectweb.asm.Attribute;
-import org.deuce.objectweb.asm.ClassVisitor;
-import org.deuce.objectweb.asm.MethodVisitor;
-import org.deuce.objectweb.asm.FieldVisitor;
-
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import org.deuce.objectweb.asm.Attribute;
+import org.deuce.objectweb.asm.ClassVisitor;
+import org.deuce.objectweb.asm.FieldVisitor;
+import org.deuce.objectweb.asm.MethodVisitor;
 
 /**
  * A node that represents a class.

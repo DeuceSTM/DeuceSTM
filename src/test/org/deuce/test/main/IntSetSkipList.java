@@ -1,8 +1,8 @@
 package org.deuce.test.main;
 
-import java.util.*;
+import java.util.Random;
 
-import org.deuce.*;
+import org.deuce.Atomic;
 import org.deuce.benchmark.intset.IntSet;
 
 /**

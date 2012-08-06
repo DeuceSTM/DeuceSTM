@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import org.deuce.Atomic;
 import org.deuce.transaction.Context;
 import org.deuce.transaction.ContextDelegator;
+import org.deuce.transaction.IContext;
 
 /**
  * Tests that Irrevocable is called on the context
@@ -19,10 +20,10 @@ public class IrrevocableTest extends TestCase{
 
 	public void testIrrevocableCalled() throws Exception {
 
-		Context originalInstance = ContextDelegator.getInstance(); // save the real context before setting the moke
+		IContext originalInstance = ContextDelegator.getInstance(); // save the real context before setting the moke
 		Field declaredField = ContextDelegator.class.getDeclaredField("THREAD_CONTEXT");
 		declaredField.setAccessible(true);
-		ThreadLocal<Context> threadLocal = (ThreadLocal<Context>) declaredField.get(Thread.currentThread());
+		ThreadLocal<IContext> threadLocal = (ThreadLocal<IContext>) declaredField.get(Thread.currentThread());
 
 		try{
 			MockContext context = new MockContext();

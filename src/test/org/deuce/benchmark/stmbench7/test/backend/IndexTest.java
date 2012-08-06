@@ -9,12 +9,11 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.TreeMap;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import org.deuce.benchmark.stmbench7.backend.BackendFactory;
 import org.deuce.benchmark.stmbench7.backend.Index;
 import org.deuce.benchmark.stmbench7.impl.backend.BackendFactoryImpl;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * JUnit test for an Index class.

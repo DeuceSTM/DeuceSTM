@@ -1,8 +1,8 @@
 package org.deuce.transaction.estm;
 
-import org.deuce.transaction.estm.field.WriteFieldAccess;
-import org.deuce.transaction.estm.field.ReadFieldAccess.Field.Type;
 import org.deuce.transaction.estm.Context.LockTable;
+import org.deuce.transaction.estm.field.ReadFieldAccess.Field.Type;
+import org.deuce.transaction.estm.field.WriteFieldAccess;
 import org.deuce.transform.Exclude;
 import org.deuce.trove.THashMap;
 

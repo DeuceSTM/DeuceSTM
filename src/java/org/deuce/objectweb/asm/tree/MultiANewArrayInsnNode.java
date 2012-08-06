@@ -31,8 +31,8 @@ package org.deuce.objectweb.asm.tree;
 
 import java.util.Map;
 
-import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.MethodVisitor;
+import org.deuce.objectweb.asm.Opcodes;
 
 /**
  * A node that represents a MULTIANEWARRAY instruction.

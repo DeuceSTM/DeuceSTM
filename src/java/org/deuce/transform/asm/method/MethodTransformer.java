@@ -1,5 +1,7 @@
 package org.deuce.transform.asm.method;
 
+import static org.deuce.objectweb.asm.Opcodes.ACC_STATIC;
+
 import java.util.HashMap;
 
 import org.deuce.Irrevocable;
@@ -15,8 +17,6 @@ import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.ContextDelegator;
 import org.deuce.transform.asm.FieldsHolder;
 import org.deuce.transform.util.Util;
-
-import static org.deuce.objectweb.asm.Opcodes.*;
 
 public class MethodTransformer implements MethodVisitor{
 

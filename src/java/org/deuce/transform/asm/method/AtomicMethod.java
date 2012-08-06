@@ -1,5 +1,25 @@
 package org.deuce.transform.asm.method;
 
+import static org.deuce.objectweb.asm.Opcodes.ACONST_NULL;
+import static org.deuce.objectweb.asm.Opcodes.ALOAD;
+import static org.deuce.objectweb.asm.Opcodes.ASTORE;
+import static org.deuce.objectweb.asm.Opcodes.ATHROW;
+import static org.deuce.objectweb.asm.Opcodes.DUP;
+import static org.deuce.objectweb.asm.Opcodes.GOTO;
+import static org.deuce.objectweb.asm.Opcodes.ICONST_0;
+import static org.deuce.objectweb.asm.Opcodes.ICONST_1;
+import static org.deuce.objectweb.asm.Opcodes.IFEQ;
+import static org.deuce.objectweb.asm.Opcodes.IFGT;
+import static org.deuce.objectweb.asm.Opcodes.IFNULL;
+import static org.deuce.objectweb.asm.Opcodes.ILOAD;
+import static org.deuce.objectweb.asm.Opcodes.INVOKEINTERFACE;
+import static org.deuce.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.deuce.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.deuce.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.deuce.objectweb.asm.Opcodes.ISTORE;
+import static org.deuce.objectweb.asm.Opcodes.NEW;
+import static org.deuce.objectweb.asm.Opcodes.RETURN;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.deuce.Atomic;
@@ -15,7 +35,6 @@ import org.deuce.transaction.ContextDelegator;
 import org.deuce.transaction.TransactionException;
 import org.deuce.transform.asm.type.TypeCodeResolver;
 import org.deuce.transform.asm.type.TypeCodeResolverFactory;
-import static org.deuce.objectweb.asm.Opcodes.*;
 
 /**
  * Used to replaced the original @atomic method with a method that run the transaction loop.

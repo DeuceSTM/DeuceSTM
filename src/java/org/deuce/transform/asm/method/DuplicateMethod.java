@@ -1,5 +1,34 @@
 package org.deuce.transform.asm.method;
 
+import static org.deuce.objectweb.asm.Opcodes.AALOAD;
+import static org.deuce.objectweb.asm.Opcodes.AASTORE;
+import static org.deuce.objectweb.asm.Opcodes.ALOAD;
+import static org.deuce.objectweb.asm.Opcodes.BALOAD;
+import static org.deuce.objectweb.asm.Opcodes.BASTORE;
+import static org.deuce.objectweb.asm.Opcodes.CALOAD;
+import static org.deuce.objectweb.asm.Opcodes.CASTORE;
+import static org.deuce.objectweb.asm.Opcodes.CHECKCAST;
+import static org.deuce.objectweb.asm.Opcodes.DALOAD;
+import static org.deuce.objectweb.asm.Opcodes.DASTORE;
+import static org.deuce.objectweb.asm.Opcodes.DUP;
+import static org.deuce.objectweb.asm.Opcodes.FALOAD;
+import static org.deuce.objectweb.asm.Opcodes.FASTORE;
+import static org.deuce.objectweb.asm.Opcodes.GETFIELD;
+import static org.deuce.objectweb.asm.Opcodes.GETSTATIC;
+import static org.deuce.objectweb.asm.Opcodes.GOTO;
+import static org.deuce.objectweb.asm.Opcodes.IALOAD;
+import static org.deuce.objectweb.asm.Opcodes.IASTORE;
+import static org.deuce.objectweb.asm.Opcodes.IFGE;
+import static org.deuce.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.deuce.objectweb.asm.Opcodes.LALOAD;
+import static org.deuce.objectweb.asm.Opcodes.LASTORE;
+import static org.deuce.objectweb.asm.Opcodes.LCMP;
+import static org.deuce.objectweb.asm.Opcodes.LCONST_0;
+import static org.deuce.objectweb.asm.Opcodes.PUTFIELD;
+import static org.deuce.objectweb.asm.Opcodes.PUTSTATIC;
+import static org.deuce.objectweb.asm.Opcodes.SALOAD;
+import static org.deuce.objectweb.asm.Opcodes.SASTORE;
+
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodAdapter;
 import org.deuce.objectweb.asm.MethodVisitor;
@@ -12,7 +41,6 @@ import org.deuce.transform.asm.ClassTransformer;
 import org.deuce.transform.asm.ExcludeIncludeStore;
 import org.deuce.transform.asm.FieldsHolder;
 import org.deuce.transform.util.Util;
-import static org.deuce.objectweb.asm.Opcodes.*;
 
 /**
  * Responsible for creating the mirror version for the original 

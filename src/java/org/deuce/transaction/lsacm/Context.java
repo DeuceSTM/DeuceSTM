@@ -1,19 +1,16 @@
 package org.deuce.transaction.lsacm;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.deuce.transaction.TransactionException;
+import org.deuce.transaction.lsacm.ContentionManager.ConflictType;
 import org.deuce.transaction.lsacm.field.Field;
 import org.deuce.transaction.lsacm.field.Field.Type;
 import org.deuce.transaction.lsacm.field.WriteFieldAccess;
-import org.deuce.transaction.lsacm.ReadSet;
-import org.deuce.transaction.lsacm.WriteSet;
-import org.deuce.transaction.lsacm.ContentionManager;
-import org.deuce.transaction.lsacm.ContentionManager.ConflictType;
 import org.deuce.transaction.util.BooleanArrayList;
 import org.deuce.transform.Exclude;
 

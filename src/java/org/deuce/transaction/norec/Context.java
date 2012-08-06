@@ -8,16 +8,14 @@ import org.deuce.transaction.norec.field.BooleanFieldAccess;
 import org.deuce.transaction.norec.field.ByteFieldAccess;
 import org.deuce.transaction.norec.field.CharFieldAccess;
 import org.deuce.transaction.norec.field.DoubleFieldAccess;
-import org.deuce.transaction.norec.field.FieldAccess;
 import org.deuce.transaction.norec.field.Field;
+import org.deuce.transaction.norec.field.Field.Type;
+import org.deuce.transaction.norec.field.FieldAccess;
 import org.deuce.transaction.norec.field.FloatFieldAccess;
 import org.deuce.transaction.norec.field.IntFieldAccess;
 import org.deuce.transaction.norec.field.LongFieldAccess;
 import org.deuce.transaction.norec.field.ObjectFieldAccess;
 import org.deuce.transaction.norec.field.ShortFieldAccess;
-import org.deuce.transaction.norec.field.Field.Type;
-import org.deuce.transaction.norec.ReadSet;
-import org.deuce.transaction.norec.WriteSet;
 import org.deuce.transform.Exclude;
 
 /**

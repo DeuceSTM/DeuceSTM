@@ -1,9 +1,9 @@
 package org.deuce.utest.basic;
 
+import junit.framework.TestCase;
+
 import org.deuce.Atomic;
 import org.deuce.Irrevocable;
-
-import junit.framework.TestCase;
 
 /**
  * Tests that Irrevocable transaction blocks non-Irrevocable transaction.

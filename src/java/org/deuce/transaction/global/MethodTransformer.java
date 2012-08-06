@@ -1,12 +1,35 @@
 package org.deuce.transaction.global;
 
+import static org.deuce.objectweb.asm.Opcodes.ACC_PRIVATE;
+import static org.deuce.objectweb.asm.Opcodes.ACC_PROTECTED;
+import static org.deuce.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.deuce.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.deuce.objectweb.asm.Opcodes.ALOAD;
+import static org.deuce.objectweb.asm.Opcodes.ARETURN;
+import static org.deuce.objectweb.asm.Opcodes.ASTORE;
+import static org.deuce.objectweb.asm.Opcodes.ATHROW;
+import static org.deuce.objectweb.asm.Opcodes.DLOAD;
+import static org.deuce.objectweb.asm.Opcodes.DRETURN;
+import static org.deuce.objectweb.asm.Opcodes.DUP;
+import static org.deuce.objectweb.asm.Opcodes.FLOAD;
+import static org.deuce.objectweb.asm.Opcodes.FRETURN;
+import static org.deuce.objectweb.asm.Opcodes.GETSTATIC;
+import static org.deuce.objectweb.asm.Opcodes.ILOAD;
+import static org.deuce.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.deuce.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.deuce.objectweb.asm.Opcodes.IRETURN;
+import static org.deuce.objectweb.asm.Opcodes.LLOAD;
+import static org.deuce.objectweb.asm.Opcodes.LRETURN;
+import static org.deuce.objectweb.asm.Opcodes.MONITORENTER;
+import static org.deuce.objectweb.asm.Opcodes.MONITOREXIT;
+import static org.deuce.objectweb.asm.Opcodes.RETURN;
+
 import org.deuce.Atomic;
 import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodAdapter;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Type;
-import static org.deuce.objectweb.asm.Opcodes.*;
 
 public class MethodTransformer extends MethodAdapter{
 

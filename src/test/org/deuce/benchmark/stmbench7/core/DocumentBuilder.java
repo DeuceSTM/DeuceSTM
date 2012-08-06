@@ -5,7 +5,6 @@ import org.deuce.benchmark.stmbench7.annotations.Immutable;
 import org.deuce.benchmark.stmbench7.backend.BackendFactory;
 import org.deuce.benchmark.stmbench7.backend.IdPool;
 import org.deuce.benchmark.stmbench7.backend.Index;
-import org.deuce.benchmark.stmbench7.core.DocumentBuilder;
 
 /**
  * Used to create and destroy document elements while

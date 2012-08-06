@@ -2,11 +2,11 @@ package org.deuce.utest.parallel;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import junit.framework.TestCase;
+
 import org.deuce.Atomic;
 import org.deuce.transaction.AbortTransactionException;
 import org.junit.Assert;
-
-import junit.framework.TestCase;
 
 /**
  * Test parallel threads that abort transactions

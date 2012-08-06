@@ -29,14 +29,14 @@
  */
 package org.deuce.objectweb.asm.tree;
 
-import org.deuce.objectweb.asm.Label;
-import org.deuce.objectweb.asm.Opcodes;
-import org.deuce.objectweb.asm.MethodVisitor;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.deuce.objectweb.asm.Label;
+import org.deuce.objectweb.asm.MethodVisitor;
+import org.deuce.objectweb.asm.Opcodes;
 
 /**
  * A node that represents a TABLESWITCH instruction.

@@ -1,12 +1,12 @@
 package org.deuce.utest.basic;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
 import org.deuce.Atomic;
 import org.deuce.Unsafe;
 import org.deuce.transaction.AbortTransactionException;
 import org.deuce.transaction.TransactionException;
-
-import junit.framework.TestCase;
-import junit.framework.Assert;
 
 public class UnsafewTest extends TestCase{
 	

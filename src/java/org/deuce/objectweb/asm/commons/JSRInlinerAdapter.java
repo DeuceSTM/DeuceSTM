@@ -48,11 +48,11 @@ import org.deuce.objectweb.asm.tree.InsnList;
 import org.deuce.objectweb.asm.tree.InsnNode;
 import org.deuce.objectweb.asm.tree.JumpInsnNode;
 import org.deuce.objectweb.asm.tree.LabelNode;
+import org.deuce.objectweb.asm.tree.LocalVariableNode;
 import org.deuce.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.deuce.objectweb.asm.tree.MethodNode;
 import org.deuce.objectweb.asm.tree.TableSwitchInsnNode;
 import org.deuce.objectweb.asm.tree.TryCatchBlockNode;
-import org.deuce.objectweb.asm.tree.LocalVariableNode;
 
 /**
  * A {@link org.deuce.objectweb.asm.MethodAdapter} that removes JSR instructions and

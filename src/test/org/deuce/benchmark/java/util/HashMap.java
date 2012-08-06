@@ -6,7 +6,11 @@
  */
 
 package org.deuce.benchmark.java.util;
-import java.io.*;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.TreeMap;
 
 import org.deuce.Atomic;
 

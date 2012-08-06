@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.deuce.benchmark.stmbench7.BenchThread;
 import org.deuce.benchmark.stmbench7.OperationId;
-import org.deuce.benchmark.stmbench7.OperationType;
 import org.deuce.benchmark.stmbench7.Setup;
 import org.deuce.benchmark.stmbench7.ThreadRandom;
 import org.deuce.benchmark.stmbench7.annotations.NonAtomic;

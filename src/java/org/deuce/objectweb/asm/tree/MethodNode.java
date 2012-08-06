@@ -29,17 +29,17 @@
  */
 package org.deuce.objectweb.asm.tree;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.Attribute;
 import org.deuce.objectweb.asm.ClassVisitor;
-import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Label;
+import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * A node that represents a method.

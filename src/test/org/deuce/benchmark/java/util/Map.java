@@ -7,6 +7,9 @@
 
 package org.deuce.benchmark.java.util;
 
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 /**
  * An object that maps keys to values.  A map cannot contain duplicate keys;
  * each key can map to at most one value.

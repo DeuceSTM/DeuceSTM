@@ -71,7 +71,6 @@ package jstamp.Labyrinth3D;
 
 
 
-import java.lang.Math;
 
 public class Coordinate {
 

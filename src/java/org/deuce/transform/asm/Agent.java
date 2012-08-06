@@ -19,7 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.deuce.reflection.UnsafeHolder;
-import org.deuce.transform.Exclude;
+import org.deuce.transaction.ContextDelegator;
+import org.deuce.transform.ExcludeTM;
 
 /**
  * A java agent to dynamically instrument transactional supported classes/  
@@ -27,7 +28,7 @@ import org.deuce.transform.Exclude;
  * @author Guy Korland
  * @since 1.0
  */
-@Exclude
+@ExcludeTM
 public class Agent implements ClassFileTransformer {
 	final private static Logger logger = Logger.getLogger("org.deuce.agent");
 	final private static boolean VERBOSE = Boolean.getBoolean("org.deuce.verbose");
@@ -79,7 +80,14 @@ public class Agent implements ClassFileTransformer {
 			if(offline) {
 				fieldsHolder = new ExternalFieldsHolder(className);
 			}
-			ByteCodeVisitor cv = new org.deuce.transform.asm.ClassTransformer( className, fieldsHolder);
+			ByteCodeVisitor cv = null;
+			if (ContextDelegator.inLocalMetadata()) {
+				cv = new org.deuce.transform.inplacemetadata.ClassTransformer(
+						className, fieldsHolder);
+			} else {
+				cv = new org.deuce.transform.asm.ClassTransformer(className,
+						fieldsHolder);
+			}
 			byte[] bytecode = cv.visit(classfileBuffer);
 			byteCodes.add(new ClassByteCode( className, bytecode));
 			if(offline) {

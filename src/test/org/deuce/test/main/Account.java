@@ -1,6 +1,6 @@
 package org.deuce.test.main;
 
-import org.deuce.*;
+import org.deuce.Atomic;
 
 /**
  * @author Pascal Felber

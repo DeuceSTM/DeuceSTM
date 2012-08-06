@@ -7,7 +7,15 @@
 
 package org.deuce.benchmark.java.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.Vector;
 
 /**
  * The root interface in the <i>collection hierarchy</i>.  A collection

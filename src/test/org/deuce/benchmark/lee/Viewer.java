@@ -39,9 +39,11 @@
  */
 package org.deuce.benchmark.lee;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 
 public class Viewer extends Frame {
     private BufferedImage image;

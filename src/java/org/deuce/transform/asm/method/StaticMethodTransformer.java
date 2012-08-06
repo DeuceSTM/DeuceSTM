@@ -1,13 +1,15 @@
 package org.deuce.transform.asm.method;
 
+import static org.deuce.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.deuce.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.deuce.objectweb.asm.Opcodes.PUTSTATIC;
+
 import java.util.List;
 
 import org.deuce.objectweb.asm.MethodAdapter;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.transform.asm.Field;
-
-import static org.deuce.objectweb.asm.Opcodes.*;
 
 public class StaticMethodTransformer extends MethodAdapter {
 

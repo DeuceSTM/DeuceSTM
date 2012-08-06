@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import org.deuce.Atomic;
 import org.deuce.transaction.Context;
 import org.deuce.transaction.ContextDelegator;
+import org.deuce.transaction.IContext;
 import org.junit.Assert;
 
 /**
@@ -26,14 +27,14 @@ public class AtomicBlockIDTest extends TestCase{
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run(){
-				Context originalInstance = ContextDelegator.getInstance(); // save the real context before setting the moke
-				ThreadLocal<Context> threadLocal = null;
+				IContext originalInstance = ContextDelegator.getInstance(); // save the real context before setting the moke
+				ThreadLocal<IContext> threadLocal = null;
 				try
 				{
 					
 					Field declaredField = ContextDelegator.class.getDeclaredField("THREAD_CONTEXT");
 					declaredField.setAccessible(true);
-					threadLocal = (ThreadLocal<Context>) declaredField.get(Thread.currentThread());
+					threadLocal = (ThreadLocal<IContext>) declaredField.get(Thread.currentThread());
 
 					MockContext context = new MockContext();
 					threadLocal.set(context);

@@ -34,7 +34,6 @@
  */
 package org.deuce.benchmark.lee;
 
-import java.util.concurrent.Callable;
 
 
 /**

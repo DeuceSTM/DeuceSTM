@@ -70,9 +70,7 @@
 
 package jstamp.Labyrinth3D;
 
-import java.lang.Long;
 import java.lang.reflect.Array;
-import java.util.Arrays;
 
 
 public class Grid {

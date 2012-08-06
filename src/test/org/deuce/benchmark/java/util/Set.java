@@ -7,6 +7,10 @@
 
 package org.deuce.benchmark.java.util;
 
+import java.util.Collections;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 
 /**
  * A collection that contains no duplicate elements.  More formally, sets

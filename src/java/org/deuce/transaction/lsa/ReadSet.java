@@ -2,7 +2,6 @@ package org.deuce.transaction.lsa;
 
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.lsa.field.ReadFieldAccess;
-import org.deuce.transaction.lsa.LockTable;
 import org.deuce.transform.Exclude;
 
 /**

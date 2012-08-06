@@ -6,8 +6,7 @@
 
 package org.deuce.transaction;
 
-import org.deuce.objectweb.asm.Type;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeTM;
 
 /**
  * All the STM implementations should implement this interface.
@@ -17,31 +16,9 @@ import org.deuce.transform.Exclude;
  * @author	Guy Korland
  * @since	1.0
  */
-@Exclude
-public interface Context
+@ExcludeTM
+public interface Context extends IContext
 {
-	final static public Type CONTEXT_TYPE = Type.getType( Context.class);
-	final static public String CONTEXT_INTERNAL = Type.getInternalName(Context.class);
-	final static public String CONTEXT_DESC = Type.getDescriptor(Context.class);
-
-	/**
-	 * Called before the transaction was started
-	 * @param atomicBlockId a unique id for atomic block
-	 * @param metainf a meta information on the current atomic block.
-	 */
-	void init(int atomicBlockId, String metainf);
-
-	/**
-	 * Called on commit
-	 * @return <code>true</code> on success 
-	 */
-	boolean commit();
-
-	/**
-	 * Called on rollback, rollback might be called more than once in a row.
-	 * But, can't be called after {@link #commit()} without an {@link #init(int, String)} call in between. 
-	 */
-	void rollback();
 
 	/* Methods called on Read/Write event */
 	void beforeReadAccess( Object obj, long field);
@@ -65,6 +42,4 @@ public interface Context
 	void onWriteAccess( Object obj, float value, long field);
 	void onWriteAccess( Object obj, double value, long field);
 	
-	/** Called before entering an irrevocable block*/
-	void onIrrevocableAccess();
 }
