@@ -75,29 +75,34 @@ public class Detector {
 	Dictionary dictionaryPtr;
 	Vector_t preprocessorVectorPtr;
 
-	/* =============================================================================
-	 * detector_alloc
-	 * =============================================================================
-	 detector_t* detector_alloc ();
+	/*
+	 * ==========================================================================
+	 * === detector_alloc
+	 * ========================================================
+	 * ===================== detector_t* detector_alloc ();
 	 */
 	public Detector() {
 		dictionaryPtr = new Dictionary();
 		preprocessorVectorPtr = new Vector_t(1);
 	}
 
-	/* =============================================================================
-	 * detector_addPreprocessor
-	 * =============================================================================
-	 void detector_addPreprocessor (detector_t* detectorPtr, preprocessor_t p);
+	/*
+	 * ==========================================================================
+	 * === detector_addPreprocessor
+	 * ==============================================
+	 * =============================== void detector_addPreprocessor
+	 * (detector_t* detectorPtr, preprocessor_t p);
 	 */
 	public void addPreprocessor(int p) {
 		boolean status = preprocessorVectorPtr.vector_pushBack(new Integer(p));
 	}
 
-	/* =============================================================================
-	 * detector_process
-	 * =============================================================================
-	 * error_t detector_process (detector_t* detectorPtr, char* str);
+	/*
+	 * ==========================================================================
+	 * === detector_process
+	 * ======================================================
+	 * ======================= error_t detector_process (detector_t*
+	 * detectorPtr, char* str);
 	 */
 	public int process(byte[] str) {
 		/*
@@ -130,9 +135,10 @@ public class Detector {
 	}
 }
 
-/* =============================================================================
- *
+/*
+ * =============================================================================
+ * 
  * End of detector.java
- *
+ * 
  * =============================================================================
  */

@@ -11,12 +11,12 @@ import org.deuce.benchmark.stmbench7.backend.LargeSet;
 import org.deuce.benchmark.stmbench7.core.AtomicPart;
 
 /**
- * Traversal T3, variant (a) (see the specification).
- * Simple update, update on index, long.
+ * Traversal T3, variant (a) (see the specification). Simple update, update on
+ * index, long.
  */
 public class Traversal3a extends Traversal1 {
 
-	Index<Integer,LargeSet<AtomicPart>> partBuildDateIndex;
+	Index<Integer, LargeSet<AtomicPart>> partBuildDateIndex;
 
 	public Traversal3a(Setup oo7setup) {
 		super(oo7setup);
@@ -24,14 +24,15 @@ public class Traversal3a extends Traversal1 {
 	}
 
 	@Override
-	@Transactional @Update
+	@Transactional
+	@Update
 	public int performOperation() {
-    	return super.performOperation();
+		return super.performOperation();
 	}
-	
+
 	@Override
 	protected int performOperationInAtomicPart(AtomicPart part, HashSet<AtomicPart> setOfVisitedPartIds) {
-		if(setOfVisitedPartIds.isEmpty()) {
+		if (setOfVisitedPartIds.isEmpty()) {
 			updateBuildDate(part);
 			return 1;
 		}
@@ -45,10 +46,9 @@ public class Traversal3a extends Traversal1 {
 		part.updateBuildDate();
 		addAtomicPartToBuildDateIndex(partBuildDateIndex, part);
 	}
-	
-    @Override
-    public OperationId getOperationId() {
-    	return OperationId.T3a;
-    }
-}
 
+	@Override
+	public OperationId getOperationId() {
+		return OperationId.T3a;
+	}
+}

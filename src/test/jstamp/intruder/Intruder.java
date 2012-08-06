@@ -1,5 +1,4 @@
 
-
 /* =============================================================================
  *
  * intruder.java
@@ -77,306 +76,292 @@ import org.deuce.Atomic;
 public class Intruder extends Thread {
 
 	char PARAM_ATTACK = 'a';
-		char  PARAM_LENGTH= 'l';
-		char PARAM_NUM    ='n';
-		char PARAM_SEED   ='s';
-		char PARAM_THREAD ='t';
+	char PARAM_LENGTH = 'l';
+	char PARAM_NUM = 'n';
+	char PARAM_SEED = 's';
+	char PARAM_THREAD = 't';
 
-	int PARAM_DEFAULT_ATTACK =10;
-	int PARAM_DEFAULT_LENGTH =16;
-	int PARAM_DEFAULT_NUM =(1 << 16);
-	int PARAM_DEFAULT_SEED =1;
-	int PARAM_DEFAULT_THREAD =1;
+	int PARAM_DEFAULT_ATTACK = 10;
+	int PARAM_DEFAULT_LENGTH = 16;
+	int PARAM_DEFAULT_NUM = (1 << 16);
+	int PARAM_DEFAULT_SEED = 1;
+	int PARAM_DEFAULT_THREAD = 1;
 
-	
-    int percentAttack;
-    int maxDataLength;
-    int numFlow;
-    int randomSeed;
-    int numThread;
+	int percentAttack;
+	int maxDataLength;
+	int numFlow;
+	int randomSeed;
+	int numThread;
 
-    int threadID;
-    Arg argument;
+	int threadID;
+	Arg argument;
 
+	public Intruder(String[] argv) {
+		parseArg(argv);
+	}
 
-    public Intruder(String[] argv) 
-    {
-        parseArg(argv);
-    }
+	public Intruder(int myID, Arg a) {
+		argument = a;
+		threadID = myID;
+	}
 
-    public Intruder(int myID,Arg a)
-    {
-        argument = a;
-        threadID = myID;
-    }
+	private void setDefaultParams() {
+		percentAttack = PARAM_DEFAULT_ATTACK;
+		maxDataLength = PARAM_DEFAULT_LENGTH;
+		numFlow = PARAM_DEFAULT_NUM;
+		randomSeed = PARAM_DEFAULT_SEED;
+		numThread = PARAM_DEFAULT_THREAD;
+	}
 
-  private void setDefaultParams() {
-    percentAttack = PARAM_DEFAULT_ATTACK;
-    maxDataLength = PARAM_DEFAULT_LENGTH;
-    numFlow       = PARAM_DEFAULT_NUM;
-    randomSeed    = PARAM_DEFAULT_SEED;
-    numThread     = PARAM_DEFAULT_THREAD;
-  }
+	/*
+	 * ==========================================================================
+	 * === displayUsage
+	 * ==========================================================
+	 * ===================
+	 */
+	private void displayUsage() {
+		System.out.print("Usage: Intruder [options]\n");
+		System.out.println("\nOptions:                            (defaults)\n");
+		System.out.print("    a <UINT>   Percent [a]ttack     ");
+		System.out.print("    l <UINT>   Max data [l]ength    ");
+		System.out.print("    n <UINT>   [n]umber of flows    ");
+		System.out.print("    s <UINT>   Random [s]eed        ");
+		System.out.print("    t <UINT>   Number of [t]hreads  ");
+		System.exit(1);
+	}
 
+	/*
+	 * ==========================================================================
+	 * === parseArgs
+	 * ============================================================
+	 * =================
+	 */
+	private void parseArg(String[] argv) {
+		int i = 0;
+		String arg;
+		boolean opterr = false;
 
-/* =============================================================================
- * displayUsage
- * =============================================================================
- */
-    private void displayUsage()
-    {   
-        System.out.print  ("Usage: Intruder [options]\n");
-        System.out.println("\nOptions:                            (defaults)\n");
-        System.out.print  ("    a <UINT>   Percent [a]ttack     ");
-        System.out.print  ("    l <UINT>   Max data [l]ength    ");
-        System.out.print  ("    n <UINT>   [n]umber of flows    ");
-        System.out.print  ("    s <UINT>   Random [s]eed        ");
-        System.out.print  ("    t <UINT>   Number of [t]hreads  ");
-        System.exit(1);
-    }
+		setDefaultParams();
 
+		while (i < argv.length) {
 
-/* =============================================================================
- * parseArgs
- * =============================================================================
- */
-    private void parseArg(String[] argv) 
-    {
-        int i=0;
-        String arg;
-        boolean opterr = false;
+			if (argv[i].charAt(0) == '-') {
+				arg = argv[i++];
+				// check options
+				if (arg.equals("-a")) {
+					percentAttack = Integer.parseInt(argv[i++]);
+				} else if (arg.equals("-l")) {
+					maxDataLength = Integer.parseInt(argv[i++]);
+				} else if (arg.equals("-n")) {
+					numFlow = Integer.parseInt(argv[i++]);
+				} else if (arg.equals("-s")) {
+					randomSeed = Integer.parseInt(argv[i++]);
+				} else if (arg.equals("-t")) {
+					numThread = Integer.parseInt(argv[i++]);
+				} else {
+					System.out.println("Non-option argument: " + argv[i]);
+					opterr = true;
+				}
+			}
+		}
+		if (opterr) {
+			displayUsage();
+		}
+	}
 
-        setDefaultParams();
+	/*
+	 * ==========================================================================
+	 * === processPackets
+	 * ========================================================
+	 * =====================
+	 */
+	public void processPackets(Arg argPtr) {
+		// TM_THREAD_ENTER();
 
-        while ( i< argv.length) {
+		Stream streamPtr = argPtr.streamPtr;
+		Decoder decoderPtr = argPtr.decoderPtr;
+		Vector_t[] errorVectors = argPtr.errorVectors;
 
-            if(argv[i].charAt(0) == '-') {
-                arg = argv[i++];
-                //check options
-                if(arg.equals("-a")) {
-                    percentAttack = Integer.parseInt(argv[i++]);
-                }
-                else if(arg.equals("-l")) {
-                    maxDataLength = Integer.parseInt(argv[i++]);
-                } 
-                else if(arg.equals("-n")) {
-                    numFlow = Integer.parseInt(argv[i++]);
-                }
-                else if(arg.equals("-s")) {
-                    randomSeed = Integer.parseInt(argv[i++]);
-                }
-                else if(arg.equals("-t")) {
-                    numThread = Integer.parseInt(argv[i++]);
-                }
-                else {
-                    System.out.println("Non-option argument: " + argv[i]);
-                    opterr = true;
-                }
-            }
-        }
-        if(opterr) {
-            displayUsage();
-        }
-    }
+		Detector detectorPtr = new Detector();
+		detectorPtr.addPreprocessor(2);
 
-    
+		Vector_t errorVectorPtr = errorVectors[threadID];
 
+		while (true) {
+			Packet packetPtr;
 
-/* =============================================================================
- * processPackets
- * =============================================================================
- */
-    public void processPackets(Arg argPtr)
-    {
-        // TM_THREAD_ENTER();
-        
-        Stream streamPtr = argPtr.streamPtr;
-        Decoder decoderPtr = argPtr.decoderPtr;
-        Vector_t[] errorVectors = argPtr.errorVectors;
-      
+			packetPtr = atomicGetPacket(streamPtr);
 
-        Detector detectorPtr = new Detector();
-        detectorPtr.addPreprocessor(2);
+			if (packetPtr == null) {
+				break;
+			}
+			int flowId = packetPtr.flowId;
+			int error;
 
-        Vector_t errorVectorPtr = errorVectors[threadID];
+			atomicProcess(decoderPtr, packetPtr);
 
-        while(true) {
-            Packet packetPtr;
-		
-            
-                packetPtr = atomicGetPacket(streamPtr);
-            
+			byte[] data;
+			int[] decodedFlowId = new int[1];
 
-            if(packetPtr == null) {
-                break;
-            }
-            int flowId = packetPtr.flowId;
-            int error;
-            
-                atomicProcess(decoderPtr, packetPtr);
-            
+			data = atomicGetComplete(decoderPtr, decodedFlowId);
 
-            byte[] data;
-            int[] decodedFlowId = new int[1];
-            
-                data = atomicGetComplete(decoderPtr, decodedFlowId);
+			if (data != null) {
+				int err = detectorPtr.process(data);
 
-            if(data != null) {
-	      int err = detectorPtr.process(data);
-              
-	      if(err != 0) {
-		boolean status = errorVectorPtr.vector_pushBack(new Integer(decodedFlowId[0]));
-	      }
-            }
-        }
+				if (err != 0) {
+					boolean status = errorVectorPtr.vector_pushBack(new Integer(decodedFlowId[0]));
+				}
+			}
+		}
 
-        // TM_THREAD_EXIT();
-    
-    }
+		// TM_THREAD_EXIT();
 
-    @Atomic
+	}
+
+	@Atomic
 	private byte[] atomicGetComplete(Decoder decoderPtr, int[] decodedFlowId) {
 		byte[] data;
 		data = decoderPtr.getComplete(decodedFlowId);
 		return data;
 	}
 
-    @Atomic
+	@Atomic
 	private void atomicProcess(Decoder decoderPtr, Packet packetPtr) {
 		int error;
-		error = decoderPtr.process(packetPtr,(packetPtr.length));
+		error = decoderPtr.process(packetPtr, (packetPtr.length));
 	}
 
-    @Atomic
+	@Atomic
 	private Packet atomicGetPacket(Stream streamPtr) {
 		Packet packetPtr;
 		packetPtr = streamPtr.getPacket();
 		return packetPtr;
 	}
 
-    @Override
-	public void run()
-    {
-        Barrier.enterBarrier();
-        processPackets(argument);
-        Barrier.enterBarrier();
-    }
-        
-/* =============================================================================
- * main
- * =============================================================================
- */
+	@Override
+	public void run() {
+		Barrier.enterBarrier();
+		processPackets(argument);
+		Barrier.enterBarrier();
+	}
 
-    public static void main(String[] argv) {
+	/*
+	 * ==========================================================================
+	 * === main
+	 * ==================================================================
+	 * ===========
+	 */
+
+	public static void main(String[] argv) {
 		/*
-         * Initialization
-         */
+		 * Initialization
+		 */
 
-        ERROR er = new ERROR();
+		ERROR er = new ERROR();
 
-        
-        Intruder in = new Intruder(argv);   // parsing argv
+		Intruder in = new Intruder(argv); // parsing argv
 
-        Barrier.setBarrier(in.numThread + 1);
+		Barrier.setBarrier(in.numThread + 1);
 
-        System.out.println("Percent attack  =   " + in.percentAttack);
-        System.out.println("Max data length =   " + in.maxDataLength);
-        System.out.println("Num flow        =   " + in.numFlow);
-        System.out.println("Random seed     =   " + in.randomSeed);
-        System.out.println("Thread count    =   " + in.numThread);
+		System.out.println("Percent attack  =   " + in.percentAttack);
+		System.out.println("Max data length =   " + in.maxDataLength);
+		System.out.println("Num flow        =   " + in.numFlow);
+		System.out.println("Random seed     =   " + in.randomSeed);
+		System.out.println("Thread count    =   " + in.numThread);
 
-        Dictionary dictionaryPtr = new Dictionary();
-        Stream streamPtr = new Stream(in.percentAttack);
-        int numAttack = streamPtr.generate(dictionaryPtr,in.numFlow,in.randomSeed,in.maxDataLength);
+		Dictionary dictionaryPtr = new Dictionary();
+		Stream streamPtr = new Stream(in.percentAttack);
+		int numAttack = streamPtr.generate(dictionaryPtr, in.numFlow, in.randomSeed, in.maxDataLength);
 
-        System.out.println("Num Attack      =   " + numAttack);
+		System.out.println("Num Attack      =   " + numAttack);
 
-        Decoder decoderPtr = new Decoder();
-        Vector_t[] errorVectors = new Vector_t[in.numThread];
+		Decoder decoderPtr = new Decoder();
+		Vector_t[] errorVectors = new Vector_t[in.numThread];
 
-        int i;
+		int i;
 
-        for(i =0;i< in.numThread;i++) {
-	  errorVectors[i] = new Vector_t(in.numFlow);
-        }
+		for (i = 0; i < in.numThread; i++) {
+			errorVectors[i] = new Vector_t(in.numFlow);
+		}
 
-        Arg arg = new Arg();
+		Arg arg = new Arg();
 
-        arg.streamPtr = streamPtr;
-        arg.decoderPtr = decoderPtr;
-        arg.errorVectors = errorVectors;
+		arg.streamPtr = streamPtr;
+		arg.decoderPtr = decoderPtr;
+		arg.errorVectors = errorVectors;
 
-        in.argument = arg;
+		in.argument = arg;
 
-        // Run transactions
+		// Run transactions
 
-        Intruder[] intruders = new Intruder[in.numThread];
+		Intruder[] intruders = new Intruder[in.numThread];
 
-        for(i=0; i<in.numThread;i++) {
-            intruders[i] = new Intruder(i,arg);
-        }
-        in.threadID = 0;
+		for (i = 0; i < in.numThread; i++) {
+			intruders[i] = new Intruder(i, arg);
+		}
+		in.threadID = 0;
 
+		for (i = 0; i < in.numThread; i++) {
+			intruders[i].start();
+		}
 
-        for(i = 0; i< in.numThread;i++) {
-            intruders[i].start();
-        }
+		long start = System.currentTimeMillis();
 
-        long start = System.currentTimeMillis();
+		Barrier.enterBarrier();
+		start = System.currentTimeMillis();
+		Barrier.enterBarrier();
 
-        Barrier.enterBarrier();
-        start=System.currentTimeMillis();
-        Barrier.enterBarrier();
+		long finish = System.currentTimeMillis();
+		long elapsed = finish - start;
 
-        long finish = System.currentTimeMillis();
-        long elapsed = finish - start;
+		System.out.println("TIME=" + elapsed);
 
-        System.out.println("TIME=" + elapsed);
+		// finish
+		//
+		// Check solution
 
-        // finish
-        //
-        // Check solution
+		Barrier.assertIsClear();
 
-        Barrier.assertIsClear();
-        
-        int numFound = 0;
+		int numFound = 0;
 
-        for(i =0;i<in.numThread;i++) {
-            Vector_t errorVectorPtr = errorVectors[i];
-            int e;
-            int numError = errorVectorPtr.vector_getSize();
-            //System.out.println("numError = " + numError);
-            numFound += numError;
-            for (e = 0; e< numError; e++) {
-                int flowId = ((Integer)errorVectorPtr.vector_at(e)).intValue();
-                boolean status = streamPtr.isAttack(flowId);
-                
-                if(status == false) {
-                    System.out.println("Assertion in check solution");
-                    System.out.println(String.format("Problem at flowId = %d, status is false there. It's in errorVectorPtr position %d.", 
-                    		flowId, e));
-                    System.exit(1);
-                }
-            }
-        }
+		for (i = 0; i < in.numThread; i++) {
+			Vector_t errorVectorPtr = errorVectors[i];
+			int e;
+			int numError = errorVectorPtr.vector_getSize();
+			// System.out.println("numError = " + numError);
+			numFound += numError;
+			for (e = 0; e < numError; e++) {
+				int flowId = ((Integer) errorVectorPtr.vector_at(e)).intValue();
+				boolean status = streamPtr.isAttack(flowId);
 
-        System.out.println("Num found       = " + numFound);
+				if (status == false) {
+					System.out.println("Assertion in check solution");
+					System.out.println(String.format(
+							"Problem at flowId = %d, status is false there. It's in errorVectorPtr position %d.",
+							flowId, e));
+					System.exit(1);
+				}
+			}
+		}
 
-        if(numFound != numAttack) {
-            System.out.println("Assertion in check solution");
-            System.out.println(String.format("Problem is that numFound (%d) is not equal to numAttack (%d).", 
-            		numFound, numAttack));
-            System.exit(1);
-        }
-        
-        System.out.println("Finished");
+		System.out.println("Num found       = " + numFound);
+
+		if (numFound != numAttack) {
+			System.out.println("Assertion in check solution");
+			System.out.println(String.format("Problem is that numFound (%d) is not equal to numAttack (%d).", numFound,
+					numAttack));
+			System.exit(1);
+		}
+
+		System.out.println("Finished");
 	}
 
 }
 
-/* =============================================================================
- *
+/*
+ * =============================================================================
+ * 
  * End of intruder.java
- *
+ * 
  * =============================================================================
  */

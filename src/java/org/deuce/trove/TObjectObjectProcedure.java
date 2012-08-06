@@ -20,24 +20,26 @@ package org.deuce.trove;
 
 /**
  * Interface for procedures that take two Object parameters.
- *
- * Created: Mon Nov  5 22:03:30 2001
- *
+ * 
+ * Created: Mon Nov 5 22:03:30 2001
+ * 
  * @author Eric D. Friedman
- * @version $Id: TObjectObjectProcedure.java,v 1.3 2006/11/10 23:27:57 robeden Exp $
+ * @version $Id: TObjectObjectProcedure.java,v 1.3 2006/11/10 23:27:57 robeden
+ *          Exp $
  */
 
-public interface TObjectObjectProcedure<K,V> {
+public interface TObjectObjectProcedure<K, V> {
 
-    /**
-     * Executes this procedure. A false return value indicates that
-     * the application executing this procedure should not invoke this
-     * procedure again.
-     *
-     * @param a an <code>Object</code> value
-     * @param b an <code>Object</code> value
-     * @return true if additional invocations of the procedure are
-     * allowed.
-     */
-    public boolean execute(K a, V b);
+	/**
+	 * Executes this procedure. A false return value indicates that the
+	 * application executing this procedure should not invoke this procedure
+	 * again.
+	 * 
+	 * @param a
+	 *            an <code>Object</code> value
+	 * @param b
+	 *            an <code>Object</code> value
+	 * @return true if additional invocations of the procedure are allowed.
+	 */
+	public boolean execute(K a, V b);
 }// TObjectObjectProcedure

@@ -1,50 +1,50 @@
 package jstamp.genome;
 
 public class Hashtable {
-    List buckets[];
-    int numBucket;
-    int size;
-    int resizeRatio;
-    int growthFactor;
-    
-    public Hashtable (int initNumBucket, int resizeRatio, int growthFactor) {
-      allocBuckets(initNumBucket);
-      numBucket = initNumBucket;
-      size = 0;
-      resizeRatio = ((resizeRatio < 0) ? 3 : resizeRatio);
-      growthFactor = ((growthFactor < 0) ? 3 : growthFactor);
-    }
-    
-    public boolean TMhashtable_insert (ByteString keyPtr, ByteString dataPtr) {
-      int i = keyPtr.hashCode() % numBucket;
+	List buckets[];
+	int numBucket;
+	int size;
+	int resizeRatio;
+	int growthFactor;
 
-      Pair findPair = new Pair();
-      findPair.firstPtr = keyPtr;
-      Pair pairPtr = buckets[i].find(findPair);
-      if (pairPtr != null) {
-          return false;
-      }
+	public Hashtable(int initNumBucket, int resizeRatio, int growthFactor) {
+		allocBuckets(initNumBucket);
+		numBucket = initNumBucket;
+		size = 0;
+		resizeRatio = ((resizeRatio < 0) ? 3 : resizeRatio);
+		growthFactor = ((growthFactor < 0) ? 3 : growthFactor);
+	}
 
-      Pair insertPtr = new Pair(keyPtr, dataPtr);
+	public boolean TMhashtable_insert(ByteString keyPtr, ByteString dataPtr) {
+		int i = keyPtr.hashCode() % numBucket;
 
-      /* Add new entry  */
-      if (buckets[i].insert(insertPtr) == false) {
-          return false;
-      }
+		Pair findPair = new Pair();
+		findPair.firstPtr = keyPtr;
+		Pair pairPtr = buckets[i].find(findPair);
+		if (pairPtr != null) {
+			return false;
+		}
 
-      size++;
+		Pair insertPtr = new Pair(keyPtr, dataPtr);
 
-      return true;
-    }
-    
-    void allocBuckets (int numBucket) {
-      int i;
-      /* Allocate bucket: extra bucket is dummy for easier iterator code */
-      buckets = new List[numBucket+1];
-      
-      for (i = 0; i < (numBucket + 1); i++) {
-          List chainPtr = new List();
-          buckets[i] = chainPtr;
-      }
-    }
+		/* Add new entry */
+		if (buckets[i].insert(insertPtr) == false) {
+			return false;
+		}
+
+		size++;
+
+		return true;
+	}
+
+	void allocBuckets(int numBucket) {
+		int i;
+		/* Allocate bucket: extra bucket is dummy for easier iterator code */
+		buckets = new List[numBucket + 1];
+
+		for (i = 0; i < (numBucket + 1); i++) {
+			List chainPtr = new List();
+			buckets[i] = chainPtr;
+		}
+	}
 }

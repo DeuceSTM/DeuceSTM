@@ -30,8 +30,7 @@ public class BenchThread implements Runnable {
 		public final boolean failed;
 		public final int opNum;
 
-		public ReplayLogEntry(int timestamp, int result, boolean failed,
-				int opNum) {
+		public ReplayLogEntry(int timestamp, int result, boolean failed, int opNum) {
 			this.threadNum = myThreadNum;
 			this.timestamp = timestamp;
 			this.result = result;
@@ -73,17 +72,17 @@ public class BenchThread implements Runnable {
 	public void run() {
 		int i = 0;
 		while (!stop) {
-			//if (i++ > 55) continue;
+			// if (i++ > 55) continue;
 			int operationNumber = getNextOperationNumber();
 
 			OperationType type = OperationId.values()[operationNumber].getType();
-			//if( (type != OperationType.SHORT_TRAVERSAL) ) continue;
-			//		(type != OperationType.SHORT_TRAVERSAL_RO) &&
-			//		(type != OperationType.OPERATION) )
-			//	continue;
+			// if( (type != OperationType.SHORT_TRAVERSAL) ) continue;
+			// (type != OperationType.SHORT_TRAVERSAL_RO) &&
+			// (type != OperationType.OPERATION) )
+			// continue;
 
-			//System.out.println(i + " > "
-			//		+ OperationId.values()[operationNumber]);
+			// System.out.println(i + " > "
+			// + OperationId.values()[operationNumber]);
 
 			OperationExecutor currentExecutor = operations[operationNumber];
 			int result = 0;
@@ -95,39 +94,36 @@ public class BenchThread implements Runnable {
 				result = currentExecutor.execute();
 
 				long endTime = System.currentTimeMillis();
-				//System.out.println("success");
+				// System.out.println("success");
 
 				successfulOperations[operationNumber]++;
 				int ttc = (int) (endTime - startTime);
 				if (ttc <= Parameters.MAX_LOW_TTC)
 					operationsTTC[operationNumber][ttc]++;
 				else {
-					double logHighTtc = (Math.log(ttc) - Math
-							.log(Parameters.MAX_LOW_TTC + 1))
+					double logHighTtc = (Math.log(ttc) - Math.log(Parameters.MAX_LOW_TTC + 1))
 							/ Math.log(Parameters.HIGH_TTC_LOG_BASE);
-					int intLogHighTtc = Math.min((int) logHighTtc,
-							Parameters.HIGH_TTC_ENTRIES - 1);
+					int intLogHighTtc = Math.min((int) logHighTtc, Parameters.HIGH_TTC_ENTRIES - 1);
 					operationsHighTTCLog[operationNumber][intLogHighTtc]++;
 				}
 			} catch (OperationFailedException e) {
-				//System.out.println("failed");
+				// System.out.println("failed");
 				failedOperations[operationNumber]++;
 				failed = true;
 			}
 
 			if (Parameters.sequentialReplayEnabled) {
-				ReplayLogEntry newEntry = new ReplayLogEntry(
-						currentExecutor.getLastOperationTimestamp(), result, failed,
-						operationNumber);
+				ReplayLogEntry newEntry = new ReplayLogEntry(currentExecutor.getLastOperationTimestamp(), result,
+						failed, operationNumber);
 				replayLog.add(newEntry);
-				//System.out.println("ts: " + newEntry.timestamp);
+				// System.out.println("ts: " + newEntry.timestamp);
 			}
 		}
 		System.err.println("Thread #" + myThreadNum + " finished.");
-		//i = 0;
-		//for (ReplayLogEntry entry : replayLog)
-		//	System.out.println(i++ + " % " + OperationId.values()[entry.opNum]
-		//			+ " -- " + entry.timestamp);
+		// i = 0;
+		// for (ReplayLogEntry entry : replayLog)
+		// System.out.println(i++ + " % " + OperationId.values()[entry.opNum]
+		// + " -- " + entry.timestamp);
 	}
 
 	public void stopThread() {
@@ -136,22 +132,17 @@ public class BenchThread implements Runnable {
 
 	protected void createOperations(Setup setup) {
 		for (OperationId operationDescr : OperationId.values()) {
-			Class<? extends Operation> operationClass = operationDescr
-					.getOperationClass();
+			Class<? extends Operation> operationClass = operationDescr.getOperationClass();
 			int operationIndex = operationDescr.ordinal();
 
 			try {
-				Constructor<? extends Operation> operationConstructor = operationClass
-						.getConstructor(Setup.class);
+				Constructor<? extends Operation> operationConstructor = operationClass.getConstructor(Setup.class);
 				Operation operation = operationConstructor.newInstance(setup);
 
-				operations[operationIndex] = OperationExecutorFactory.instance
-						.createOperationExecutor(operation);
-				assert (operation.getOperationId().getOperationClass()
-						.equals(operationClass));
+				operations[operationIndex] = OperationExecutorFactory.instance.createOperationExecutor(operation);
+				assert (operation.getOperationId().getOperationClass().equals(operationClass));
 			} catch (Exception e) {
-				throw new RuntimeError("Error while creating operation "
-						+ operationDescr, e);
+				throw new RuntimeError("Error while creating operation " + operationDescr, e);
 			}
 		}
 	}

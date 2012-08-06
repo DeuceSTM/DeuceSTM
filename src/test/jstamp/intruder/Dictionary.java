@@ -91,9 +91,12 @@ public class Dictionary {
 	public String match(String str) {
 		int i;
 
-		//    System.out.println("str= " + str);
+		// System.out.println("str= " + str);
 		for (i = 0; i < global_numDefaultSignature; i++) {
-			//       System.out.println("global_numDefaultSignature= " + global_numDefaultSignature + " str= " + str + " global_defaultSignatures[" +i+"]= " + global_defaultSignatures[i]);
+			// System.out.println("global_numDefaultSignature= " +
+			// global_numDefaultSignature + " str= " + str +
+			// " global_defaultSignatures[" +i+"]= " +
+			// global_defaultSignatures[i]);
 			if (global_defaultSignatures[i].equals(str)) {
 				return str;
 			}

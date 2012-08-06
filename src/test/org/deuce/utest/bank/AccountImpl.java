@@ -5,10 +5,10 @@ public class AccountImpl implements Account {
 	private int amount = 0;
 	final private String accountNumber;
 
-	public AccountImpl( String accountNumber){
+	public AccountImpl(String accountNumber) {
 		this.accountNumber = accountNumber;
 	}
-	
+
 	public void deposit(int amount) {
 		this.amount += amount;
 	}

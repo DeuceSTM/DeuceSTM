@@ -1,7 +1,7 @@
 package org.deuce.transaction;
 
 import org.deuce.objectweb.asm.Type;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * If thrown under the context of an active transaction the current transaction
@@ -10,18 +10,20 @@ import org.deuce.transform.Exclude;
  * @author Guy Korland
  * @since 1.3
  */
-@Exclude
-public class AbortTransactionException extends TransactionException{
-	
-	final static public String ABORT_TRANSACTION_EXCEPTION_INTERNAL = Type.getInternalName(AbortTransactionException.class);
-	
-	public AbortTransactionException(){}
+@ExcludeInternal
+public class AbortTransactionException extends TransactionException {
 
-	public AbortTransactionException( String msg){
+	final static public String ABORT_TRANSACTION_EXCEPTION_INTERNAL = Type
+			.getInternalName(AbortTransactionException.class);
+
+	public AbortTransactionException() {
+	}
+
+	public AbortTransactionException(String msg) {
 		super(msg);
 	}
 
-	public AbortTransactionException( Throwable cause){
+	public AbortTransactionException(Throwable cause) {
 		super(cause);
 	}
 }

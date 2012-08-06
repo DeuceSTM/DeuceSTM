@@ -1,31 +1,27 @@
 package org.deuce.transform.inplacemetadata.type;
 
 import org.deuce.reflection.AddressUtil;
-import org.deuce.transform.ExcludeTM;
+import org.deuce.transform.ExcludeInternal;
 
-@ExcludeTM
-public class TxArrFloatField
-extends TxField
-{
-  final static private int ARR_BASE  = 
-      AddressUtil.arrayBaseOffset(float[].class);
-  final static private int ARR_SCALE = 
-      AddressUtil.arrayIndexScale(float[].class);
-  
-  public float[] array;
-  public int     index;
+@ExcludeInternal
+public class TxArrFloatField extends TxField {
+	final static private int ARR_BASE = AddressUtil.arrayBaseOffset(float[].class);
+	final static private int ARR_SCALE = AddressUtil.arrayIndexScale(float[].class);
 
-  public TxArrFloatField(float[] arr, int idx) {
-    super(arr, ARR_BASE + ARR_SCALE * idx);
-    array = arr;
-    index = idx;
-  }
-  
-  public final float read() {
-    return array[index];
-  }
+	public float[] array;
+	public int index;
 
-  public final void write(float value) {
-    array[index] = value;
-  }
+	public TxArrFloatField(float[] arr, int idx) {
+		super(arr, ARR_BASE + ARR_SCALE * idx);
+		array = arr;
+		index = idx;
+	}
+
+	public final float read() {
+		return array[index];
+	}
+
+	public final void write(float value) {
+		array[index] = value;
+	}
 }

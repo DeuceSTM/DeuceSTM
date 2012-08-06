@@ -49,121 +49,101 @@ import org.deuce.objectweb.asm.commons.Method;
  */
 public class ConstructorMethodTransformer extends AnalyzerAdapter {
 
-  final static public String CLASS_BASE = "__CLASS_BASE__";
+	final static public String CLASS_BASE = "__CLASS_BASE__";
 
-  private final List<Field>  fields;
-  private final String       fieldsHolderName;
-  private boolean            callsOtherCtor;
-  private final String       className;
+	private final List<Field> fields;
+	private final String fieldsHolderName;
+	private boolean callsOtherCtor;
+	private final String className;
 
-  public ConstructorMethodTransformer(
-      MethodVisitor mv, 
-      List<Field>   fields,
-      String        className,
-      int           access,
-      String        name,
-      String        desc,
-      String        fieldsHolderName) 
-  {
-    super(className, access, name, desc, mv);
-    this.fields = fields;
-    this.fieldsHolderName = fieldsHolderName;
-    this.callsOtherCtor = false;
-    this.className = className;
-  }
+	public ConstructorMethodTransformer(MethodVisitor mv, List<Field> fields, String className, int access,
+			String name, String desc, String fieldsHolderName) {
+		super(className, access, name, desc, mv);
+		this.fields = fields;
+		this.fieldsHolderName = fieldsHolderName;
+		this.callsOtherCtor = false;
+		this.className = className;
+	}
 
-  @Override
-  public void visitCode() {
-    // ((MethodTransformer)mv).disableDuplicateInstrumentation(true);
-    super.visitCode();
-  }
+	@Override
+	public void visitCode() {
+		// ((MethodTransformer)mv).disableDuplicateInstrumentation(true);
+		super.visitCode();
+	}
 
-  private void addField(Field field, MethodVisitor method) {
-    /*
-     * Example: 
-     * class cA { 
-     *   int mA; 
-     * } 
-     * 
-     * (...)
-     *  
-     * cA inst = new cA(); <- during init
-     * 
-     * Concept code:
-     * this.mA__ADDRESS__ = 
-     *   new TxField(inst, cAFieldHolder.__STATIC__mA__ADDRESS__);
-     */
-    // stack: ... =>
-    method.visitVarInsn(Opcodes.ALOAD, 0);
-    // stack: ..., Object (this) =>
-    method.visitTypeInsn(Opcodes.NEW, field.getType().getInternalName());
-    // stack: ..., Object (this), TxField =>
-    method.visitInsn(Opcodes.DUP);
-    // stack: ..., Object (this), TxField, TxField =>
-    method.visitVarInsn(Opcodes.ALOAD, 0);
-    // stack: ..., Object (this), TxField, TxField, Object (this) =>
-    method.visitFieldInsn(Opcodes.GETSTATIC, fieldsHolderName, "__STATIC__"
-        + field.getFieldNameAddress(), Type.LONG_TYPE.getDescriptor());
-    // stack: ..., Object (this), TxField, TxField, Object (this), => 
-    //        => long (__STATIC__*__ADDRESS__) =>
-    method.visitMethodInsn(Opcodes.INVOKESPECIAL, field.getType()
-        .getInternalName(), "<init>", "(Ljava/lang/Object;J)V");
-    // stack: ..., Object (this), TxField =>
-    method.visitFieldInsn(Opcodes.PUTFIELD, fieldsHolderName,
-        field.getFieldNameAddress(), field.getType().getDescriptor());
-    // stack: ... =>
-  }
+	private void addField(Field field, MethodVisitor method) {
+		/*
+		 * Example: class cA { int mA; }
+		 * 
+		 * (...)
+		 * 
+		 * cA inst = new cA(); <- during init
+		 * 
+		 * Concept code: this.mA__ADDRESS__ = new TxField(inst,
+		 * cAFieldHolder.__STATIC__mA__ADDRESS__);
+		 */
+		// stack: ... =>
+		method.visitVarInsn(Opcodes.ALOAD, 0);
+		// stack: ..., Object (this) =>
+		method.visitTypeInsn(Opcodes.NEW, field.getType().getInternalName());
+		// stack: ..., Object (this), TxField =>
+		method.visitInsn(Opcodes.DUP);
+		// stack: ..., Object (this), TxField, TxField =>
+		method.visitVarInsn(Opcodes.ALOAD, 0);
+		// stack: ..., Object (this), TxField, TxField, Object (this) =>
+		method.visitFieldInsn(Opcodes.GETSTATIC, fieldsHolderName, "__STATIC__" + field.getFieldNameAddress(),
+				Type.LONG_TYPE.getDescriptor());
+		// stack: ..., Object (this), TxField, TxField, Object (this), =>
+		// => long (__STATIC__*__ADDRESS__) =>
+		method.visitMethodInsn(Opcodes.INVOKESPECIAL, field.getType().getInternalName(), "<init>",
+				"(Ljava/lang/Object;J)V");
+		// stack: ..., Object (this), TxField =>
+		method.visitFieldInsn(Opcodes.PUTFIELD, fieldsHolderName, field.getFieldNameAddress(), field.getType()
+				.getDescriptor());
+		// stack: ... =>
+	}
 
-  @Override
-  public void visitInsn(int opcode) {      
-    if (opcode == Opcodes.RETURN && !callsOtherCtor) {
-      ((MethodTransformer) mv).disableDuplicateInstrumentation(true);
-      ((MethodTransformer) mv).disableMethodInstrumentation(true);
-      if (fields.size() > 0) {
-        for (Field field : fields) {
-          if ((field.getAccess() & Opcodes.ACC_STATIC) == 0) {
-            addField(field, this.mv);
-          }
-        }
-      }
-      ((MethodTransformer) mv).disableMethodInstrumentation(false);
-      ((MethodTransformer) mv).disableDuplicateInstrumentation(false);
-    }
+	@Override
+	public void visitInsn(int opcode) {
+		if (opcode == Opcodes.RETURN && !callsOtherCtor) {
+			((MethodTransformer) mv).disableDuplicateInstrumentation(true);
+			((MethodTransformer) mv).disableMethodInstrumentation(true);
+			if (fields.size() > 0) {
+				for (Field field : fields) {
+					if ((field.getAccess() & Opcodes.ACC_STATIC) == 0) {
+						addField(field, this.mv);
+					}
+				}
+			}
+			((MethodTransformer) mv).disableMethodInstrumentation(false);
+			((MethodTransformer) mv).disableDuplicateInstrumentation(false);
+		}
 
-    super.visitInsn(opcode);
-  }
+		super.visitInsn(opcode);
+	}
 
-  @Override
-  public void visitEnd() {
-    // ((MethodTransformer)mv).disableDuplicateInstrumentation(false);
-    super.visitEnd();
-  }
+	@Override
+	public void visitEnd() {
+		// ((MethodTransformer)mv).disableDuplicateInstrumentation(false);
+		super.visitEnd();
+	}
 
-  @Override
-  public void visitMethodInsn(
-      final int    opcode,
-      final String owner,
-      final String name,
-      final String desc)
-  {
-    if (opcode == Opcodes.INVOKESPECIAL &&
-        owner.equals(className)         &&
-        name.equals("<init>"))
-    {
-      // The method is created merely to know the #params
-      int nParams = new Method(name, desc).getArgumentTypes().length;
-      
-      // With that number, we go down the stack #params and check what's there
-      Object stackObj = stack.get(stack.size() - nParams - 1);
-      
-      // Is it <this>, uninitialized?
-      if (stackObj instanceof Integer && 
-          ((Integer)stackObj) == Opcodes.UNINITIALIZED_THIS) 
-      {
-        callsOtherCtor = true;
-      }
-    }
-    super.visitMethodInsn(opcode, owner, name, desc);
-  }
+	@Override
+	public void visitMethodInsn(final int opcode, final String owner, final String name, final String desc) {
+		if (opcode == Opcodes.INVOKESPECIAL && owner.equals(className) && name.equals("<init>")) {
+			// The method is created merely to know the #params
+			int nParams = new Method(name, desc).getArgumentTypes().length;
+
+			// With that number, we go down the stack #params and check what's
+			// there
+			Object stackObj = stack.get(stack.size() - nParams - 1);
+
+			// Is it <this>, uninitialized?
+			if (stackObj instanceof Integer && ((Integer) stackObj) == Opcodes.UNINITIALIZED_THIS) {
+				callsOtherCtor = true;
+			}
+		}
+		super.visitMethodInsn(opcode, owner, name, desc);
+	}
 
 }

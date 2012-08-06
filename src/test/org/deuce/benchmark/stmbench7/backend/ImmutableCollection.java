@@ -7,8 +7,10 @@ import org.deuce.benchmark.stmbench7.annotations.Immutable;
  */
 @Immutable
 public interface ImmutableCollection<E> extends Iterable<E> {
-	
+
 	int size();
+
 	boolean contains(E element); // not necessarily efficient!
+
 	public ImmutableCollection<E> clone();
 }

@@ -14,7 +14,7 @@ public class AtomicAnnotationVisitor implements AnnotationVisitor {
 	}
 
 	public void visit(String name, Object value) {
-		method.setRetries((Integer)value);
+		method.setRetries((Integer) value);
 		annotation.visit(name, value);
 	}
 

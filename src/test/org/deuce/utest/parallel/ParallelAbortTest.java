@@ -10,15 +10,16 @@ import org.junit.Assert;
 
 /**
  * Test parallel threads that abort transactions
+ * 
  * @author Guy Korland
  * @since 1.3
  */
 public class ParallelAbortTest extends TestCase {
 
 	final static private int THREADS = 10;
-	
+
 	public void testPrallelAbort() throws Throwable {
-		
+
 		final AtomicInteger abortCounter = new AtomicInteger();
 		final Counter counter = new Counter();
 		Thread[] threads = new Thread[THREADS];
@@ -45,11 +46,10 @@ public class ParallelAbortTest extends TestCase {
 		for (int i = 0; i < THREADS; i++) {
 			threads[i].join();
 		}
-		
+
 		Assert.assertEquals(90, counter.getValue());
 		Assert.assertEquals(10, abortCounter.get());
 	}
-
 
 	public class Counter {
 

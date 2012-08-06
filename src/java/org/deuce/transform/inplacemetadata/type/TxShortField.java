@@ -7,7 +7,7 @@ public class TxShortField extends TxField {
 	public TxShortField(Object ref, long address) {
 		super(ref, address);
 	}
-	
+
 	public final short read() {
 		return UnsafeHolder.getUnsafe().getShort(ref, address);
 	}

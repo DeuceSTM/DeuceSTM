@@ -3,15 +3,15 @@ package org.deuce.transaction.estm;
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.estm.Context.LockTable;
 import org.deuce.transaction.estm.field.ReadFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
- * The set of read entries maintained by the transaction
- * Based on the code from Pascal Felber 
+ * The set of read entries maintained by the transaction Based on the code from
+ * Pascal Felber
  * 
  * @author Vincent Gramoli
  */
-@Exclude
+@ExcludeInternal
 final public class ReadSet {
 
 	/** An array of read entries */
@@ -22,7 +22,8 @@ final public class ReadSet {
 	/**
 	 * Initialize the read set with a given number of elements
 	 * 
-	 * @param initialCapacity the number of elements
+	 * @param initialCapacity
+	 *            the number of elements
 	 */
 	public ReadSet(int initialCapacity) {
 		entries = new ReadFieldAccess[initialCapacity];
@@ -38,11 +39,11 @@ final public class ReadSet {
 	}
 
 	/**
-	 * Copy the last-read-entries field to the readset.
-	 * Used to switched from lightweight validation to full validation
-	 * in an elastic transaction
+	 * Copy the last-read-entries field to the readset. Used to switched from
+	 * lightweight validation to full validation in an elastic transaction
 	 * 
-	 * @param lre last-read-entries field to be copied
+	 * @param lre
+	 *            last-read-entries field to be copied
 	 */
 	public void copy(LastReadEntries lre) {
 		int l = lre.getSize();
@@ -50,31 +51,31 @@ final public class ReadSet {
 		System.arraycopy(lre.entries, 0, e, 0, l);
 		entries = e;
 	}
-	
+
 	/**
-	 * Add a read entry to the read set
-	 * and allocates length^2 new entries if full
+	 * Add a read entry to the read set and allocates length^2 new entries if
+	 * full
 	 * 
-	 * @param reference the object of the field
-	 * @param field the field 
-	 * @param hash its identifier
-	 * @param lock its version / owner
+	 * @param reference
+	 *            the object of the field
+	 * @param field
+	 *            the field
+	 * @param hash
+	 *            its identifier
+	 * @param lock
+	 *            its version / owner
 	 */
 	public void add(Object reference, long field, int hash, int lock) {
-		/* unable to catch this exception within a transaction
-		 * even though it would be faster to try instead of guarding
-		try {
-			ReadFieldAccess r = entries[size++];
-			r.init(reference, field, hash, lock);
-		} catch (ArrayIndexOutOfBoundsException x) {
-			int l = entries.length;
-			ReadFieldAccess[] e = new ReadFieldAccess[l << 1];
-			System.arraycopy(entries, 0, e, 0, l);
-			entries = e;
-			initArray(l);
-			ReadFieldAccess r = entries[size++];
-			r.init(reference, field, hash, lock);
-		} */
+		/*
+		 * unable to catch this exception within a transaction even though it
+		 * would be faster to try instead of guarding try { ReadFieldAccess r =
+		 * entries[size++]; r.init(reference, field, hash, lock); } catch
+		 * (ArrayIndexOutOfBoundsException x) { int l = entries.length;
+		 * ReadFieldAccess[] e = new ReadFieldAccess[l << 1];
+		 * System.arraycopy(entries, 0, e, 0, l); entries = e; initArray(l);
+		 * ReadFieldAccess r = entries[size++]; r.init(reference, field, hash,
+		 * lock); }
+		 */
 		if (size >= entries.length) {
 			int l = entries.length;
 			ReadFieldAccess[] e = new ReadFieldAccess[l << 1];
@@ -95,11 +96,11 @@ final public class ReadSet {
 	}
 
 	/**
-	 * Validate the transaction
-	 * Check that the version of read locations, which 
+	 * Validate the transaction Check that the version of read locations, which
 	 * are maintained by the elastic tx, are consistent
 	 * 
-	 * @param id the identifier
+	 * @param id
+	 *            the identifier
 	 * @return true if the validation is successful
 	 */
 	public boolean validate(int id) {
@@ -121,11 +122,13 @@ final public class ReadSet {
 	}
 
 	/**
-	 * Indicates whether the given field corresponds
-	 * to an existing read entry of the read set
+	 * Indicates whether the given field corresponds to an existing read entry
+	 * of the read set
 	 * 
-	 * @param obj the object of the field
-	 * @param field the accessed field
+	 * @param obj
+	 *            the object of the field
+	 * @param field
+	 *            the accessed field
 	 * @return true is the read set contains the field
 	 */
 	public boolean contains(Object obj, long field) {
@@ -140,12 +143,13 @@ final public class ReadSet {
 	/**
 	 * Allocating more space for the array
 	 * 
-	 * @param fromIndex index from where allocation is done
+	 * @param fromIndex
+	 *            index from where allocation is done
 	 */
 	private void initArray(int fromIndex) {
 		int l = entries.length;
 		for (int i = fromIndex; i < l; i++)
 			entries[i] = new ReadFieldAccess();
 	}
-	
+
 }

@@ -3,25 +3,25 @@ package org.deuce.transaction.tl2cm.cm;
 import org.deuce.transaction.tl2cm.Context;
 import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
 import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
- * The Polka contention manager combines the back-off capabilities of {@code Polite} and the 
- * priority-based resolution algorithm of {@code Karma}.
+ * The Polka contention manager combines the back-off capabilities of
+ * {@code Polite} and the priority-based resolution algorithm of {@code Karma}.
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  * @since 1.2
  */
-@Exclude
+@ExcludeInternal
 public class Polka extends AbstractContentionManager {
 
 	private static int C = 4;
 	private int counter = 0;
-	
+
 	public Polka(int k) {
 		C = k;
 	}
-	
+
 	@Override
 	public void init() {
 		counter = 0;
@@ -34,10 +34,10 @@ public class Polka extends AbstractContentionManager {
 		int otherPrio = other.getPriority();
 		int diff = (myPrio + counter) - otherPrio;
 		if (diff > 0 && counter > 0) {
-			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED || other.kill(Context.getTxLocalClock(statusRecord))) {
+			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED
+					|| other.kill(Context.getTxLocalClock(statusRecord))) {
 				return Action.CONTINUE;
-			}
-			else {
+			} else {
 				me.kill(-1);
 				return Action.RESTART;
 			}
@@ -45,7 +45,8 @@ public class Polka extends AbstractContentionManager {
 		counter++;
 		diff = Math.abs(diff);
 		int t = (int) Math.pow(diff, counter) * C;
-		for (int i=0; i<t; i++);
+		for (int i = 0; i < t; i++)
+			;
 		return Action.RETRY;
 	}
 
@@ -55,10 +56,10 @@ public class Polka extends AbstractContentionManager {
 		int diff = (myPrio + counter) - otherPrio;
 		if (diff > 0 && counter > 0) {
 			int statusRecord = other.getStatusRecord();
-			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED || other.kill(Context.getTxLocalClock(statusRecord))) {
+			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED
+					|| other.kill(Context.getTxLocalClock(statusRecord))) {
 				return Action.RETRY;
-			}
-			else {
+			} else {
 				me.kill(-1);
 				return Action.RESTART;
 			}
@@ -66,14 +67,15 @@ public class Polka extends AbstractContentionManager {
 		counter++;
 		diff = Math.abs(diff);
 		int t = (int) Math.pow(diff, counter) * C;
-		for (int i=0; i<t; i++);
+		for (int i = 0; i < t; i++)
+			;
 		return Action.RETRY;
 	}
-	
+
 	public boolean requiresPriorities() {
 		return true;
 	}
-	
+
 	public String getDescription() {
 		return "Polka busy-waiting [C=" + C + "]";
 	}

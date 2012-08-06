@@ -1,17 +1,16 @@
 package org.deuce.transaction.estm.field;
 
 import org.deuce.reflection.UnsafeHolder;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 import sun.misc.Unsafe;
 
 /**
- * The read entry
- * Based on the code from Pascal Felber
+ * The read entry Based on the code from Pascal Felber
  * 
  * @author Vincent Gramoli
  */
-@Exclude
+@ExcludeInternal
 public class ReadFieldAccess {
 
 	protected Object reference;
@@ -19,7 +18,8 @@ public class ReadFieldAccess {
 	private int hash;
 	private int lock;
 
-	public ReadFieldAccess() { }
+	public ReadFieldAccess() {
+	}
 
 	public ReadFieldAccess(Object reference, long field, int hash, int lock) {
 		init(reference, field, hash, lock);
@@ -31,7 +31,7 @@ public class ReadFieldAccess {
 		this.hash = hash;
 		this.lock = lock;
 	}
-	
+
 	final public Object getReference() {
 		return reference;
 	}
@@ -47,15 +47,15 @@ public class ReadFieldAccess {
 	final public int getLock() {
 		return lock;
 	}
-	
-	@Exclude
+
+	@ExcludeInternal
 	static final public class Field {
 
-		@Exclude
+		@ExcludeInternal
 		static public enum Type {
 			BYTE, BOOLEAN, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, OBJECT
 		}
-		
+
 		static public Object getValue(Object reference, long field, Type type) {
 			Unsafe unsafe = UnsafeHolder.getUnsafe();
 			switch (type) {

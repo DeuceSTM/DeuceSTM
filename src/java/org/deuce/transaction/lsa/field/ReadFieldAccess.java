@@ -1,11 +1,11 @@
 package org.deuce.transaction.lsa.field;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public class ReadFieldAccess {
 
 	protected Object reference;
@@ -13,7 +13,8 @@ public class ReadFieldAccess {
 	private int hash;
 	private int lock;
 
-	public ReadFieldAccess() { }
+	public ReadFieldAccess() {
+	}
 
 	public ReadFieldAccess(Object reference, long field, int hash, int lock) {
 		init(reference, field, hash, lock);

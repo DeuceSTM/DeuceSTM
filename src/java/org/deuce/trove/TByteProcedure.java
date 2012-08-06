@@ -22,25 +22,24 @@ package org.deuce.trove;
 // THIS IS A GENERATED CLASS. DO NOT HAND EDIT! //
 //////////////////////////////////////////////////
 
-
 /**
  * Interface for procedures with one byte parameter.
- *
- * Created: Mon Nov  5 21:45:49 2001
- *
+ * 
+ * Created: Mon Nov 5 21:45:49 2001
+ * 
  * @author Eric D. Friedman
  * @version $Id: PProcedure.template,v 1.2 2007/11/01 16:08:14 robeden Exp $
  */
 
 public interface TByteProcedure {
-    /**
-     * Executes this procedure. A false return value indicates that
-     * the application executing this procedure should not invoke this
-     * procedure again.
-     *
-     * @param value a value of type <code>byte</code>
-     * @return true if additional invocations of the procedure are
-     * allowed.
-     */
-    public boolean execute(byte value);
+	/**
+	 * Executes this procedure. A false return value indicates that the
+	 * application executing this procedure should not invoke this procedure
+	 * again.
+	 * 
+	 * @param value
+	 *            a value of type <code>byte</code>
+	 * @return true if additional invocations of the procedure are allowed.
+	 */
+	public boolean execute(byte value);
 }// TByteProcedure

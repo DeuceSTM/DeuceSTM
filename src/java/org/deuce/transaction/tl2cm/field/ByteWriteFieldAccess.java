@@ -1,9 +1,9 @@
 package org.deuce.transaction.tl2cm.field;
 
 import org.deuce.reflection.UnsafeHolder;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
-@Exclude
+@ExcludeInternal
 public class ByteWriteFieldAccess extends WriteFieldAccess {
 
 	private byte value;

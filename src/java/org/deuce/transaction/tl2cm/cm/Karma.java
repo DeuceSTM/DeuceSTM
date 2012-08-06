@@ -3,21 +3,22 @@ package org.deuce.transaction.tl2cm.cm;
 import org.deuce.transaction.tl2cm.Context;
 import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
 import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
- * The Karma contention manager resolves conflicts by comparing the priorities of
- * the conflicting threads. Karma employs a constant back-off period between subsequent attempts to acquire a lock. 
+ * The Karma contention manager resolves conflicts by comparing the priorities
+ * of the conflicting threads. Karma employs a constant back-off period between
+ * subsequent attempts to acquire a lock.
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  * @since 1.2
  */
-@Exclude
+@ExcludeInternal
 public class Karma extends AbstractContentionManager {
 
 	private static int BACKOFF_PERIOD = (int) Math.pow(10, 4);
 	private int counter = 0;
-	
+
 	public Karma(int k) {
 		BACKOFF_PERIOD = (int) Math.pow(10, k);
 	}
@@ -32,16 +33,17 @@ public class Karma extends AbstractContentionManager {
 		int myPrio = me.getPriority();
 		int otherPrio = other.getPriority();
 		if (myPrio + counter > otherPrio) {
-			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED || other.kill(Context.getTxLocalClock(statusRecord))) {
+			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED
+					|| other.kill(Context.getTxLocalClock(statusRecord))) {
 				return Action.CONTINUE;
-			}
-			else {
+			} else {
 				me.kill(-1);
 				return Action.RESTART;
 			}
 		}
 		counter++;
-		for (int i=0; i<BACKOFF_PERIOD; i++);
+		for (int i = 0; i < BACKOFF_PERIOD; i++)
+			;
 		return Action.RETRY;
 	}
 
@@ -50,20 +52,22 @@ public class Karma extends AbstractContentionManager {
 		int otherPrio = other.getPriority();
 		if (myPrio + counter > otherPrio) {
 			int statusRecord = other.getStatusRecord();
-			// It is not allowed to steal a lock before the other transaction is aborted
-			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED || other.kill(Context.getTxLocalClock(statusRecord))) {
+			// It is not allowed to steal a lock before the other transaction is
+			// aborted
+			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED
+					|| other.kill(Context.getTxLocalClock(statusRecord))) {
 				return Action.RETRY;
-			}
-			else {
+			} else {
 				me.kill(-1);
 				return Action.RESTART;
 			}
 		}
 		counter++;
-		for (int i=0; i<BACKOFF_PERIOD; i++);
+		for (int i = 0; i < BACKOFF_PERIOD; i++)
+			;
 		return Action.RETRY;
 	}
-	 
+
 	public boolean requiresPriorities() {
 		return true;
 	}

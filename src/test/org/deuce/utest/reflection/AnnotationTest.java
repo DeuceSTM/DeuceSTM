@@ -16,7 +16,6 @@ public class AnnotationTest extends TestCase {
 		Assert.assertNotNull(declaredMethod.getAnnotation(MyAnnotation.class));
 	}
 
-
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface MyAnnotation {
 		String value() default "";
@@ -24,9 +23,8 @@ public class AnnotationTest extends TestCase {
 
 	public static class MyClass {
 		@MyAnnotation
-		public void myMethod() {}
+		public void myMethod() {
+		}
 	}
-
-
 
 }

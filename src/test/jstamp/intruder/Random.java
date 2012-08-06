@@ -37,9 +37,9 @@ public class Random {
 		for (int mti = 1; mti < N; mti++) {
 			mt[mti] = (1812433253 * (mt[mti - 1] ^ (mt[mti - 1] >> 30)) + mti);
 			/* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
-			/* In the previous versions, MSBs of the seed affect   */
-			/* only MSBs of the array mt[].                        */
-			/* 2002/01/09 modified by Makoto Matsumoto             */
+			/* In the previous versions, MSBs of the seed affect */
+			/* only MSBs of the array mt[]. */
+			/* 2002/01/09 modified by Makoto Matsumoto */
 			mt[mti] &= 0xFFFFFFFF;
 			/* for >32 bit machines */
 		}
@@ -62,7 +62,7 @@ public class Random {
 		int y;
 		int mti = this.mti;
 
-		/* mag01[x] = x * MATRIX_A  for x=0,1 */
+		/* mag01[x] = x * MATRIX_A for x=0,1 */
 
 		if (mti >= 624) { /* generate N words at one time */
 			int kk;
@@ -73,17 +73,14 @@ public class Random {
 
 			for (kk = 0; kk < (624 - 397); kk++) {
 				y = (mt[kk] & 0x80000000) | (mt[kk + 1] & 0x7fffffff);
-				mt[kk] = mt[kk + 397] ^ (y >> 1)
-						^ ((y & 0x1) == 0 ? 0 : 0x9908b0df);
+				mt[kk] = mt[kk + 397] ^ (y >> 1) ^ ((y & 0x1) == 0 ? 0 : 0x9908b0df);
 			}
 			for (; kk < (624 - 1); kk++) {
 				y = (mt[kk] & 0x80000000) | (mt[kk + 1] & 0x7fffffff);
-				mt[kk] = mt[kk + (397 - 624)] ^ (y >> 1)
-						^ ((y & 0x1) == 0 ? 0 : 0x9908b0df);
+				mt[kk] = mt[kk + (397 - 624)] ^ (y >> 1) ^ ((y & 0x1) == 0 ? 0 : 0x9908b0df);
 			}
 			y = (mt[624 - 1] & 0x80000000) | (mt[0] & 0x7fffffff);
-			mt[624 - 1] = mt[397 - 1] ^ (y >> 1)
-					^ ((y & 0x1) == 0 ? 0 : 0x9908b0df);
+			mt[624 - 1] = mt[397 - 1] ^ (y >> 1) ^ ((y & 0x1) == 0 ? 0 : 0x9908b0df);
 
 			mti = 0;
 		}

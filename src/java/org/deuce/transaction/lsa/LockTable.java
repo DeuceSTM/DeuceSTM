@@ -3,18 +3,18 @@ package org.deuce.transaction.lsa;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.deuce.transaction.TransactionException;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public class LockTable {
 
-	// Failure transaction 
-	final private static TransactionException FAILURE_EXCEPTION =
-		new TransactionException("Fail on lock (already locked).");
-	
+	// Failure transaction
+	final private static TransactionException FAILURE_EXCEPTION = new TransactionException(
+			"Fail on lock (already locked).");
+
 	final private static int ARRAYSIZE = 1 << 20; // 2^20
 	final private static int MASK = ARRAYSIZE - 1;
 	final private static int LOCK = 1 << 31;

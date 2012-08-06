@@ -40,88 +40,88 @@ import org.deuce.objectweb.asm.FieldVisitor;
  */
 public class FieldNode extends MemberNode implements FieldVisitor {
 
-    /**
-     * The field's access flags (see {@link org.deuce.objectweb.asm.Opcodes}). This
-     * field also indicates if the field is synthetic and/or deprecated.
-     */
-    public int access;
+	/**
+	 * The field's access flags (see {@link org.deuce.objectweb.asm.Opcodes}).
+	 * This field also indicates if the field is synthetic and/or deprecated.
+	 */
+	public int access;
 
-    /**
-     * The field's name.
-     */
-    public String name;
+	/**
+	 * The field's name.
+	 */
+	public String name;
 
-    /**
-     * The field's descriptor (see {@link org.deuce.objectweb.asm.Type}).
-     */
-    public String desc;
+	/**
+	 * The field's descriptor (see {@link org.deuce.objectweb.asm.Type}).
+	 */
+	public String desc;
 
-    /**
-     * The field's signature. May be <tt>null</tt>.
-     */
-    public String signature;
+	/**
+	 * The field's signature. May be <tt>null</tt>.
+	 */
+	public String signature;
 
-    /**
-     * The field's initial value. This field, which may be <tt>null</tt> if
-     * the field does not have an initial value, must be an {@link Integer}, a
-     * {@link Float}, a {@link Long}, a {@link Double} or a {@link String}.
-     */
-    public Object value;
+	/**
+	 * The field's initial value. This field, which may be <tt>null</tt> if the
+	 * field does not have an initial value, must be an {@link Integer}, a
+	 * {@link Float}, a {@link Long}, a {@link Double} or a {@link String}.
+	 */
+	public Object value;
 
-    /**
-     * Constructs a new {@link FieldNode}.
-     * 
-     * @param access the field's access flags (see
-     *        {@link org.deuce.objectweb.asm.Opcodes}). This parameter also indicates
-     *        if the field is synthetic and/or deprecated.
-     * @param name the field's name.
-     * @param desc the field's descriptor (see
-     *        {@link org.deuce.objectweb.asm.Type Type}).
-     * @param signature the field's signature.
-     * @param value the field's initial value. This parameter, which may be
-     *        <tt>null</tt> if the field does not have an initial value, must
-     *        be an {@link Integer}, a {@link Float}, a {@link Long}, a
-     *        {@link Double} or a {@link String}.
-     */
-    public FieldNode(
-        final int access,
-        final String name,
-        final String desc,
-        final String signature,
-        final Object value)
-    {
-        this.access = access;
-        this.name = name;
-        this.desc = desc;
-        this.signature = signature;
-        this.value = value;
-    }
+	/**
+	 * Constructs a new {@link FieldNode}.
+	 * 
+	 * @param access
+	 *            the field's access flags (see
+	 *            {@link org.deuce.objectweb.asm.Opcodes}). This parameter also
+	 *            indicates if the field is synthetic and/or deprecated.
+	 * @param name
+	 *            the field's name.
+	 * @param desc
+	 *            the field's descriptor (see
+	 *            {@link org.deuce.objectweb.asm.Type Type}).
+	 * @param signature
+	 *            the field's signature.
+	 * @param value
+	 *            the field's initial value. This parameter, which may be
+	 *            <tt>null</tt> if the field does not have an initial value,
+	 *            must be an {@link Integer}, a {@link Float}, a {@link Long}, a
+	 *            {@link Double} or a {@link String}.
+	 */
+	public FieldNode(final int access, final String name, final String desc, final String signature, final Object value) {
+		this.access = access;
+		this.name = name;
+		this.desc = desc;
+		this.signature = signature;
+		this.value = value;
+	}
 
-    /**
-     * Makes the given class visitor visit this field.
-     * 
-     * @param cv a class visitor.
-     */
-    public void accept(final ClassVisitor cv) {
-        FieldVisitor fv = cv.visitField(access, name, desc, signature, value);
-        if (fv == null) {
-            return;
-        }
-        int i, n;
-        n = visibleAnnotations == null ? 0 : visibleAnnotations.size();
-        for (i = 0; i < n; ++i) {
-            AnnotationNode an = (AnnotationNode) visibleAnnotations.get(i);
-            an.accept(fv.visitAnnotation(an.desc, true));
-        }
-        n = invisibleAnnotations == null ? 0 : invisibleAnnotations.size();
-        for (i = 0; i < n; ++i) {
-            AnnotationNode an = (AnnotationNode) invisibleAnnotations.get(i);
-            an.accept(fv.visitAnnotation(an.desc, false));
-        }
-        n = attrs == null ? 0 : attrs.size();
-        for (i = 0; i < n; ++i) {
-            fv.visitAttribute((Attribute) attrs.get(i));
-        }
-        fv.visitEnd();
-    }
+	/**
+	 * Makes the given class visitor visit this field.
+	 * 
+	 * @param cv
+	 *            a class visitor.
+	 */
+	public void accept(final ClassVisitor cv) {
+		FieldVisitor fv = cv.visitField(access, name, desc, signature, value);
+		if (fv == null) {
+			return;
+		}
+		int i, n;
+		n = visibleAnnotations == null ? 0 : visibleAnnotations.size();
+		for (i = 0; i < n; ++i) {
+			AnnotationNode an = (AnnotationNode) visibleAnnotations.get(i);
+			an.accept(fv.visitAnnotation(an.desc, true));
+		}
+		n = invisibleAnnotations == null ? 0 : invisibleAnnotations.size();
+		for (i = 0; i < n; ++i) {
+			AnnotationNode an = (AnnotationNode) invisibleAnnotations.get(i);
+			an.accept(fv.visitAnnotation(an.desc, false));
+		}
+		n = attrs == null ? 0 : attrs.size();
+		for (i = 0; i < n; ++i) {
+			fv.visitAttribute((Attribute) attrs.get(i));
+		}
+		fv.visitEnd();
+	}
 }

@@ -8,8 +8,7 @@ import org.deuce.benchmark.stmbench7.core.AtomicPart;
 import org.deuce.benchmark.stmbench7.core.OperationFailedException;
 
 /**
- * Short traversal ST6 (see the specification).
- * Simple update, short.
+ * Short traversal ST6 (see the specification). Simple update, short.
  */
 public class ShortTraversal6 extends ShortTraversal1 {
 
@@ -17,20 +16,21 @@ public class ShortTraversal6 extends ShortTraversal1 {
 		super(oo7setup);
 	}
 
-    @Override
-	@Transactional @Update
+	@Override
+	@Transactional
+	@Update
 	public int performOperation() throws OperationFailedException {
-    	return super.performOperation();
+		return super.performOperation();
 	}
-    
-    @Override
+
+	@Override
 	protected int traverse(AtomicPart atomicPart) {
 		atomicPart.swapXY();
 		return super.traverse(atomicPart);
 	}
-    
-    @Override
-    public OperationId getOperationId() {
-    	return OperationId.ST6;
-    }
+
+	@Override
+	public OperationId getOperationId() {
+		return OperationId.ST6;
+	}
 }

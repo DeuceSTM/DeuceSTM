@@ -16,27 +16,26 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ///////////////////////////////////////////////////////////////////////////////
 
-
 package org.deuce.trove;
 
 /**
  * Interface for procedures with one Object parameter.
- *
- * Created: Mon Nov  5 21:45:49 2001
- *
+ * 
+ * Created: Mon Nov 5 21:45:49 2001
+ * 
  * @author Eric D. Friedman
  * @version $Id: TObjectProcedure.java,v 1.4 2007/11/01 16:08:14 robeden Exp $
  */
 
 public interface TObjectProcedure<T> {
-    /**
-     * Executes this procedure. A false return value indicates that
-     * the application executing this procedure should not invoke this
-     * procedure again.
-     *
-     * @param object an <code>Object</code> value
-     * @return true if additional invocations of the procedure are
-     * allowed.
-     */
-    public boolean execute(T object);
+	/**
+	 * Executes this procedure. A false return value indicates that the
+	 * application executing this procedure should not invoke this procedure
+	 * again.
+	 * 
+	 * @param object
+	 *            an <code>Object</code> value
+	 * @return true if additional invocations of the procedure are allowed.
+	 */
+	public boolean execute(T object);
 }// TObjectProcedure

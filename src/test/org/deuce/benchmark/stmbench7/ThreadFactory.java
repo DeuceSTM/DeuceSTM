@@ -11,10 +11,10 @@ import org.deuce.benchmark.stmbench7.annotations.NonAtomic;
 public abstract class ThreadFactory {
 
 	public static ThreadFactory instance = null;
-	
+
 	public static void setInstance(ThreadFactory newInstance) {
 		instance = newInstance;
 	}
-	
+
 	public abstract Thread createThread(Runnable runnable);
 }

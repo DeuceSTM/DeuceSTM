@@ -7,7 +7,7 @@ public class TxLongField extends TxField {
 	public TxLongField(Object ref, long address) {
 		super(ref, address);
 	}
-	
+
 	public final long read() {
 		return UnsafeHolder.getUnsafe().getLong(ref, address);
 	}

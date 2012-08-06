@@ -1,3 +1,0 @@
-#!/bin/sh
-lines=$(grep -n "#" $1 | cut -d: -f1 | sed '1q')
-sed '/^#/d' $1 > ttt$1

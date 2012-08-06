@@ -1,27 +1,28 @@
 package org.deuce.transaction.norec.field;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public class FieldAccess {
 
 	protected Object reference;
 	protected long field;
 	private int hash;
 
-	public FieldAccess(){}
-	
+	public FieldAccess() {
+	}
+
 	protected FieldAccess(Object reference, long field) {
 		init(reference, field);
 	}
-	
-	public void init(Object reference, long field){
+
+	public void init(Object reference, long field) {
 		this.reference = reference;
 		this.field = field;
-		this.hash = System.identityHashCode(reference) + (int)field;
+		this.hash = System.identityHashCode(reference) + (int) field;
 	}
 
 	public Object getReference() {
@@ -32,7 +33,8 @@ public class FieldAccess {
 		return field;
 	}
 
-	public void writeField(){}
+	public void writeField() {
+	}
 
 	public boolean validate() {
 		return false;
@@ -40,7 +42,7 @@ public class FieldAccess {
 
 	@Override
 	public boolean equals(Object o) {
-		FieldAccess r = (FieldAccess)o;
+		FieldAccess r = (FieldAccess) o;
 		return reference == r.reference && field == r.field;
 	}
 

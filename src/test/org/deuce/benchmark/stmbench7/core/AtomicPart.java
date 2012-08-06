@@ -6,8 +6,8 @@ import org.deuce.benchmark.stmbench7.annotations.Update;
 import org.deuce.benchmark.stmbench7.backend.ImmutableCollection;
 
 /**
- * Part of the main benchmark data structure. For a default
- * implementation, see stmbench7.impl.core.AtomicPartImpl.
+ * Part of the main benchmark data structure. For a default implementation, see
+ * stmbench7.impl.core.AtomicPartImpl.
  */
 @Atomic
 public interface AtomicPart extends DesignObj, Comparable<AtomicPart> {
@@ -17,7 +17,7 @@ public interface AtomicPart extends DesignObj, Comparable<AtomicPart> {
 
 	@Update
 	void addConnectionFromOtherPart(Connection connection);
-	
+
 	@Update
 	void setCompositePart(CompositePart partOf);
 
@@ -29,7 +29,7 @@ public interface AtomicPart extends DesignObj, Comparable<AtomicPart> {
 
 	@ReadOnly
 	ImmutableCollection<Connection> getFromConnections();
-	
+
 	@ReadOnly
 	CompositePart getPartOf();
 

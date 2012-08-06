@@ -10,8 +10,8 @@ import org.deuce.benchmark.stmbench7.impl.backend.BackendFactoryImpl;
 import org.deuce.benchmark.stmbench7.impl.core.DesignObjFactoryImpl;
 
 /**
- * An initializer that provides non-thread-safe (default)
- * factories. Should normally be used only with a single thread.
+ * An initializer that provides non-thread-safe (default) factories. Should
+ * normally be used only with a single thread.
  */
 @Immutable
 public class NoSynchronizationInitializer implements SynchMethodInitializer {

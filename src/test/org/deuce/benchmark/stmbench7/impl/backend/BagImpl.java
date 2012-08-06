@@ -16,11 +16,11 @@ public class BagImpl<E> extends ArrayList<E> {
 	public BagImpl() {
 		super();
 	}
-	
+
 	public BagImpl(BagImpl<E> source) {
 		super(source);
 	}
-	
+
 	public ImmutableCollection<E> immutableView() {
 		return new ImmutableViewImpl<E>(this);
 	}

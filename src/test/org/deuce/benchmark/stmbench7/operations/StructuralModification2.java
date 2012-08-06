@@ -16,7 +16,7 @@ import org.deuce.benchmark.stmbench7.core.OperationFailedException;
 public class StructuralModification2 extends StructuralModification1 {
 
 	protected Index<Integer, CompositePart> compositePartIdIndex;
-	
+
 	public StructuralModification2(Setup oo7setup) {
 
 		super(oo7setup);
@@ -24,18 +24,20 @@ public class StructuralModification2 extends StructuralModification1 {
 	}
 
 	@Override
-	@Transactional @Update
+	@Transactional
+	@Update
 	public int performOperation() throws OperationFailedException {
 		int partToRemoveId = ThreadRandom.nextInt(Parameters.MaxCompParts) + 1;
 		CompositePart partToRemove = compositePartIdIndex.get(partToRemoveId);
-		if(partToRemove == null) throw new OperationFailedException();
-		
+		if (partToRemove == null)
+			throw new OperationFailedException();
+
 		compositePartBuilder.unregisterAndRecycleCompositePart(partToRemove);
 		return 0;
 	}
-	
-    @Override
-    public OperationId getOperationId() {
-    	return OperationId.SM2;
-    }
+
+	@Override
+	public OperationId getOperationId() {
+		return OperationId.SM2;
+	}
 }

@@ -16,7 +16,7 @@
 			</manifest>
 		</jar>
 	</target>
-	
+
 	<target name="tests-jar" depends="compile-tests">
 		<jar destfile="bin/deuceTests.jar">
 			<fileset dir="bin/tests"/>
@@ -55,7 +55,7 @@
 			<param name="exclude" value="org/deuce/**"/>
 		</antcall>
 	</target>
-	
+
 	<target name="junits">
 		<mkdir dir="bin/junit"/>
 		<echo message="Test ${sysprop}=${value}"/>
@@ -72,8 +72,8 @@
 			</batchTest>
 		</junit>
 	</target>
-	
-	<target name="compile-source">
+
+	<target name="compile-source" >
 		<mkdir dir="bin/classes"/>
 		<javac fork="true" srcdir="src"  source="1.6" target="1.6"
 			destdir="bin/classes"
@@ -82,7 +82,7 @@
 			debug="true"
 		/>
 	</target>
-	
+
 	<target name="compile-tests" depends="compile-source">
 		<mkdir dir="bin/tests"/>
 		<javac fork="true" srcdir="src" source="1.6" target="1.6"

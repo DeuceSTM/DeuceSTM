@@ -72,117 +72,119 @@ package jstamp.vacation;
  */
 
 public class Reservation {
-  public Reservation(int id, int numTotal, int price) {
-    this.id=id;
-    this.numUsed=0;
-    this.numFree=numTotal;
-    this.numTotal=numTotal;
-    this.price=price;
-    checkReservation();
-  }
+	public Reservation(int id, int numTotal, int price) {
+		this.id = id;
+		this.numUsed = 0;
+		this.numFree = numTotal;
+		this.numTotal = numTotal;
+		this.price = price;
+		checkReservation();
+	}
 
-  int id;
-  int numUsed;
-  int numFree;
-  int numTotal;
-  int price;
+	int id;
+	int numUsed;
+	int numFree;
+	int numTotal;
+	int price;
 
-/* =============================================================================
- * checkReservation
- * -- Check if consistent
- * =============================================================================
- */
-  public void checkReservation() {
-    int numUsed = this.numUsed;
-    int numFree = this.numFree;
-    int numTotal = this.numTotal;
-    int price = this.price;
-  }
-  
-  
-  /* =============================================================================
-   * reservation_addToTotal
-   * -- Adds if 'num' > 0, removes if 'num' < 0;
-   * -- Returns TRUE on success, else FALSE
-   * =============================================================================
-   */
-  boolean reservation_addToTotal (int num) {
-    if (numFree + num < 0) {
-      return false;
-    }
-    
-    numFree+=num;
-    numTotal+=num;
-    checkReservation();
-    return true;
-  }
-  
-  
-  /* =============================================================================
-   * reservation_make
-   * -- Returns TRUE on success, else FALSE
-   * =============================================================================
-   */
-  public boolean reservation_make() {
-    if (numFree < 1) {
-      return false;
-    }
-    numUsed++;
-    numFree--;
-    checkReservation();
-    return true;
-  }
-  
+	/*
+	 * ==========================================================================
+	 * === checkReservation -- Check if consistent
+	 * ==============================
+	 * ===============================================
+	 */
+	public void checkReservation() {
+		int numUsed = this.numUsed;
+		int numFree = this.numFree;
+		int numTotal = this.numTotal;
+		int price = this.price;
+	}
 
-/* =============================================================================
- * reservation_cancel
- * -- Returns TRUE on success, else FALSE
- * =============================================================================
- */
-  boolean reservation_cancel() {
-    if (numUsed < 1) {
-      return false;
-    }
-    numUsed--;
-    numFree++;
-    checkReservation();
-    return true;
-  }
+	/*
+	 * ==========================================================================
+	 * === reservation_addToTotal -- Adds if 'num' > 0, removes if 'num' < 0; --
+	 * Returns TRUE on success, else FALSE
+	 * ======================================
+	 * =======================================
+	 */
+	boolean reservation_addToTotal(int num) {
+		if (numFree + num < 0) {
+			return false;
+		}
 
-  
-/* =============================================================================
- * reservation_updatePrice
- * -- Failure if 'price' < 0
- * -- Returns TRUE on success, else FALSE
- * =============================================================================
- */
-  boolean reservation_updatePrice (int newPrice) {
-    if (newPrice < 0) {
-      return false;
-    }
-    
-    this.price=newPrice;
-    checkReservation();
-    return true;
-  }
+		numFree += num;
+		numTotal += num;
+		checkReservation();
+		return true;
+	}
 
+	/*
+	 * ==========================================================================
+	 * === reservation_make -- Returns TRUE on success, else FALSE
+	 * ==============
+	 * ===============================================================
+	 */
+	public boolean reservation_make() {
+		if (numFree < 1) {
+			return false;
+		}
+		numUsed++;
+		numFree--;
+		checkReservation();
+		return true;
+	}
 
-/* =============================================================================
- * reservation_compare
- * -- Returns -1 if A < B, 0 if A = B, 1 if A > B
- * =============================================================================
- */
-  int reservation_compare (Reservation aPtr, Reservation bPtr) {
-    return aPtr.id-bPtr.id;
-  }
+	/*
+	 * ==========================================================================
+	 * === reservation_cancel -- Returns TRUE on success, else FALSE
+	 * ============
+	 * =================================================================
+	 */
+	boolean reservation_cancel() {
+		if (numUsed < 1) {
+			return false;
+		}
+		numUsed--;
+		numFree++;
+		checkReservation();
+		return true;
+	}
 
+	/*
+	 * ==========================================================================
+	 * === reservation_updatePrice -- Failure if 'price' < 0 -- Returns TRUE on
+	 * success, else FALSE
+	 * ======================================================
+	 * =======================
+	 */
+	boolean reservation_updatePrice(int newPrice) {
+		if (newPrice < 0) {
+			return false;
+		}
 
-/* =============================================================================
- * reservation_hash
- * =============================================================================
- */
-  int reservation_hash() {
-    return id;
-  }
-  
+		this.price = newPrice;
+		checkReservation();
+		return true;
+	}
+
+	/*
+	 * ==========================================================================
+	 * === reservation_compare -- Returns -1 if A < B, 0 if A = B, 1 if A > B
+	 * ====
+	 * =========================================================================
+	 */
+	int reservation_compare(Reservation aPtr, Reservation bPtr) {
+		return aPtr.id - bPtr.id;
+	}
+
+	/*
+	 * ==========================================================================
+	 * === reservation_hash
+	 * ======================================================
+	 * =======================
+	 */
+	int reservation_hash() {
+		return id;
+	}
+
 }

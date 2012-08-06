@@ -9,7 +9,7 @@ public class DeuceSTMOperationExecutorFactory extends OperationExecutorFactory {
 
 	@Override
 	public OperationExecutor createOperationExecutor(Operation op) {
-		if(op.getOperationId() != null)
+		if (op.getOperationId() != null)
 			return new DeuceSTMOperationExecutor(op);
 		return new DefaultOperationExecutor(op);
 	}

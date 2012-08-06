@@ -2,13 +2,13 @@ package org.deuce.benchmark.intset;
 
 import java.util.Random;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  * @since 0.1
  */
-@Exclude
+@ExcludeInternal
 public class Benchmark implements org.deuce.benchmark.Benchmark {
 
 	IntSet m_set;
@@ -56,7 +56,8 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 				error = true;
 		}
 		if (error) {
-			System.out.println("Benchmark arguments: (LinkedList|SkipList|RBTree) [-i initial-size] [-r range] [-w write-rate]");
+			System.out
+					.println("Benchmark arguments: (LinkedList|SkipList|RBTree) [-i initial-size] [-r range] [-w write-rate]");
 			System.exit(1);
 		}
 		Random random = new Random();
@@ -77,9 +78,9 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 		int remove = 0;
 		int contains = 0;
 		for (int i = 0; i < threads.length; i++) {
-			add += ((BenchmarkThread)threads[i]).m_nb_add;
-			remove += ((BenchmarkThread)threads[i]).m_nb_remove;
-			contains += ((BenchmarkThread)threads[i]).m_nb_contains;
+			add += ((BenchmarkThread) threads[i]).m_nb_add;
+			remove += ((BenchmarkThread) threads[i]).m_nb_remove;
+			contains += ((BenchmarkThread) threads[i]).m_nb_contains;
 		}
 		return "A=" + add + ", R=" + remove + ", C=" + contains;
 	}

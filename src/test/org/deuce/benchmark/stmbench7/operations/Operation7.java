@@ -13,41 +13,42 @@ import org.deuce.benchmark.stmbench7.core.ComplexAssembly;
 import org.deuce.benchmark.stmbench7.core.OperationFailedException;
 
 /**
- * Operation OP7 (see the specification).
- * Read-only, search on index.
+ * Operation OP7 (see the specification). Read-only, search on index.
  */
 public class Operation7 extends BaseOperation {
 
-	protected Index<Integer,BaseAssembly> baseAssemblyIdIndex;
-	
+	protected Index<Integer, BaseAssembly> baseAssemblyIdIndex;
+
 	public Operation7(Setup oo7setup) {
 		this.baseAssemblyIdIndex = oo7setup.getBaseAssemblyIdIndex();
 	}
-	
+
 	@Override
-	@Transactional @ReadOnly
+	@Transactional
+	@ReadOnly
 	public int performOperation() throws OperationFailedException {
-		int baseAssemblyId = ThreadRandom.nextInt(Parameters.MaxBaseAssemblies) +1;
+		int baseAssemblyId = ThreadRandom.nextInt(Parameters.MaxBaseAssemblies) + 1;
 		BaseAssembly baseAssembly = baseAssemblyIdIndex.get(baseAssemblyId);
-		if(baseAssembly == null) throw new OperationFailedException();
-		
+		if (baseAssembly == null)
+			throw new OperationFailedException();
+
 		ComplexAssembly superAssembly = baseAssembly.getSuperAssembly();
-		
+
 		int count = 0;
-		for(Assembly siblingAssembly : superAssembly.getSubAssemblies()) {
-			performOperationInBaseAssembly((BaseAssembly)siblingAssembly);
+		for (Assembly siblingAssembly : superAssembly.getSubAssemblies()) {
+			performOperationInBaseAssembly((BaseAssembly) siblingAssembly);
 			count++;
 		}
-		
+
 		return count;
 	}
-	
+
 	protected void performOperationInBaseAssembly(BaseAssembly assembly) {
 		assembly.nullOperation();
 	}
-	
-    @Override
-    public OperationId getOperationId() {
-    	return OperationId.OP7;
-    }
+
+	@Override
+	public OperationId getOperationId() {
+		return OperationId.OP7;
+	}
 }

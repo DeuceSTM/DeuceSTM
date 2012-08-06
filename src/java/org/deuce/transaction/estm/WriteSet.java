@@ -3,16 +3,16 @@ package org.deuce.transaction.estm;
 import org.deuce.transaction.estm.Context.LockTable;
 import org.deuce.transaction.estm.field.ReadFieldAccess.Field.Type;
 import org.deuce.transaction.estm.field.WriteFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 import org.deuce.trove.THashMap;
 
 /**
- * The set of write entries maintained by the transaction
- * Based on the code from Pascal Felber 
+ * The set of write entries maintained by the transaction Based on the code from
+ * Pascal Felber
  * 
  * @author Vincent Gramoli
  */
-@Exclude
+@ExcludeInternal
 final public class WriteSet {
 
 	private static final int DEFAULT_CAPACITY = 16;
@@ -38,25 +38,31 @@ final public class WriteSet {
 	}
 
 	/**
-	 * Indicates whether the given field corresponds
-	 * to an existing write entry of the read set
+	 * Indicates whether the given field corresponds to an existing write entry
+	 * of the read set
 	 * 
-	 * @param hash the identifier of the field
-	 * @param obj its object
-	 * @param field the protected field
+	 * @param hash
+	 *            the identifier of the field
+	 * @param obj
+	 *            its object
+	 * @param field
+	 *            the protected field
 	 * @return the value if owned, null otherwise
 	 */
 	public Object getValue(int hash, Object obj, long field) {
 		WriteFieldAccess w = this.get(hash, obj, field);
 		return (w != null) ? w.getValue() : null;
 	}
-	
+
 	/**
 	 * Returns the corresponding write entry
 	 * 
-	 * @param hash the identifier of the field
-	 * @param obj its object
-	 * @param field the protected field
+	 * @param hash
+	 *            the identifier of the field
+	 * @param obj
+	 *            its object
+	 * @param field
+	 *            the protected field
 	 * @return the value if owned, null otherwise
 	 */
 	public WriteFieldAccess get(int hash, Object obj, long field) {
@@ -117,6 +123,5 @@ final public class WriteSet {
 			LockTable.setAndReleaseLock(w.getHash(), w.getLock());
 		}
 	}
-	
 
 }

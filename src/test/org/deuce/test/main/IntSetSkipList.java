@@ -73,10 +73,10 @@ public class IntSetSkipList implements IntSet {
 		m_maxLevel = maxLevel;
 		m_probability = probability;
 		m_level = 0;
-	    m_head = new Node(m_maxLevel, Integer.MIN_VALUE);
-	    Node tail = new Node(m_maxLevel, Integer.MAX_VALUE);
-	    for (int i = 0; i <= m_maxLevel; i++)
-	    	m_head.setForward(i, tail);
+		m_head = new Node(m_maxLevel, Integer.MIN_VALUE);
+		Node tail = new Node(m_maxLevel, Integer.MAX_VALUE);
+		for (int i = 0; i <= m_maxLevel; i++)
+			m_head.setForward(i, tail);
 	}
 
 	public IntSetSkipList() {
@@ -94,7 +94,7 @@ public class IntSetSkipList implements IntSet {
 	public boolean add(int value) {
 		boolean result;
 
-	    Node[] update = new Node[m_maxLevel + 1];
+		Node[] update = new Node[m_maxLevel + 1];
 		Node node = m_head;
 
 		for (int i = m_level; i >= 0; i--) {
@@ -118,8 +118,8 @@ public class IntSetSkipList implements IntSet {
 			}
 			node = new Node(level, value);
 			for (int i = 0; i <= level; i++) {
-		    	node.setForward(i, update[i].getForward(i));
-		    	update[i].setForward(i, node);
+				node.setForward(i, update[i].getForward(i));
+				update[i].setForward(i, node);
 			}
 			result = true;
 		}
@@ -131,7 +131,7 @@ public class IntSetSkipList implements IntSet {
 	public boolean remove(int value) {
 		boolean result;
 
-	    Node[] update = new Node[m_maxLevel + 1];
+		Node[] update = new Node[m_maxLevel + 1];
 		Node node = m_head;
 
 		for (int i = m_level; i >= 0; i--) {
@@ -189,7 +189,7 @@ public class IntSetSkipList implements IntSet {
 
 		result += "Elements:\n";
 		int[] countLevel = new int[m_maxLevel + 1];
-	    Node element = m_head.getForward(0);
+		Node element = m_head.getForward(0);
 		while (element.getValue() < Integer.MAX_VALUE) {
 			countLevel[element.getLevel()]++;
 			result += "  " + element.toString() + "\n";

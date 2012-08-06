@@ -4,21 +4,22 @@ import java.util.Iterator;
 
 import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
 import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 import org.deuce.trove.THashMap;
 import org.deuce.trove.TObjectProcedure;
 
 /**
- * Represents the transaction write set. Based on Guy Korland's work on <code>org.deuce.transaction.tl2.*</code>
+ * Represents the transaction write set. Based on Guy Korland's work on
+ * <code>org.deuce.transaction.tl2.*</code>
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  */
-@Exclude
-public class WriteSet implements Iterable<WriteFieldAccess>{
-	
-	final private THashMap<WriteFieldAccess,WriteFieldAccess> writeSet = 
-		new THashMap<WriteFieldAccess,WriteFieldAccess>( 16);
-	
+@ExcludeInternal
+public class WriteSet implements Iterable<WriteFieldAccess> {
+
+	final private THashMap<WriteFieldAccess, WriteFieldAccess> writeSet = new THashMap<WriteFieldAccess, WriteFieldAccess>(
+			16);
+
 	public void clear() {
 		writeSet.clear();
 	}
@@ -33,22 +34,22 @@ public class WriteSet implements Iterable<WriteFieldAccess>{
 		return writeSet.values().iterator();
 	}
 
-	public boolean forEach(TObjectProcedure<WriteFieldAccess> procedure){
+	public boolean forEach(TObjectProcedure<WriteFieldAccess> procedure) {
 		return writeSet.forEach(procedure);
 	}
-	
+
 	public void put(WriteFieldAccess write) {
 		// Add to write set
-		writeSet.put( write, write);
+		writeSet.put(write, write);
 	}
-	
+
 	public WriteFieldAccess contains(ReadFieldAccess read) {
 		// Check if it is already included in the write set
-		return writeSet.get( read);
+		return writeSet.get(read);
 	}
-	
+
 	public int size() {
 		return writeSet.size();
 	}
-	
+
 }

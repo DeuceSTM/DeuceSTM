@@ -4,65 +4,65 @@ import org.deuce.benchmark.stmbench7.core.CompositePart;
 import org.deuce.benchmark.stmbench7.core.Document;
 import org.deuce.benchmark.stmbench7.core.RuntimeError;
 
-
 /**
- * STMBench7 benchmark Document (see the specification).
- * Default implementation.
+ * STMBench7 benchmark Document (see the specification). Default implementation.
  */
 public class DocumentImpl implements Document, Cloneable {
-    
-    private final int id;
-    private String title;
-    private String text;
-    private CompositePart part;
 
-    public DocumentImpl(int id, String title, String text) {
-    	this.id = id;
-    	this.title = title;
-    	this.text = text;
-    }
+	private final int id;
+	private String title;
+	private String text;
+	private CompositePart part;
 
-    public DocumentImpl(DocumentImpl source) {
-    	this.title = source.title;
-    	this.id = source.id;
-    	this.text = source.text;
-    	this.part = source.part;
-    }
-    
-    public void setPart(CompositePart part) {
-    	this.part = part;
-    }
+	public DocumentImpl(int id, String title, String text) {
+		this.id = id;
+		this.title = title;
+		this.text = text;
+	}
 
-    public CompositePart getCompositePart() {
-    	return part;
-    }
+	public DocumentImpl(DocumentImpl source) {
+		this.title = source.title;
+		this.id = source.id;
+		this.text = source.text;
+		this.part = source.part;
+	}
 
-    public int getDocumentId() {
-    	return id;
-    }
+	public void setPart(CompositePart part) {
+		this.part = part;
+	}
 
-    public String getTitle() {
-    	return title;
-    }
+	public CompositePart getCompositePart() {
+		return part;
+	}
 
-    public void nullOperation() {
-    }
+	public int getDocumentId() {
+		return id;
+	}
 
-    public int searchText(char symbol) {
-    	int occurences = 0;
+	public String getTitle() {
+		return title;
+	}
 
-    	for(int i = 0; i < text.length(); i++)
-    		if(text.charAt(i) == symbol) occurences++;
+	public void nullOperation() {
+	}
 
-    	return occurences;
-    }
+	public int searchText(char symbol) {
+		int occurences = 0;
 
-    public int replaceText(String from, String to) {
-    	if(! text.startsWith(from)) return 0;
+		for (int i = 0; i < text.length(); i++)
+			if (text.charAt(i) == symbol)
+				occurences++;
 
-    	text = text.replaceFirst(from, to);
-    	return 1;
-    }
+		return occurences;
+	}
+
+	public int replaceText(String from, String to) {
+		if (!text.startsWith(from))
+			return 0;
+
+		text = text.replaceFirst(from, to);
+		return 1;
+	}
 
 	public boolean textBeginsWith(String prefix) {
 		return text.startsWith(prefix);
@@ -74,7 +74,8 @@ public class DocumentImpl implements Document, Cloneable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if(! (obj instanceof Document)) return false;
+		if (!(obj instanceof Document))
+			return false;
 		return ((Document) obj).getDocumentId() == id;
 	}
 
@@ -87,8 +88,7 @@ public class DocumentImpl implements Document, Cloneable {
 	public Object clone() {
 		try {
 			return super.clone();
-		}
-		catch(CloneNotSupportedException e) {
+		} catch (CloneNotSupportedException e) {
 			throw new RuntimeError(e);
 		}
 	}

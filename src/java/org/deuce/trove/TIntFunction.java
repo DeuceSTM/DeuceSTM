@@ -22,22 +22,22 @@ package org.deuce.trove;
 // THIS IS A GENERATED CLASS. DO NOT HAND EDIT! //
 //////////////////////////////////////////////////
 
-
 /**
  * Interface for functions that accept and return one int primitive.
- *
- * Created: Mon Nov  5 22:19:36 2001
- *
+ * 
+ * Created: Mon Nov 5 22:19:36 2001
+ * 
  * @author Eric D. Friedman
  * @version $Id: PFunction.template,v 1.1 2006/11/10 23:28:00 robeden Exp $
  */
 
 public interface TIntFunction {
-    /**
-     * Execute this function with <tt>value</tt>
-     *
-     * @param value a <code>int</code> input
-     * @return a <code>int</code> result
-     */
-    public int execute(int value);
+	/**
+	 * Execute this function with <tt>value</tt>
+	 * 
+	 * @param value
+	 *            a <code>int</code> input
+	 * @return a <code>int</code> result
+	 */
+	public int execute(int value);
 }// TIntFunction

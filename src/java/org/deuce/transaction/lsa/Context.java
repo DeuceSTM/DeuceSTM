@@ -18,21 +18,20 @@ import org.deuce.transform.Exclude;
 @Exclude
 final public class Context implements org.deuce.transaction.Context {
 
-	final private static TransactionException WRITE_FAILURE_EXCEPTION =
-		new TransactionException("Fail on write (read previous version).");
+	final private static TransactionException WRITE_FAILURE_EXCEPTION = new TransactionException(
+			"Fail on write (read previous version).");
 
-	final private static TransactionException EXTEND_FAILURE_EXCEPTION =
-		new TransactionException("Fail on extend.");
+	final private static TransactionException EXTEND_FAILURE_EXCEPTION = new TransactionException("Fail on extend.");
 
-	final private static TransactionException READ_ONLY_FAILURE_EXCEPTION =
-		new TransactionException("Fail on write (read-only hint was set).");
+	final private static TransactionException READ_ONLY_FAILURE_EXCEPTION = new TransactionException(
+			"Fail on write (read-only hint was set).");
 
 	final private static AtomicInteger clock = new AtomicInteger(0);
 	final private static AtomicInteger threadID = new AtomicInteger(0);
 
 	final private static boolean RO_HINT = Boolean.getBoolean("org.deuce.transaction.lsa.rohint");
 
-	//Global lock used to allow only one irrevocable transaction solely. 
+	// Global lock used to allow only one irrevocable transaction solely.
 	final private static ReentrantReadWriteLock irrevocableAccessLock = new ReentrantReadWriteLock();
 	private boolean irrevocableState = false;
 
@@ -61,13 +60,13 @@ final public class Context implements org.deuce.transaction.Context {
 	public void init(int blockId, String metainf) {
 		readSet.clear();
 		writeSet.clear();
-		
-		//Lock according to the transaction irrevocable state
-		if(irrevocableState)
+
+		// Lock according to the transaction irrevocable state
+		if (irrevocableState)
 			irrevocableAccessLock.writeLock().lock();
 		else
 			irrevocableAccessLock.readLock().lock();
-		
+
 		startTime = endTime = clock.get();
 		if (RO_HINT) {
 			atomicBlockId = blockId;
@@ -77,7 +76,7 @@ final public class Context implements org.deuce.transaction.Context {
 
 	@Override
 	public boolean commit() {
-		try{
+		try {
 			if (!writeSet.isEmpty()) {
 				int newClock = clock.incrementAndGet();
 				if (newClock != startTime + 1 && !readSet.validate(id)) {
@@ -88,13 +87,11 @@ final public class Context implements org.deuce.transaction.Context {
 				writeSet.commit(newClock);
 			}
 			return true;
-		}
-		finally{
-			if(irrevocableState){
+		} finally {
+			if (irrevocableState) {
 				irrevocableState = false;
 				irrevocableAccessLock.writeLock().unlock();
-			}
-			else{
+			} else {
 				irrevocableAccessLock.readLock().unlock();
 			}
 
@@ -184,7 +181,8 @@ final public class Context implements org.deuce.transaction.Context {
 				LockTable.setAndReleaseLock(hash, timestamp);
 				throw WRITE_FAILURE_EXCEPTION;
 			}
-			// We delay validation until later (although we could already validate once here)
+			// We delay validation until later (although we could already
+			// validate once here)
 		}
 
 		// Add to write set
@@ -283,7 +281,8 @@ final public class Context implements org.deuce.transaction.Context {
 
 	@Override
 	public void onIrrevocableAccess() {
-		if(irrevocableState) // already in irrevocable state so no need to restart transaction.
+		if (irrevocableState) // already in irrevocable state so no need to
+								// restart transaction.
 			return;
 
 		irrevocableState = true;

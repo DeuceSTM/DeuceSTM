@@ -13,20 +13,21 @@ import org.deuce.benchmark.stmbench7.core.OperationFailedException;
 public class StructuralModification1 extends BaseOperation {
 
 	protected CompositePartBuilder compositePartBuilder;
-	
+
 	public StructuralModification1(Setup oo7setup) {
 		compositePartBuilder = oo7setup.getCompositePartBuilder();
 	}
 
 	@Override
-	@Transactional @Update
+	@Transactional
+	@Update
 	public int performOperation() throws OperationFailedException {
 		compositePartBuilder.createAndRegisterCompositePart();
 		return 0;
 	}
-	
-    @Override
-    public OperationId getOperationId() {
-    	return OperationId.SM1;
-    }
+
+	@Override
+	public OperationId getOperationId() {
+		return OperationId.SM1;
+	}
 }

@@ -7,8 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates objects that are used by transactions and thus should
- * be atomic.
+ * Annotates objects that are used by transactions and thus should be atomic.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

@@ -42,79 +42,79 @@ import org.deuce.objectweb.asm.Attribute;
  */
 public abstract class MemberNode {
 
-    /**
-     * The runtime visible annotations of this class, field or method. This list
-     * is a list of {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
-     * @associates org.deuce.objectweb.asm.tree.AnnotationNode
-     * @label visible
-     */
-    public List visibleAnnotations;
+	/**
+	 * The runtime visible annotations of this class, field or method. This list
+	 * is a list of {@link AnnotationNode} objects. May be <tt>null</tt>.
+	 * 
+	 * @associates org.deuce.objectweb.asm.tree.AnnotationNode
+	 * @label visible
+	 */
+	public List visibleAnnotations;
 
-    /**
-     * The runtime invisible annotations of this class, field or method. This
-     * list is a list of {@link AnnotationNode} objects. May be <tt>null</tt>.
-     * 
-     * @associates org.deuce.objectweb.asm.tree.AnnotationNode
-     * @label invisible
-     */
-    public List invisibleAnnotations;
+	/**
+	 * The runtime invisible annotations of this class, field or method. This
+	 * list is a list of {@link AnnotationNode} objects. May be <tt>null</tt>.
+	 * 
+	 * @associates org.deuce.objectweb.asm.tree.AnnotationNode
+	 * @label invisible
+	 */
+	public List invisibleAnnotations;
 
-    /**
-     * The non standard attributes of this class, field or method. This list is
-     * a list of {@link Attribute} objects. May be <tt>null</tt>.
-     * 
-     * @associates org.deuce.objectweb.asm.Attribute
-     */
-    public List attrs;
+	/**
+	 * The non standard attributes of this class, field or method. This list is
+	 * a list of {@link Attribute} objects. May be <tt>null</tt>.
+	 * 
+	 * @associates org.deuce.objectweb.asm.Attribute
+	 */
+	public List attrs;
 
-    /**
-     * Constructs a new {@link MemberNode}.
-     */
-    protected MemberNode() {
-    }
+	/**
+	 * Constructs a new {@link MemberNode}.
+	 */
+	protected MemberNode() {
+	}
 
-    /**
-     * Visits an annotation of this class, field or method.
-     * 
-     * @param desc the class descriptor of the annotation class.
-     * @param visible <tt>true</tt> if the annotation is visible at runtime.
-     * @return a visitor to visit the annotation values.
-     */
-    public AnnotationVisitor visitAnnotation(
-        final String desc,
-        final boolean visible)
-    {
-        AnnotationNode an = new AnnotationNode(desc);
-        if (visible) {
-            if (visibleAnnotations == null) {
-                visibleAnnotations = new ArrayList(1);
-            }
-            visibleAnnotations.add(an);
-        } else {
-            if (invisibleAnnotations == null) {
-                invisibleAnnotations = new ArrayList(1);
-            }
-            invisibleAnnotations.add(an);
-        }
-        return an;
-    }
+	/**
+	 * Visits an annotation of this class, field or method.
+	 * 
+	 * @param desc
+	 *            the class descriptor of the annotation class.
+	 * @param visible
+	 *            <tt>true</tt> if the annotation is visible at runtime.
+	 * @return a visitor to visit the annotation values.
+	 */
+	public AnnotationVisitor visitAnnotation(final String desc, final boolean visible) {
+		AnnotationNode an = new AnnotationNode(desc);
+		if (visible) {
+			if (visibleAnnotations == null) {
+				visibleAnnotations = new ArrayList(1);
+			}
+			visibleAnnotations.add(an);
+		} else {
+			if (invisibleAnnotations == null) {
+				invisibleAnnotations = new ArrayList(1);
+			}
+			invisibleAnnotations.add(an);
+		}
+		return an;
+	}
 
-    /**
-     * Visits a non standard attribute of this class, field or method.
-     * 
-     * @param attr an attribute.
-     */
-    public void visitAttribute(final Attribute attr) {
-        if (attrs == null) {
-            attrs = new ArrayList(1);
-        }
-        attrs.add(attr);
-    }
+	/**
+	 * Visits a non standard attribute of this class, field or method.
+	 * 
+	 * @param attr
+	 *            an attribute.
+	 */
+	public void visitAttribute(final Attribute attr) {
+		if (attrs == null) {
+			attrs = new ArrayList(1);
+		}
+		attrs.add(attr);
+	}
 
-    /**
-     * Visits the end of this class, field or method.
-     */
-    public void visitEnd() {
-    }
+	/**
+	 * Visits the end of this class, field or method.
+	 */
+	public void visitEnd() {
+	}
 }

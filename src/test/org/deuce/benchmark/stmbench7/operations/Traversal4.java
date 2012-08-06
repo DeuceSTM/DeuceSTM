@@ -10,37 +10,36 @@ import org.deuce.benchmark.stmbench7.core.Document;
 import org.deuce.benchmark.stmbench7.core.RuntimeError;
 
 /**
- * Traversal T4 (see the specification).
- * Read-only, long.
+ * Traversal T4 (see the specification). Read-only, long.
  */
 public class Traversal4 extends Traversal1 {
 
-    public Traversal4(Setup oo7setup) {
-    	super(oo7setup);
-    }
+	public Traversal4(Setup oo7setup) {
+		super(oo7setup);
+	}
 
-    @Override
-    protected int traverse(CompositePart component) {
-    	Document documentation = component.getDocumentation();
-    	return traverse(documentation);
-    }
-    
-    protected int traverse(Document documentation) {
-    	return documentation.searchText('I');
-    }
+	@Override
+	protected int traverse(CompositePart component) {
+		Document documentation = component.getDocumentation();
+		return traverse(documentation);
+	}
 
-    @Override
-    protected int traverse(AtomicPart part, HashSet<AtomicPart> setOfVisitedPartIds) {
-    	throw new RuntimeError("T4: traverse(AtomicPart, HashSet<AtomicPart>) called!");
-    }
+	protected int traverse(Document documentation) {
+		return documentation.searchText('I');
+	}
 
-    @Override
-    protected int performOperationInAtomicPart(AtomicPart part, HashSet<AtomicPart> setOfVisitedPartIds) {
-    	throw new RuntimeError("T4: performOperationInAtomicPart(..) called!");
-    }
-    
-    @Override
-    public OperationId getOperationId() {
-    	return OperationId.T4;
-    }
+	@Override
+	protected int traverse(AtomicPart part, HashSet<AtomicPart> setOfVisitedPartIds) {
+		throw new RuntimeError("T4: traverse(AtomicPart, HashSet<AtomicPart>) called!");
+	}
+
+	@Override
+	protected int performOperationInAtomicPart(AtomicPart part, HashSet<AtomicPart> setOfVisitedPartIds) {
+		throw new RuntimeError("T4: performOperationInAtomicPart(..) called!");
+	}
+
+	@Override
+	public OperationId getOperationId() {
+		return OperationId.T4;
+	}
 }

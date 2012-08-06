@@ -12,18 +12,18 @@ import org.deuce.transaction.norec.field.IntFieldAccess;
 import org.deuce.transaction.norec.field.LongFieldAccess;
 import org.deuce.transaction.norec.field.ObjectFieldAccess;
 import org.deuce.transaction.norec.field.ShortFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public class ReadSet {
 
 	private static final int DEFAULT_CAPACITY = 1024;
 
 	private ArrayList<FieldAccess> entries;
-	
+
 	public ReadSet(int initialCapacity) {
 		entries = new ArrayList<FieldAccess>(initialCapacity);
 	}

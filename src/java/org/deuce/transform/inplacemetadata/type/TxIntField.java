@@ -7,7 +7,7 @@ public class TxIntField extends TxField {
 	public TxIntField(Object ref, long address) {
 		super(ref, address);
 	}
-	
+
 	public final int read() {
 		return UnsafeHolder.getUnsafe().getInt(ref, address);
 	}

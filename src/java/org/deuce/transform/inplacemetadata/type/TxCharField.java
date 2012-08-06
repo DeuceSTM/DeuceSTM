@@ -7,7 +7,7 @@ public class TxCharField extends TxField {
 	public TxCharField(Object ref, long address) {
 		super(ref, address);
 	}
-	
+
 	public final char read() {
 		return UnsafeHolder.getUnsafe().getChar(ref, address);
 	}

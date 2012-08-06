@@ -31,9 +31,9 @@ import org.deuce.objectweb.asm.MethodAdapter;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Type;
 
-public class MethodTransformer extends MethodAdapter{
+public class MethodTransformer extends MethodAdapter {
 
-	final static private String ATOMIC_METHOD_POST = "__atomic__"; 
+	final static private String ATOMIC_METHOD_POST = "__atomic__";
 
 	private final ClassTransformer classTransformer;
 	private final int access;
@@ -41,11 +41,12 @@ public class MethodTransformer extends MethodAdapter{
 	private final String desc;
 	private final String signature;
 	private final String[] exceptions;
-	
-	private MethodVisitor atomicVisitor = null; // visitor of the wrapping method if there's one 
 
-	public MethodTransformer( MethodVisitor visitor, int access, String name, String desc,
-			String signature, String[] exceptions, ClassTransformer classTransformer) {
+	private MethodVisitor atomicVisitor = null; // visitor of the wrapping
+												// method if there's one
+
+	public MethodTransformer(MethodVisitor visitor, int access, String name, String desc, String signature,
+			String[] exceptions, ClassTransformer classTransformer) {
 		super(visitor);
 		this.access = access;
 		this.name = name;
@@ -58,24 +59,25 @@ public class MethodTransformer extends MethodAdapter{
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
 		boolean atomic = Type.getDescriptor(Atomic.class).equals(desc);
-		if( atomic) { 
+		if (atomic) {
 			atomicVisitor = mv;
-			
+
 			// FIXME handle native methods
-			
+
 			buildAtomic();
 
 			// replace with the logic method
-			mv = classTransformer.createMethod(
-					(access & ~ACC_PUBLIC & ~ACC_PROTECTED) | ACC_PRIVATE,
-					name + ATOMIC_METHOD_POST, this.desc, this.signature, this.exceptions);
+			mv = classTransformer.createMethod((access & ~ACC_PUBLIC & ~ACC_PROTECTED) | ACC_PRIVATE, name
+					+ ATOMIC_METHOD_POST, this.desc, this.signature, this.exceptions);
 		}
-		
-		if( atomicVisitor != null){
-			return atomicVisitor.visitAnnotation(desc, visible); // annotate the wrapping method
+
+		if (atomicVisitor != null) {
+			return atomicVisitor.visitAnnotation(desc, visible); // annotate the
+																	// wrapping
+																	// method
 		}
-		
-		return super.visitAnnotation(desc, visible); 
+
+		return super.visitAnnotation(desc, visible);
 	}
 
 	private void buildAtomic() {
@@ -86,28 +88,27 @@ public class MethodTransformer extends MethodAdapter{
 
 		atomicVisitor.visitCode();
 
-		// enter synchronized block 
+		// enter synchronized block
 		Label l0 = new Label();
 		Label l1 = new Label();
 		Label l2 = new Label();
 		atomicVisitor.visitTryCatchBlock(l0, l1, l2, null);
 		Label l3 = new Label();
 		atomicVisitor.visitTryCatchBlock(l2, l3, l2, null);
-		atomicVisitor.visitFieldInsn(GETSTATIC, "org/deuce/transaction/global/Lock",
-				"lock", "Ljava/lang/Object;");
+		atomicVisitor.visitFieldInsn(GETSTATIC, "org/deuce/transaction/global/Lock", "lock", "Ljava/lang/Object;");
 		atomicVisitor.visitInsn(DUP);
 		atomicVisitor.visitVarInsn(ASTORE, lockLocal);
 		atomicVisitor.visitInsn(MONITORENTER);
 		atomicVisitor.visitLabel(l0);
 
-		callMethod( atomicVisitor, types, isNonStatic); // Delegates call
+		callMethod(atomicVisitor, types, isNonStatic); // Delegates call
 
 		// exit synchronized block
 		atomicVisitor.visitVarInsn(ALOAD, lockLocal);
 		atomicVisitor.visitInsn(MONITOREXIT);
 		atomicVisitor.visitLabel(l1);
 
-		returnMethod( atomicVisitor); // Returns result
+		returnMethod(atomicVisitor); // Returns result
 
 		// exit synchronized block
 		atomicVisitor.visitLabel(l2);
@@ -116,20 +117,20 @@ public class MethodTransformer extends MethodAdapter{
 		atomicVisitor.visitLabel(l3);
 		atomicVisitor.visitInsn(ATHROW);
 
-		atomicVisitor.visitMaxs(0, 0); // compute MAX is set 
+		atomicVisitor.visitMaxs(0, 0); // compute MAX is set
 		atomicVisitor.visitEnd();
 	}
 
-	private void callMethod( MethodVisitor methodVisitor, Type[] types, boolean isNonStatic) {
+	private void callMethod(MethodVisitor methodVisitor, Type[] types, boolean isNonStatic) {
 
 		int offset = 0;
-		if( isNonStatic){
+		if (isNonStatic) {
 			methodVisitor.visitVarInsn(ALOAD, 0); // load this
 			offset = 1;
 		}
 
-		for( int i=0 ; i<types.length ;++i) {
-			switch( types[i].getSort()) {
+		for (int i = 0; i < types.length; ++i) {
+			switch (types[i].getSort()) {
 			case Type.BOOLEAN:
 			case Type.BYTE:
 			case Type.CHAR:
@@ -148,22 +149,21 @@ public class MethodTransformer extends MethodAdapter{
 				break;
 			default:
 				methodVisitor.visitVarInsn(ALOAD, i + offset);
-			break;
+				break;
 			}
 		}
-		if( isNonStatic) {
-			methodVisitor.visitMethodInsn(INVOKESPECIAL, classTransformer.getClassName(),
-					name + ATOMIC_METHOD_POST, desc);
-		}
-		else {
-			methodVisitor.visitMethodInsn(INVOKESTATIC, classTransformer.getClassName(),
-					name + ATOMIC_METHOD_POST, desc);
+		if (isNonStatic) {
+			methodVisitor.visitMethodInsn(INVOKESPECIAL, classTransformer.getClassName(), name + ATOMIC_METHOD_POST,
+					desc);
+		} else {
+			methodVisitor.visitMethodInsn(INVOKESTATIC, classTransformer.getClassName(), name + ATOMIC_METHOD_POST,
+					desc);
 		}
 	}
 
-	private void returnMethod( MethodVisitor methodVisitor) {
+	private void returnMethod(MethodVisitor methodVisitor) {
 		Type type = Type.getReturnType(desc);
-		switch( type.getSort()) {
+		switch (type.getSort()) {
 		case Type.VOID:
 			mv.visitInsn(RETURN);
 			break;
@@ -185,18 +185,18 @@ public class MethodTransformer extends MethodAdapter{
 			break;
 		default:
 			mv.visitInsn(ARETURN);
-		break;
+			break;
 		}
 	}
 
-	private int locals( Type[] types, boolean isNonStatic) {
+	private int locals(Type[] types, boolean isNonStatic) {
 
 		int locals = 0;
-		if( isNonStatic)
+		if (isNonStatic)
 			locals = 1;
 
-		for( int i=0 ; i<types.length ;++i) {
-			switch( types[i].getSort()) {
+		for (int i = 0; i < types.length; ++i) {
+			switch (types[i].getSort()) {
 			case Type.LONG:
 			case Type.DOUBLE:
 				locals += 2;

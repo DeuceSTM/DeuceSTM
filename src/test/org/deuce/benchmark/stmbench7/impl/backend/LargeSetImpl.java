@@ -5,8 +5,7 @@ import java.util.TreeSet;
 import org.deuce.benchmark.stmbench7.backend.LargeSet;
 
 /**
- * A simple implementation of a large-size set
- * (used by CompositePart objects).
+ * A simple implementation of a large-size set (used by CompositePart objects).
  * This default implementation is NOT thread-safe.
  */
 public class LargeSetImpl<E extends Comparable<E>> extends TreeSet<E> implements LargeSet<E> {
@@ -16,7 +15,7 @@ public class LargeSetImpl<E extends Comparable<E>> extends TreeSet<E> implements
 	public LargeSetImpl() {
 		super();
 	}
-	
+
 	public LargeSetImpl(LargeSetImpl<E> source) {
 		super(source);
 	}
@@ -24,7 +23,7 @@ public class LargeSetImpl<E extends Comparable<E>> extends TreeSet<E> implements
 	// The following methods are needed because TreeSet<E>
 	// implements contains(Object) and remove(Object)
 	// instead of contains(E) and remove(E).
-	
+
 	@Override
 	public boolean contains(E element) {
 		return super.contains(element);

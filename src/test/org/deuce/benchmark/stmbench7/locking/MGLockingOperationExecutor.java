@@ -14,24 +14,23 @@ import org.deuce.benchmark.stmbench7.core.OperationFailedException;
 import org.deuce.benchmark.stmbench7.core.RuntimeError;
 
 /**
- * Implementation of the OperationExecutor used by the medium-grained
- * locking method. It implements externally most of the locking
- * for each operation. The locks for each operation are predefined,
- * except for some complex assembly locks that may be acquired
- * by some complex assembly methods (see the MGLockingComplexAssemblyImpl
- * class).
+ * Implementation of the OperationExecutor used by the medium-grained locking
+ * method. It implements externally most of the locking for each operation. The
+ * locks for each operation are predefined, except for some complex assembly
+ * locks that may be acquired by some complex assembly methods (see the
+ * MGLockingComplexAssemblyImpl class).
  * 
  * Locking order:
  * <ol>
- * <li> Global structure lock,
- * <li> Manual lock,
- * <li> Base assemblies lock,
- * <li> Composite parts lock,
- * <li> Documents lock,
- * <li> Atomic parts lock,
- * <li> Complex assemblies locks: starting from the highest level
- * 		(Parameters.NumAssmLevels), down to the lowest level
- * 		(BASE_ASSEMBLY_LEVEL + 1).
+ * <li>Global structure lock,
+ * <li>Manual lock,
+ * <li>Base assemblies lock,
+ * <li>Composite parts lock,
+ * <li>Documents lock,
+ * <li>Atomic parts lock,
+ * <li>Complex assemblies locks: starting from the highest level
+ * (Parameters.NumAssmLevels), down to the lowest level (BASE_ASSEMBLY_LEVEL +
+ * 1).
  * </ol>
  */
 public class MGLockingOperationExecutor implements OperationExecutor {
@@ -41,13 +40,12 @@ public class MGLockingOperationExecutor implements OperationExecutor {
 	/**
 	 * Global structure lock is acquired by every operation:
 	 * <ol>
-	 * <li> in write mode, if the operation modifies the data structure (i.e.,
+	 * <li>in write mode, if the operation modifies the data structure (i.e.,
 	 * adds or removes some elements) or modifies one of the indexes; and
-	 * <li> in read mode otherwise.
+	 * <li>in read mode otherwise.
 	 * </ol>
 	 */
-	private static final Lock globalStructureReadLock,
-			globalStructureWriteLock;
+	private static final Lock globalStructureReadLock, globalStructureWriteLock;
 
 	/**
 	 * Per-assembly-level locks.
@@ -58,9 +56,8 @@ public class MGLockingOperationExecutor implements OperationExecutor {
 	/**
 	 * Per-object-type locks.
 	 */
-	private static final Lock compositePartReadLock, compositePartWriteLock,
-			atomicPartReadLock, atomicPartWriteLock, documentReadLock,
-			documentWriteLock, manualReadLock, manualWriteLock;
+	private static final Lock compositePartReadLock, compositePartWriteLock, atomicPartReadLock, atomicPartWriteLock,
+			documentReadLock, documentWriteLock, manualReadLock, manualWriteLock;
 
 	/**
 	 * Used for generating timestamps for the replay log.
@@ -88,8 +85,7 @@ public class MGLockingOperationExecutor implements OperationExecutor {
 		}
 	}
 
-	private static final ThreadLocal<AssemblyLocksAcquired> assemblyLocksAcquired = 
-		new ThreadLocal<AssemblyLocksAcquired>() {
+	private static final ThreadLocal<AssemblyLocksAcquired> assemblyLocksAcquired = new ThreadLocal<AssemblyLocksAcquired>() {
 		@Override
 		protected AssemblyLocksAcquired initialValue() {
 			return new AssemblyLocksAcquired();
@@ -97,8 +93,7 @@ public class MGLockingOperationExecutor implements OperationExecutor {
 	};
 
 	static {
-		ReentrantReadWriteLock globalStructureLock = new ReentrantReadWriteLock(
-				false);
+		ReentrantReadWriteLock globalStructureLock = new ReentrantReadWriteLock(false);
 		globalStructureReadLock = globalStructureLock.readLock();
 		globalStructureWriteLock = globalStructureLock.writeLock();
 
@@ -110,13 +105,11 @@ public class MGLockingOperationExecutor implements OperationExecutor {
 			assemblyReadLocks[level] = assemblyLocks[level].readLock();
 			assemblyWriteLocks[level] = assemblyLocks[level].writeLock();
 		}
-		ReentrantReadWriteLock compositePartLock = new ReentrantReadWriteLock(
-				false);
+		ReentrantReadWriteLock compositePartLock = new ReentrantReadWriteLock(false);
 		compositePartReadLock = compositePartLock.readLock();
 		compositePartWriteLock = compositePartLock.writeLock();
 
-		ReentrantReadWriteLock atomicPartLock = new ReentrantReadWriteLock(
-				false);
+		ReentrantReadWriteLock atomicPartLock = new ReentrantReadWriteLock(false);
 		atomicPartReadLock = atomicPartLock.readLock();
 		atomicPartWriteLock = atomicPartLock.writeLock();
 
@@ -130,14 +123,12 @@ public class MGLockingOperationExecutor implements OperationExecutor {
 	}
 
 	/**
-	 * Called by a MGLockingComplexAssemblyImpl method to 
-	 * read-lock a given complex assembly level.
+	 * Called by a MGLockingComplexAssemblyImpl method to read-lock a given
+	 * complex assembly level.
 	 */
 	public static void readLockAssemblyLevel(int level) {
-		AssemblyLocksAcquired threadAssemblyLocksAcquired = 
-			assemblyLocksAcquired.get();
-		if (threadAssemblyLocksAcquired.isReadAcquired[level]
-				|| threadAssemblyLocksAcquired.isWriteAcquired[level])
+		AssemblyLocksAcquired threadAssemblyLocksAcquired = assemblyLocksAcquired.get();
+		if (threadAssemblyLocksAcquired.isReadAcquired[level] || threadAssemblyLocksAcquired.isWriteAcquired[level])
 			return;
 
 		assemblyReadLocks[level].lock();
@@ -145,12 +136,11 @@ public class MGLockingOperationExecutor implements OperationExecutor {
 	}
 
 	/**
-	 * Called by a MGLockingComplexAssemblyImpl method to 
-	 * write-lock a given complex assembly level.
+	 * Called by a MGLockingComplexAssemblyImpl method to write-lock a given
+	 * complex assembly level.
 	 */
 	public static void writeLockAssemblyLevel(int level) {
-		AssemblyLocksAcquired threadAssemblyLocksAcquired = 
-			assemblyLocksAcquired.get();
+		AssemblyLocksAcquired threadAssemblyLocksAcquired = assemblyLocksAcquired.get();
 		if (threadAssemblyLocksAcquired.isWriteAcquired[level])
 			return;
 
@@ -169,7 +159,8 @@ public class MGLockingOperationExecutor implements OperationExecutor {
 		// operation is executed
 		locksToAcquire = new ArrayList<Lock>();
 		OperationId operationId = op.getOperationId();
-		if(operationId == null) return;
+		if (operationId == null)
+			return;
 		OperationType operationType = operationId.getType();
 
 		// Structural modification operations: exclusive access
@@ -177,7 +168,7 @@ public class MGLockingOperationExecutor implements OperationExecutor {
 			locksToAcquire.add(globalStructureWriteLock);
 			return;
 		}
-		
+
 		// Other operations: assume the structure is not modified
 		locksToAcquire.add(globalStructureReadLock);
 
@@ -280,23 +271,21 @@ public class MGLockingOperationExecutor implements OperationExecutor {
 			break;
 
 		default:
-			throw new RuntimeError("Unknown operation: "
-					+ op.getOperationId().toString());
+			throw new RuntimeError("Unknown operation: " + op.getOperationId().toString());
 		}
 	}
 
 	public int execute() throws OperationFailedException {
 		try {
 
-			for (Lock lock : locksToAcquire) lock.lock();
+			for (Lock lock : locksToAcquire)
+				lock.lock();
 			return op.performOperation();
-		} 
-		finally {
+		} finally {
 			if (Parameters.sequentialReplayEnabled)
 				lastOperationTimestamp = globalCounter.getAndIncrement();
 
-			AssemblyLocksAcquired threadAssemblyLocksAcquired = 
-				assemblyLocksAcquired.get();
+			AssemblyLocksAcquired threadAssemblyLocksAcquired = assemblyLocksAcquired.get();
 
 			for (int level = 1; level <= Parameters.NumAssmLevels; level++) {
 				if (threadAssemblyLocksAcquired.isReadAcquired[level])
@@ -306,7 +295,8 @@ public class MGLockingOperationExecutor implements OperationExecutor {
 			}
 			threadAssemblyLocksAcquired.clear();
 
-			for (Lock lock : locksToAcquire) lock.unlock();
+			for (Lock lock : locksToAcquire)
+				lock.unlock();
 		}
 	}
 

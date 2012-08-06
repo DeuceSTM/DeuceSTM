@@ -6,26 +6,27 @@ import org.deuce.Atomic;
 
 /**
  * FieldsInheritanceTest
+ * 
  * @author guy
- *
+ * 
  */
-public class EnumTest extends TestCase{
+public class EnumTest extends TestCase {
 
-	enum X{
-		A,B;
+	enum X {
+		A, B;
 	}
-	
+
 	X x = X.A;
+
 	public void testInheritanceAccess() throws Exception {
 		foo();
 	}
-	
+
 	@Atomic
-	private void foo(){
-		switch(x){
+	private void foo() {
+		switch (x) {
 		case A:
 		case B:
 		}
 	}
 }
-

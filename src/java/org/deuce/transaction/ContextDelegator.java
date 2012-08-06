@@ -1,9 +1,9 @@
 package org.deuce.transaction;
 
-import org.deuce.LocalMetadata;
+import org.deuce.InPlaceMetadata;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.reflection.AddressUtil;
-import org.deuce.transform.ExcludeTM;
+import org.deuce.transform.ExcludeInternal;
 import org.deuce.transform.inplacemetadata.type.TxArrBoolField;
 import org.deuce.transform.inplacemetadata.type.TxArrByteField;
 import org.deuce.transform.inplacemetadata.type.TxArrCharField;
@@ -219,7 +219,7 @@ public class ContextDelegator {
 	private static void metadataInitializer() {
 		if (!metadataInitialized) {
 			IContext c = THREAD_CONTEXT.get(); // force context loading
-			LocalMetadata a = c.getClass().getAnnotation(LocalMetadata.class);
+			InPlaceMetadata a = c.getClass().getAnnotation(InPlaceMetadata.class);
 			if (a != null) {
 				inLocalMetadata = true;
 				try {
@@ -415,7 +415,7 @@ public class ContextDelegator {
 
 	final private static ContextThreadLocal THREAD_CONTEXT = new ContextThreadLocal();
 
-	@ExcludeTM
+	@ExcludeInternal
 	private static class ContextThreadLocal extends ThreadLocal<IContext> {
 		private Class<? extends IContext> contextClass;
 

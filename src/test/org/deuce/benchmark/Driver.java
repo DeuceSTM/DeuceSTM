@@ -1,12 +1,12 @@
 package org.deuce.benchmark;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  * @since 0.1
  */
-@Exclude
+@ExcludeInternal
 public class Driver {
 
 	public static void main(String[] args) {
@@ -45,15 +45,16 @@ public class Driver {
 			error = true;
 
 		if (error) {
-			System.out.println("Usage: java Driver [-n nb-threads] [-d duration-ms] [-w warmup-ms] benchmark [args...]");
+			System.out
+					.println("Usage: java Driver [-n nb-threads] [-d duration-ms] [-w warmup-ms] benchmark [args...]");
 			System.exit(1);
 		}
 
 		Benchmark b = null;
 		try {
 			Class<?> c = Class.forName(benchmark);
-			b = (Benchmark)c.newInstance();
-		} catch(Exception e) {
+			b = (Benchmark) c.newInstance();
+		} catch (Exception e) {
 			System.err.println("Unexpected exception: " + e.getMessage());
 			System.exit(1);
 		}
@@ -123,7 +124,6 @@ public class Driver {
 		System.out.println("  Nb iterations        = " + steps);
 		System.out.println("  Stats                = " + b.getStats(bt));
 		for (int i = 0; i < bt.length; i++)
-			System.out.println("    " + i + " : " + bt[i].getSteps() +
-					" (" + bt[i].getStats() + ")");
+			System.out.println("    " + i + " : " + bt[i].getSteps() + " (" + bt[i].getStats() + ")");
 	}
 }

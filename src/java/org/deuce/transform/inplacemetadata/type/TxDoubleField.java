@@ -7,7 +7,7 @@ public class TxDoubleField extends TxField {
 	public TxDoubleField(Object ref, long address) {
 		super(ref, address);
 	}
-	
+
 	public final double read() {
 		return UnsafeHolder.getUnsafe().getDouble(ref, address);
 	}

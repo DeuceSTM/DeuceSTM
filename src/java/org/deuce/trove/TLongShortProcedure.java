@@ -22,27 +22,27 @@ package org.deuce.trove;
 // THIS IS A GENERATED CLASS. DO NOT HAND EDIT! //
 //////////////////////////////////////////////////
 
-
 /**
  * Interface for procedures that take two parameters of type long and short.
- *
- * Created: Mon Nov  5 22:03:30 2001
- *
+ * 
+ * Created: Mon Nov 5 22:03:30 2001
+ * 
  * @author Eric D. Friedman
  * @version $Id: P2PProcedure.template,v 1.1 2006/11/10 23:28:00 robeden Exp $
  */
 
 public interface TLongShortProcedure {
 
-    /**
-     * Executes this procedure. A false return value indicates that
-     * the application executing this procedure should not invoke this
-     * procedure again.
-     *
-     * @param a a <code>long</code> value
-     * @param b a <code>short</code> value
-     * @return true if additional invocations of the procedure are
-     * allowed.
-     */
-    public boolean execute(long a, short b);
+	/**
+	 * Executes this procedure. A false return value indicates that the
+	 * application executing this procedure should not invoke this procedure
+	 * again.
+	 * 
+	 * @param a
+	 *            a <code>long</code> value
+	 * @param b
+	 *            a <code>short</code> value
+	 * @return true if additional invocations of the procedure are allowed.
+	 */
+	public boolean execute(long a, short b);
 }// TLongShortProcedure

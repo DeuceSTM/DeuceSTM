@@ -10,13 +10,13 @@ import org.deuce.transaction.norec.field.IntFieldAccess;
 import org.deuce.transaction.norec.field.LongFieldAccess;
 import org.deuce.transaction.norec.field.ObjectFieldAccess;
 import org.deuce.transaction.norec.field.ShortFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 import org.deuce.trove.THashSet;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public class WriteSet {
 
 	private static final int DEFAULT_CAPACITY = 16;
@@ -47,55 +47,55 @@ public class WriteSet {
 
 	public void add(Object obj, long field, Object value) {
 		FieldAccess w = new ObjectFieldAccess(obj, field, value);
-		if(!entries.add(w))
+		if (!entries.add(w))
 			entries.replace(w);
 	}
 
 	public void add(Object obj, long field, boolean value) {
 		FieldAccess w = new BooleanFieldAccess(obj, field, value);
-		if(!entries.add(w))
+		if (!entries.add(w))
 			entries.replace(w);
 	}
 
 	public void add(Object obj, long field, byte value) {
 		FieldAccess w = new ByteFieldAccess(obj, field, value);
-		if(!entries.add(w))
+		if (!entries.add(w))
 			entries.replace(w);
 	}
 
 	public void add(Object obj, long field, char value) {
 		FieldAccess w = new CharFieldAccess(obj, field, value);
-		if(!entries.add(w))
+		if (!entries.add(w))
 			entries.replace(w);
 	}
 
 	public void add(Object obj, long field, double value) {
 		FieldAccess w = new DoubleFieldAccess(obj, field, value);
-		if(!entries.add(w))
+		if (!entries.add(w))
 			entries.replace(w);
 	}
 
 	public void add(Object obj, long field, float value) {
 		FieldAccess w = new FloatFieldAccess(obj, field, value);
-		if(!entries.add(w))
+		if (!entries.add(w))
 			entries.replace(w);
 	}
 
 	public void add(Object obj, long field, int value) {
 		FieldAccess w = new IntFieldAccess(obj, field, value);
-		if(!entries.add(w))
+		if (!entries.add(w))
 			entries.replace(w);
 	}
 
 	public void add(Object obj, long field, long value) {
 		FieldAccess w = new LongFieldAccess(obj, field, value);
-		if(!entries.add(w))
+		if (!entries.add(w))
 			entries.replace(w);
 	}
 
 	public void add(Object obj, long field, short value) {
 		FieldAccess w = new ShortFieldAccess(obj, field, value);
-		if(!entries.add(w))
+		if (!entries.add(w))
 			entries.replace(w);
 	}
 

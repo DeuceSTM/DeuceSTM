@@ -65,8 +65,7 @@ public class WorkQueue {
 	}
 
 	public boolean less(int xx1, int yy1, int xx2, int yy2) {
-		return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) > (xx2 - xx1)
-				* (xx2 - xx1) + (yy2 - yy1) * (yy2 - yy1);
+		return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) > (xx2 - xx1) * (xx2 - xx1) + (yy2 - yy1) * (yy2 - yy1);
 	}
 
 	public boolean pass() {
@@ -103,12 +102,12 @@ public class WorkQueue {
 	public int length() {
 		WorkQueue curr = this.next;
 		int retval = 0;
-		
-		while(curr!=null) {
+
+		while (curr != null) {
 			retval++;
 			curr = curr.next;
 		}
-		
+
 		return retval;
 	}
 

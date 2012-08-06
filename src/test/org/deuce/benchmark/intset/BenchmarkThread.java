@@ -2,13 +2,13 @@ package org.deuce.benchmark.intset;
 
 import java.util.Random;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  * @since 0.1
  */
-@Exclude
+@ExcludeInternal
 public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 	final private IntSet m_set;
 	final private int m_range;
@@ -50,7 +50,7 @@ public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 				m_nb_contains++;
 		}
 	}
-	
+
 	public String getStats() {
 		return "A=" + m_nb_add + ", R=" + m_nb_remove + ", C=" + m_nb_contains;
 	}

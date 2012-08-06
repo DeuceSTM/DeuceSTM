@@ -41,34 +41,35 @@ import org.deuce.objectweb.asm.Opcodes;
  */
 public class LdcInsnNode extends AbstractInsnNode {
 
-    /**
-     * The constant to be loaded on the stack. This parameter must be a non null
-     * {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a
-     * {@link String} or a {@link org.deuce.objectweb.asm.Type}.
-     */
-    public Object cst;
+	/**
+	 * The constant to be loaded on the stack. This parameter must be a non null
+	 * {@link Integer}, a {@link Float}, a {@link Long}, a {@link Double}, a
+	 * {@link String} or a {@link org.deuce.objectweb.asm.Type}.
+	 */
+	public Object cst;
 
-    /**
-     * Constructs a new {@link LdcInsnNode}.
-     * 
-     * @param cst the constant to be loaded on the stack. This parameter must be
-     *        a non null {@link Integer}, a {@link Float}, a {@link Long}, a
-     *        {@link Double} or a {@link String}.
-     */
-    public LdcInsnNode(final Object cst) {
-        super(Opcodes.LDC);
-        this.cst = cst;
-    }
+	/**
+	 * Constructs a new {@link LdcInsnNode}.
+	 * 
+	 * @param cst
+	 *            the constant to be loaded on the stack. This parameter must be
+	 *            a non null {@link Integer}, a {@link Float}, a {@link Long}, a
+	 *            {@link Double} or a {@link String}.
+	 */
+	public LdcInsnNode(final Object cst) {
+		super(Opcodes.LDC);
+		this.cst = cst;
+	}
 
-    public int getType() {
-        return LDC_INSN;
-    }
+	public int getType() {
+		return LDC_INSN;
+	}
 
-    public void accept(final MethodVisitor mv) {
-        mv.visitLdcInsn(cst);
-    }
+	public void accept(final MethodVisitor mv) {
+		mv.visitLdcInsn(cst);
+	}
 
-    public AbstractInsnNode clone(final Map labels) {
-        return new LdcInsnNode(cst);
-    }
+	public AbstractInsnNode clone(final Map labels) {
+		return new LdcInsnNode(cst);
+	}
 }

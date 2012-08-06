@@ -72,29 +72,33 @@ package jstamp.intruder;
 
 public class Decoder {
 	RBTree fragmentedMapPtr; /* contains list of packet_t* */
-	Queue_t decodedQueuePtr; /* contains decoded_t*  */
+	Queue_t decodedQueuePtr; /* contains decoded_t* */
 	int cnt;
 
-	/* =============================================================================
-	 * decoder_alloc
-	 * =============================================================================
-	 decoder_t* decoder_alloc ();
-	  */
+	/*
+	 * ==========================================================================
+	 * === decoder_alloc
+	 * ========================================================
+	 * ===================== decoder_t* decoder_alloc ();
+	 */
 
 	public Decoder() {
 		fragmentedMapPtr = new RBTree(0);
 		decodedQueuePtr = new Queue_t(1024);
 	}
 
-	/* =============================================================================
-	 * decoder_free
-	 * =============================================================================
-	 void decoder_free (decoder_t* decoderPtr);
+	/*
+	 * ==========================================================================
+	 * === decoder_free
+	 * ==========================================================
+	 * =================== void decoder_free (decoder_t* decoderPtr);
 	 */
-	/* =============================================================================
-	 * decoder_process
-	 * =============================================================================
-	 er_t decoder_process (decoder_t* decoderPtr, char* bytes, long numByte);
+	/*
+	 * ==========================================================================
+	 * === decoder_process
+	 * ======================================================
+	 * ======================= er_t decoder_process (decoder_t* decoderPtr,
+	 * char* bytes, long numByte);
 	 */
 	public int process(Packet packetPtr, int numByte) {
 		boolean status;
@@ -188,16 +192,20 @@ public class Decoder {
 		return er.NONE;
 	}
 
-	/* =============================================================================
-	 * TMdecoder_process
-	 * =============================================================================
-	 er_t TMdecoder_process (TM_ARGDECL  decoder_t* decoderPtr, char* bytes, long numByte);
+	/*
+	 * ==========================================================================
+	 * === TMdecoder_process
+	 * ====================================================
+	 * ========================= er_t TMdecoder_process (TM_ARGDECL decoder_t*
+	 * decoderPtr, char* bytes, long numByte);
 	 */
-	/* =============================================================================
-	 * decoder_getComplete
-	 * -- If none, returns NULL
-	 * =============================================================================
-	 char* decoder_getComplete (decoder_t* decoderPtr, long* decodedFlowIdPtr); */
+	/*
+	 * ==========================================================================
+	 * === decoder_getComplete -- If none, returns NULL
+	 * ==========================
+	 * =================================================== char*
+	 * decoder_getComplete (decoder_t* decoderPtr, long* decodedFlowIdPtr);
+	 */
 	public byte[] getComplete(int[] decodedFlowId) {
 		byte[] data;
 		Decoded decodedPtr = (Decoded) decodedQueuePtr.queue_pop();
@@ -211,15 +219,17 @@ public class Decoder {
 		return data;
 	}
 }
-/* =============================================================================
- * TMdecoder_getComplete
- * -- If none, returns NULL
+/*
  * =============================================================================
- char* TMdecoder_getComplete (TM_ARGDECL  decoder_t* decoderPtr, long* decodedFlowIdPtr);
+ * TMdecoder_getComplete -- If none, returns NULL
+ * =============================================================================
+ * char* TMdecoder_getComplete (TM_ARGDECL decoder_t* decoderPtr, long*
+ * decodedFlowIdPtr);
  */
-/* =============================================================================
- *
+/*
+ * =============================================================================
+ * 
  * End of decoder.java
- *
+ * 
  * =============================================================================
  */

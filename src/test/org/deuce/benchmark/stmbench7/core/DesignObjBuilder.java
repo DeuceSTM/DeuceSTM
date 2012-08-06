@@ -19,8 +19,7 @@ public abstract class DesignObjBuilder {
 	}
 
 	protected int createBuildDate(int minBuildDate, int maxBuildDate) {
-		return minBuildDate
-				+ ThreadRandom.nextInt(maxBuildDate - minBuildDate + 1);
+		return minBuildDate + ThreadRandom.nextInt(maxBuildDate - minBuildDate + 1);
 	}
 
 	protected String createText(int textSize, String textPattern) {
