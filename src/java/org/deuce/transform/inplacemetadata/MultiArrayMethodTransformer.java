@@ -38,27 +38,41 @@ public class MultiArrayMethodTransformer extends MethodAdapter {
 	 * 
 	 * int[][][] arr;
 	 * 
-	 * TxArrObjectField_new[] tmp0 = new TxArrObjectField_new[arr.length]; int i
-	 * = tmp0.length; while (i > 0) { i--; tmp0[i] = new
-	 * TxArrObjectField_new(arr, i);
+	 * TxArrObjectField_new[] tmp0 = new TxArrObjectField_new[arr.length]; 
+	 * int i = tmp0.length; 
+	 * while (i > 0) { 
+	 * 		i--; 
+	 * 		tmp0[i] = new TxArrObjectField_new(arr, i);
 	 * 
-	 * TxArrObjectField_new[] tmp1 = new TxArrObjectField_new[arr[i].length];
+	 * 		TxArrObjectField_new[] tmp1 = new TxArrObjectField_new[arr[i].length];
 	 * 
-	 * int j = tmp1.length; while (j > 0) { j--; tmp1[j] = new
-	 * TxArrObjectField_new(arr[i], j);
+	 * 		int j = tmp1.length; 
+	 * 		while (j > 0) { 
+	 * 			j--; 
+	 * 			tmp1[j] = new TxArrObjectField_new(arr[i], j);
 	 * 
-	 * TxArrIntField_new[] tmp2 = new TxArrIntField_new[arr[i][j].length];
+	 * 			TxArrIntField_new[] tmp2 = new TxArrIntField_new[arr[i][j].length];
 	 * 
-	 * int k = tmp2.length; while (k > 0) { k--; tmp2[k] = new
-	 * TxArrIntField_new(arr[i][j], k); } tmp1[j].nextDim = tmp2; }
-	 * tmp0[i].nextDim = tmp1; }
+	 * 			int k = tmp2.length; 
+	 * 			while (k > 0) { 
+	 * 				k--; 
+	 * 				tmp2[k] = new TxArrIntField_new(arr[i][j], k); 
+	 * 			} 
+	 * 			tmp1[j].nextDim = tmp2; 
+	 * 		}
+	 * 		tmp0[i].nextDim = tmp1; 
+	 * }
 	 * 
 	 * The local variables of this method, regarding the example, are as
-	 * follows: 0: original multiarray; 1: IContext; 2: TxArrObjectField[]
-	 * (first dimension) 3: int (first dimension for cycle counter variable) 4:
-	 * TxArrObjectField[] (second dimension) 5: int (second dimension for cycle
-	 * counter variable) 6: TxArrIntField[] (third and last dimension) 7: int
-	 * (third and last dimension for cycle counter variable)
+	 * follows: 
+	 * 		0: original multiarray; 
+	 * 		1: IContext; 
+	 * 		2: TxArrObjectField[] (first dimension) 
+	 * 		3: int (first dimension for cycle counter variable) 
+	 * 		4: TxArrObjectField[] (second dimension) 
+	 * 		5: int (second dimension for cycle counter variable) 
+	 * 		6: TxArrIntField[] (third and last dimension) 
+	 * 		7: int (third and last dimension for cycle counter variable)
 	 */
 	private void initializeMatrixDimension(MethodVisitor mv, int currDim, int nDims, int totalDims, Type originalType) {
 		int arr_idx = 0;
