@@ -63,6 +63,8 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 		Random random = new Random();
 		for (int i = 0; i < initial; i++)
 			m_set.add(random.nextInt(m_range));
+		
+		
 		System.out.println("Initial size        = " + initial);
 		System.out.println("Range               = " + m_range);
 		System.out.println("Write rate          = " + m_rate + "%");
