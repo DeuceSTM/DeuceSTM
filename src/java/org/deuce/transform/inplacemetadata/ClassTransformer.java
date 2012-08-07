@@ -297,7 +297,7 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder {
 					null);
 
 			MethodVisitor mv = new MethodTransformer(originalMethod, null, className, access, name, nm.getDescriptor(),
-					desc, null, fieldsHolder);
+					desc, null, fieldsHolder, this);
 
 			return new StaticMethodTransformer(mv, null, fields, staticField, className,
 					fieldsHolder.getFieldsHolderName(className));
@@ -315,7 +315,7 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder {
 			}
 
 			MethodVisitor mv = new MethodTransformer(originalMethod, copyMethod, className, access, name,
-					nm.getDescriptor(), desc, newMethod, fieldsHolder);
+					nm.getDescriptor(), desc, newMethod, fieldsHolder, this);
 
 			return new ConstructorMethodTransformer(mv, fields, className, access, name, nm.getDescriptor(),
 					fieldsHolder.getFieldsHolderName(className));
@@ -332,7 +332,7 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder {
 						newMethod.getDescriptor(), signature, exceptions);
 			}
 			MethodVisitor mv = new MethodTransformer(originalMethod, copyMethod, className, access, name,
-					nm.getDescriptor(), desc, newMethod, fieldsHolder);
+					nm.getDescriptor(), desc, newMethod, fieldsHolder, this);
 
 			return new MainMethodTransformer(mv);
 		}
@@ -349,7 +349,7 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder {
 		}
 
 		return new MethodTransformer(originalMethod, copyMethod, className, access, name, nm.getDescriptor(), desc,
-				newMethod, fieldsHolder);
+				newMethod, fieldsHolder, this);
 	}
 
 	/**

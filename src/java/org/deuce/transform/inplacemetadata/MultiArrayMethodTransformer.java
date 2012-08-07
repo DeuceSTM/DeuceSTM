@@ -72,16 +72,18 @@ public class MultiArrayMethodTransformer extends MethodAdapter {
 				.getTxArrayType(originalType.getDescriptor());
 
 		String ctorParamDesc = null;
-		if (currDim < totalDims)
+		if (currDim < totalDims) {
 			// ([Ljava/lang/Object;ILjava/lang/Object;)V
 			ctorParamDesc = "([" + Type.getDescriptor(Object.class) + Type.getDescriptor(int.class)
 					+ Type.getDescriptor(Object.class) + ")" + Type.getDescriptor(void.class);
-		else
+		}
+		else {
 			// ([Ljava/lang/Object;I)V
 			// ([II)V
 			// etc...
 			ctorParamDesc = "([" + ArrayUtil.getArrayFromTxArray(arrayType).getDescriptor()
 					+ Type.getDescriptor(int.class) + ")" + Type.getDescriptor(void.class);
+		}
 
 		// ... =>
 		mv.visitVarInsn(Opcodes.ALOAD, arr_idx);

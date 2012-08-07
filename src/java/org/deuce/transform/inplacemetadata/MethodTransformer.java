@@ -42,7 +42,8 @@ public class MethodTransformer implements MethodVisitor {
 	private ClassTransformer clazzT;
 
 	public MethodTransformer(MethodVisitor originalMethod, MethodVisitor copyMethod, String className, int access,
-			String methodName, String descriptor, String originalDesc, Method newMethod, FieldsHolder fieldsHolder) {
+			String methodName, String descriptor, String originalDesc, Method newMethod, FieldsHolder fieldsHolder,
+			ClassTransformer clazzT) {
 		this.originalMethod = originalMethod;
 		this.newMethod = newMethod;
 		this.isStatic = (access & Opcodes.ACC_STATIC) != 0;
@@ -65,7 +66,7 @@ public class MethodTransformer implements MethodVisitor {
 		this.methodName = methodName;
 		this.descriptor = descriptor;
 
-		clazzT = (ClassTransformer) fieldsHolder;
+		this.clazzT = clazzT;
 	}
 
 	public void visitCode() {
