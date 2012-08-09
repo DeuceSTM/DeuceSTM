@@ -37,7 +37,7 @@ import org.deuce.trove.TObjectProcedure;
  * This version also uses lock per write-set entry during commit instead of
  * the global lock in the original JVSTM algorithm. 
  * 
- * JVSTM is a multiversion STM for Java developed by João Cachopo 
+ * JVSTM is a multiversion STM for Java developed by Jo√£o Cachopo 
  * from INESC-ID.
  * 
  * @author Ricardo Dias
