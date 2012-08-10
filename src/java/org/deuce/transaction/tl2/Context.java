@@ -96,7 +96,7 @@ final public class Context implements org.deuce.transaction.Context{
 			{
 				// pre commit validation phase
 				writeSet.forEach(lockProcedure);
-				readSet.checkClock(localClock);
+				readSet.checkClock(localClock, locksMarker);
 			}
 			catch( TransactionException exception){
 				lockProcedure.unlockAll();
@@ -151,7 +151,7 @@ final public class Context implements org.deuce.transaction.Context{
 		next.init(obj, field);
 
 		// Check the read is still valid
-		lastReadLock = LockTable.checkLock(next.hashCode(), localClock);
+		lastReadLock = LockTable.checkLock(next.hashCode(), localClock, locksMarker);
 	}
 	
 	@Override

@@ -46,11 +46,20 @@ public class LockTable {
 		return true;
 	}
 
-	public static int checkLock(int lockIndex, int clock) {
+	public static int checkLock(int lockIndex, int clock, byte[] contextLocks) {
 		int lock = locks.get(lockIndex);
 
-		if( clock < (lock & UNLOCK) || (lock & LOCK) != 0)
+		if( clock < (lock & UNLOCK))// commented by FMC || (lock & LOCK) != 0)
 			throw FAILURE_EXCEPTION;
+		
+		final int selfLockIndex = lockIndex>>>DIVIDE_8;
+		final byte selfLockByte = contextLocks[selfLockIndex];
+		final byte selfLockBit = (byte)(1 << (lockIndex & MODULE_8));
+		
+		if( (lock & LOCK) != 0){  //is already locked?
+			if( (selfLockByte & selfLockBit) == 0) // check for self locking
+				throw FAILURE_EXCEPTION; // not self locked
+		}
 		
 		return lock;
 	}
