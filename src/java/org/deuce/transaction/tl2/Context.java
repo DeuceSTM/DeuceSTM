@@ -96,7 +96,7 @@ final public class Context implements org.deuce.transaction.Context{
 			{
 				// pre commit validation phase
 				writeSet.forEach(lockProcedure);
-				readSet.checkClock(localClock);
+				readSet.checkClock(localClock, locksMarker);
 			}
 			catch( TransactionException exception){
 				lockProcedure.unlockAll();
