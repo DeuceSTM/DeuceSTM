@@ -151,7 +151,7 @@ final public class Context implements org.deuce.transaction.Context{
 		next.init(obj, field);
 
 		// Check the read is still valid
-		lastReadLock = LockTable.checkLock(next.hashCode(), localClock, locksMarker);
+		lastReadLock = LockTable.checkLock(next.hashCode(), localClock);
 	}
 	
 	@Override
