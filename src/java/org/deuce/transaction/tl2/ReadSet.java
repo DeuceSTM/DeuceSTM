@@ -42,9 +42,9 @@ public class ReadSet{
 		return readSet[ nextAvaliable++];
 	}
 	
-    public void checkClock(int clock) {
+    public void checkClock(int clock, byte[] contextLocks) {
         for (int i = 0; i < nextAvaliable; i++) {
-        	LockTable.checkLock( readSet[i].hashCode(), clock);
+        	LockTable.checkLock( readSet[i].hashCode(), clock, contextLocks);
         	readSet[i].clear();
         }
     }
