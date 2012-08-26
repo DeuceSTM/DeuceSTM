@@ -74,7 +74,7 @@ public class NonInstrumentedMethodTransformer extends MethodAdapter {
 			if (returnType.getDimensions() > 1)
 				multiArrayToTxArray(returnType, mv);
 			else
-				arrayToTxArray(ArrayUtil.getArrayType(m.getReturnType()), mv);
+				arrayToTxArray(ArrayUtil.getArrayType(returnType), mv);
 		}
 
 		switch (mm.getReturnType().getSort()) {
