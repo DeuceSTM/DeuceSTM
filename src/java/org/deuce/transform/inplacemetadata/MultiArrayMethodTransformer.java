@@ -95,7 +95,9 @@ public class MultiArrayMethodTransformer extends MethodAdapter {
 			// ([Ljava/lang/Object;I)V
 			// ([II)V
 			// etc...
-			ctorParamDesc = "([" + ArrayUtil.getArrayFromTxArray(arrayType).getDescriptor()
+//			ctorParamDesc = "([" + ArrayUtil.getArrayFromTxArray(arrayType).getDescriptor()
+//					+ Type.getDescriptor(int.class) + ")" + Type.getDescriptor(void.class);
+			ctorParamDesc = "([" + ArrayUtil.getArrayType(originalType).getDescriptor()
 					+ Type.getDescriptor(int.class) + ")" + Type.getDescriptor(void.class);
 		}
 
