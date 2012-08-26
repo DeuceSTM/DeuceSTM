@@ -14,6 +14,7 @@ import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.Context;
+import org.deuce.transform.asm.ExcludeIncludeStore;
 import org.deuce.transform.asm.FieldsHolder;
 import org.deuce.transform.asm.method.AtomicMethod;
 import org.deuce.transform.asm.method.MethodAnnotationVisitor;
@@ -752,10 +753,13 @@ public class MethodTransformer implements MethodVisitor {
 
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		if (!ignore && !(name.equals("main") && desc.equals("([Ljava/lang/String;)V"))) {
-			boolean isBC = isBootstrapClass(owner);
-
-			// If it is a Bootstrap class with at least one array as argument.
-			if (isBC && hasArrayReturnOrArgument(desc)) {
+//			boolean isBC = isBootstrapClass(owner); 
+//
+//			// If it is a Bootstrap class with at least one array as argument.
+//			if (isBC && hasArrayReturnOrArgument(desc)) {
+			// If it's a method from an excluded class with at least one array as argument.
+			boolean isExcludedClass = ExcludeIncludeStore.exclude(owner);
+			if (isExcludedClass && hasArrayReturnOrParameter(desc)) {
 				String nimDesc = updateParametersToArray(desc);
 
 				NonInsnMethod nim = clazzT.new NonInsnMethod(name, nimDesc, desc, owner, opcode);

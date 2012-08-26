@@ -5,11 +5,13 @@ import java.util.LinkedList;
 
 import org.deuce.objectweb.asm.AnnotationVisitor;
 import org.deuce.objectweb.asm.FieldVisitor;
+import org.deuce.objectweb.asm.Label;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.Context;
+import org.deuce.transaction.ContextDelegator;
 import org.deuce.transform.Exclude;
 import org.deuce.transform.ExcludeInternal;
 import org.deuce.transform.asm.ByteCodeVisitor;
@@ -267,8 +269,10 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder {
 					exceptions));
 		}
 
+		final boolean isNative = (access & Opcodes.ACC_NATIVE) != 0;
+		
 		Method nm = new Method(name, desc);
-		if (!(name.equals("main") && desc.equals("([Ljava/lang/String;)V")) && !excludeSys) {
+		if (!(name.equals("main") && desc.equals("([Ljava/lang/String;)V")) && !excludeSys && !isNative) {
 			nm = ArrayUtil.updateMethodArrayArgumentsAndReturn(nm);
 		}
 		MethodVisitor originalMethod = super.visitMethod(access, name, nm.getDescriptor(), signature, exceptions);
@@ -277,7 +281,6 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder {
 			return originalMethod;
 		}
 
-		final boolean isNative = (access & Opcodes.ACC_NATIVE) != 0;
 		if (isNative) {
 			createNativeMethod(access, name, desc, signature, exceptions);
 			return originalMethod;
@@ -353,19 +356,198 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder {
 	}
 
 	/**
+	 * This method must be called only when the TxTypeField array reference is
+	 * on top of the stack. All we need to do is get the array pointed by the
+	 * array field of one of the metadata array elements.
+	 * 
+	 * // ...,txarrayref => ... // ...,arrayref =>
+	 * 
+	 * @param arrT
+	 *            the original type of the array
+	 */
+	private void txArrayToArray(Type arrT, MethodVisitor mv) {
+		// ..., arr* =>
+		mv.visitInsn(Opcodes.ICONST_0);
+		// ..., arr*, 0 =>
+		mv.visitInsn(Opcodes.AALOAD);
+		// ..., obj* =>
+		if (arrT.getSort() == Type.ARRAY) {
+			// ..., obj* =>
+			mv.visitFieldInsn(Opcodes.GETFIELD, ArrayUtil.getTxArrayType(arrT).getInternalName(), "array",
+					Type.getDescriptor(Object.class));
+			// ..., obj =>
+			mv.visitTypeInsn(Opcodes.CHECKCAST, arrT.getInternalName());
+			// ..., arr =>
+		} else {
+			// ..., obj* =>
+			mv.visitFieldInsn(Opcodes.GETFIELD, ArrayUtil.getTxArrayType(arrT).getInternalName(), "array",
+					"[" + arrT.getDescriptor());
+			// ..., arr =>
+		}
+		// ..., arr =>
+	}
+	
+	/**
+	 * This method must be called only when the multiarray reference is on top
+	 * of the stack.
+	 * 
+	 * // ...,arrayref => ... // ...,txarrayref =>
+	 * 
+	 * @param arrT
+	 *            the original type of the array
+	 */
+	private void multiArrayToTxArray(Type originalType, MethodVisitor mv) {
+		String name = ArrayUtil.getTxArrayType(originalType.getDescriptor()).getInternalName().replace("/", "_")
+				+ "_multiarray";
+
+		Type[] args = new Type[] { originalType, Context.CONTEXT_TYPE };
+		// desc is always [[something which evaluates to an object
+		Type returnType = ArrayUtil.getTxArrayArrayType(originalType);
+
+		MultiArrayMethod maMethod = new MultiArrayMethod(name, new Method(name, returnType, args).getDescriptor(),
+				originalType.getDimensions(), originalType.getDimensions(), originalType);
+		if (!multiArrayMethods.contains(maMethod)) {
+			multiArrayMethods.add(maMethod);
+		}
+
+		// ..., arr =>
+		mv.visitInsn(Opcodes.ACONST_NULL);
+		// ..., arr, null =>
+		mv.visitMethodInsn(Opcodes.INVOKESTATIC, className, maMethod.name, maMethod.desc);
+		// ... arr* =>
+	}
+	
+	/**
+	 * This method must be called only when the array reference is on top of the
+	 * stack.
+	 * 
+	 * // ...,arrayref => ... // ...,txarrayref =>
+	 * 
+	 * @param arrT
+	 *            the original type of the array
+	 */
+	private void arrayToTxArray(Type arrT, MethodVisitor mv) {
+		Label l1 = new Label();
+		Label l2 = new Label();
+		Label l3 = new Label();
+
+		Type arrayType = ArrayUtil.getTxArrayType(arrT);
+		String ctorParamDesc = null;
+		if (arrT.getSort() == Type.OBJECT)
+			ctorParamDesc = "([" + Type.getDescriptor(Object.class) + "I)V";
+		else
+			ctorParamDesc = "([" + arrT.getDescriptor() + "I)V";
+
+		// ..., arr =>
+		mv.visitInsn(Opcodes.DUP);
+		// ..., arr, arr =>
+		mv.visitInsn(Opcodes.ARRAYLENGTH);
+		// ..., arr, len =>
+		mv.visitTypeInsn(Opcodes.ANEWARRAY, arrayType.getInternalName());
+		// ..., arr, arr* =>
+		mv.visitInsn(Opcodes.DUP2);
+		// ..., arr, arr*, arr, arr* =>
+		mv.visitInsn(Opcodes.SWAP);
+		// ..., arr, arr*, arr*, arr =>
+		mv.visitInsn(Opcodes.DUP);
+		// ..., arr, arr*, arr*, arr, arr =>
+		mv.visitInsn(Opcodes.ARRAYLENGTH);
+		// ..., arr, arr*, arr*, arr, i (len) =>
+		mv.visitLabel(l3);
+		// ..., arr, arr*, arr*, arr, i =>
+		mv.visitInsn(Opcodes.DUP);
+		// ..., arr, arr*, arr*, arr, i, i =>
+		mv.visitJumpInsn(Opcodes.IFGT, l1);
+		// ..., arr, arr*, arr*, arr, i =>
+		mv.visitInsn(Opcodes.POP2);
+		// ..., arr, arr*, arr* =>
+		mv.visitInsn(Opcodes.POP);
+		// ..., arr, arr* =>
+		mv.visitInsn(Opcodes.SWAP);
+		// ..., arr*, arr =>
+		mv.visitInsn(Opcodes.POP);
+		// ..., arr* =>
+		mv.visitJumpInsn(Opcodes.GOTO, l2);
+		// ..., arr* =>
+		mv.visitLabel(l1);
+		// ..., arr, arr*, arr*, arr, i =>
+		mv.visitInsn(Opcodes.ICONST_1);
+		// ..., arr, arr*, arr*, arr, i, 1 =>
+		mv.visitInsn(Opcodes.ISUB);
+		// ..., arr, arr*, arr*, arr, i-1 =>
+		mv.visitInsn(Opcodes.DUP_X2);
+		// ..., arr, arr*, i-1, arr*, arr, i-1 =>
+		mv.visitInsn(Opcodes.DUP_X1);
+		// ..., arr, arr*, i-1, arr*, i-1, arr, i-1 =>
+		mv.visitTypeInsn(Opcodes.NEW, arrayType.getInternalName());
+		// ..., arr, arr*, i-1, arr*, i-1, arr, i-1, obj =>
+		mv.visitInsn(Opcodes.DUP_X2);
+		// ..., arr, arr*, i-1, arr*, i-1, obj, arr, i-1, obj =>
+		mv.visitInsn(Opcodes.DUP_X2);
+		// ..., arr, arr*, i-1, arr*, i-1, obj, obj, arr, i-1, obj =>
+		mv.visitInsn(Opcodes.POP);
+		// ..., arr, arr*, i-1, arr*, i-1, obj, obj, arr, i-1 =>
+		mv.visitMethodInsn(Opcodes.INVOKESPECIAL, arrayType.getInternalName(), "<init>", ctorParamDesc);
+		// ..., arr, arr*, i-1, arr*, i-1, obj =>
+		mv.visitInsn(Opcodes.AASTORE);
+		// ..., arr, arr*, i-1 =>
+		mv.visitInsn(Opcodes.DUP_X2);
+		// ..., i-1, arr, arr*, i-1 =>
+		mv.visitInsn(Opcodes.POP);
+		// ..., i-1, arr, arr* =>
+		mv.visitInsn(Opcodes.SWAP);
+		// ..., i-1, arr*, arr =>
+		mv.visitInsn(Opcodes.DUP_X2);
+		// ..., arr, i-1, arr*, arr =>
+		mv.visitInsn(Opcodes.SWAP);
+		// ..., arr, i-1, arr, arr* =>
+		mv.visitInsn(Opcodes.DUP_X2);
+		// ..., arr, arr*, i-1, arr, arr* =>
+		mv.visitInsn(Opcodes.DUP_X2);
+		// ..., arr, arr*, arr*, i-1, arr, arr* =>
+		mv.visitInsn(Opcodes.POP);
+		// ..., arr, arr*, arr*, i-1, arr =>
+		mv.visitInsn(Opcodes.SWAP);
+		// ..., arr, arr*, arr*, arr, i-1 =>
+		mv.visitJumpInsn(Opcodes.GOTO, l3);
+		// ..., arr, arr*, arr*, arr, i-1 =>
+		mv.visitLabel(l2);
+		// ..., arr* =>
+	}
+	
+	private void test(Object a) {
+		if (a != null) {
+			System.out.println("if");
+		}
+		
+		System.out.println("else");
+	}
+	/**
 	 * Build a dummy method that delegates the call to the native method
 	 */
 	private void createNativeMethod(int access, String name, String desc, String signature, String[] exceptions) {
+		// WRAPPER WITH CONTEXT
 		Method newMethod = createNewMethod(name, desc);
+		Type[] originalArgumentTypes = newMethod.getArgumentTypes();
+		Type originalReturnType = newMethod.getReturnType();
 		final int newAccess = access & ~Opcodes.ACC_NATIVE;
 
+		newMethod = ArrayUtil.updateMethodArrayArgumentsAndReturn(newMethod);
 		MethodVisitor copyMethod = super.visitMethod(newAccess | Opcodes.ACC_SYNTHETIC, name,
 				newMethod.getDescriptor(), signature, exceptions);
 
 		copyMethod.visitCode();
 
+		final boolean isStatic = (access & Opcodes.ACC_STATIC) != 0;
+		
+		// Call onIrrevocableAccess
+		int argumentsSize = Util.calcArgumentsSize(isStatic, newMethod);
+		copyMethod.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+		copyMethod.visitMethodInsn(Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+				ContextDelegator.IRREVOCABLE_METHOD_NAME, ContextDelegator.IRREVOCABLE_METHOD_DESC);
+
 		// load the arguments before calling the original method
-		final boolean isStatic = (access & ~Opcodes.ACC_STATIC) != 0;
+
 		int place = 0; // place on the stack
 		if (!isStatic) {
 			copyMethod.visitVarInsn(Opcodes.ALOAD, 0); // load this
@@ -373,16 +555,86 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder {
 		}
 
 		Type[] argumentTypes = newMethod.getArgumentTypes();
-		for (int i = 0; i < (argumentTypes.length - 1); ++i) {
-			Type type = argumentTypes[i];
+		for (int i = 0; i < (originalArgumentTypes.length - 1); ++i) {
+			Type type = originalArgumentTypes[i];
 			copyMethod.visitVarInsn(type.getOpcode(Opcodes.ILOAD), place);
-			place += type.getSize();
+			if (type.getSort() == Type.ARRAY) {
+				txArrayToArray(ArrayUtil.getArrayType(type), copyMethod);
+			}
+			place += argumentTypes[i].getSize();
 		}
 
 		// call the original method
 		copyMethod.visitMethodInsn(isStatic ? Opcodes.INVOKESTATIC : Opcodes.INVOKEVIRTUAL, className, name, desc);
 
-		TypeCodeResolver returnReolver = TypeCodeResolverFactory.getReolver(newMethod.getReturnType());
+		Type returnType = newMethod.getReturnType();
+		if (returnType.getSort() == Type.ARRAY) {
+			if (originalReturnType.getDimensions() > 1)
+				multiArrayToTxArray(returnType, copyMethod);
+			else
+				arrayToTxArray(ArrayUtil.getArrayType(returnType), copyMethod);
+		}
+		
+		TypeCodeResolver returnReolver = TypeCodeResolverFactory.getReolver(returnType);
+
+		if (returnReolver == null) {
+			copyMethod.visitInsn(Opcodes.RETURN); // return;
+		} else {
+			copyMethod.visitInsn(returnReolver.returnCode());
+		}
+		copyMethod.visitMaxs(1, 1);
+		copyMethod.visitEnd();
+		
+		// WRAPPER WITHOUT CONTEXT
+		newMethod = new Method(name, desc);
+		originalArgumentTypes = newMethod.getArgumentTypes();
+		originalReturnType = newMethod.getReturnType();
+//		final int newAccess = access & ~Opcodes.ACC_NATIVE;
+
+		newMethod = ArrayUtil.updateMethodArrayArgumentsAndReturn(newMethod);
+		copyMethod = super.visitMethod(newAccess | Opcodes.ACC_SYNTHETIC, name,
+				newMethod.getDescriptor(), signature, exceptions);
+
+		copyMethod.visitCode();
+
+//		final boolean isStatic = (access & ~Opcodes.ACC_STATIC) != 0;
+		
+//		// Call onIrrevocableAccess
+//		int argumentsSize = Util.calcArgumentsSize(isStatic, newMethod);
+//		copyMethod.visitVarInsn(Opcodes.ALOAD, argumentsSize - 1); // load context
+//		copyMethod.visitMethodInsn(Opcodes.INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL,
+//				ContextDelegator.IRREVOCABLE_METHOD_NAME, ContextDelegator.IRREVOCABLE_METHOD_DESC);
+
+		// load the arguments before calling the original method
+
+		place = 0; // place on the stack
+		if (!isStatic) {
+			copyMethod.visitVarInsn(Opcodes.ALOAD, 0); // load this
+			place = 1;
+		}
+
+		argumentTypes = newMethod.getArgumentTypes();
+		for (int i = 0; i < originalArgumentTypes.length; ++i) {
+			Type type = originalArgumentTypes[i];
+			copyMethod.visitVarInsn(type.getOpcode(Opcodes.ILOAD), place);
+			if (type.getSort() == Type.ARRAY) {
+				txArrayToArray(ArrayUtil.getArrayType(type), copyMethod);
+			}
+			place += argumentTypes[i].getSize();
+		}
+
+		// call the original method
+		copyMethod.visitMethodInsn(isStatic ? Opcodes.INVOKESTATIC : Opcodes.INVOKEVIRTUAL, className, name, desc);
+
+		returnType = newMethod.getReturnType();
+		if (returnType.getSort() == Type.ARRAY) {
+			if (originalReturnType.getDimensions() > 1)
+				multiArrayToTxArray(returnType, copyMethod);
+			else
+				arrayToTxArray(ArrayUtil.getArrayType(returnType), copyMethod);
+		}
+		
+		returnReolver = TypeCodeResolverFactory.getReolver(returnType);
 
 		if (returnReolver == null) {
 			copyMethod.visitInsn(Opcodes.RETURN); // return;
