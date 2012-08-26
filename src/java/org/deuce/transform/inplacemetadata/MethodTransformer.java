@@ -691,11 +691,6 @@ public class MethodTransformer implements MethodVisitor {
 		owner = owner.replace('/', '.');
 		return owner.matches("java\\..*|javax\\..*");
 	}
-	
-	public boolean isExcludedClass(String clazz) {
-		String className = clazz.replace('/', '.');
-		return ExcludeIncludeStore.exclude(className);
-	}
 
 	public boolean hasArrayReturnOrParameter(String desc) {
 		Method m = new Method("dummy", desc);
@@ -763,7 +758,7 @@ public class MethodTransformer implements MethodVisitor {
 //			// If it is a Bootstrap class with at least one array as argument.
 //			if (isBC && hasArrayReturnOrArgument(desc)) {
 			// If it's a method from an excluded class with at least one array as argument.
-			boolean isExcludedClass = isExcludedClass(owner);
+			boolean isExcludedClass = ExcludeIncludeStore.exclude(owner);
 			if (isExcludedClass && hasArrayReturnOrParameter(desc)) {
 				String nimDesc = updateParametersToArray(desc);
 
