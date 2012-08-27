@@ -12,6 +12,7 @@ import org.deuce.trove.TObjectProcedure;
 public class LockProcedure implements TObjectProcedure<WriteFieldAccess> {
 
 	private int i = 0;
+	private Context locker;
 
 	public final TObjectProcedure<WriteFieldAccess> unlockProcedure = new TObjectProcedure<WriteFieldAccess>() {
 		public boolean execute(WriteFieldAccess field) {
@@ -40,12 +41,13 @@ public class LockProcedure implements TObjectProcedure<WriteFieldAccess> {
 
 	public final SetAndUnlockProcedure setAndUnlockProcedure;
 
-	public LockProcedure() {
+	public LockProcedure(Context locker) {
 		setAndUnlockProcedure = new SetAndUnlockProcedure();
+		this.locker = locker;
 	}
 
 	public boolean execute(WriteFieldAccess writeField) {
-		if (((InPlaceLock) writeField.field).lock()) {
+		if (((InPlaceLock) writeField.field).lock(locker)) {
 			i++;
 		}
 		return true;

@@ -21,15 +21,28 @@ public class TL2ArrShortField extends TxArrShortField implements InPlaceLock {
 		}
 	}
 	public volatile int lock = 0;
+	private volatile Context lockHolder; // Object reference
 
 	public int checkLock(int clock) {
 		int l = lock;
-		if (clock < (lock & LockTable.UNLOCK)) {// check the clock without lock,
-												// TODO check if this is the
-												// best way
+		if (clock < (l & LockTable.UNLOCK) || (l & LockTable.LOCK) != 0)
 			throw LockTable.FAILURE_EXCEPTION;
-		}
 
+		return l;
+	}
+	
+	public int checkLock(int clock, Context lockChecker) {
+		int l = lock;
+		Context lh = lockHolder;
+		
+		if (clock < (l & LockTable.UNLOCK))
+			throw LockTable.FAILURE_EXCEPTION;
+		
+		// already locked, and not by lockChecker
+		if (((l & LockTable.LOCK) != 0) && (lh != lockChecker)) {
+			throw LockTable.FAILURE_EXCEPTION;	
+		}
+		
 		return l;
 	}
 
@@ -40,10 +53,13 @@ public class TL2ArrShortField extends TxArrShortField implements InPlaceLock {
 		}
 	}
 
-	public boolean lock() {
+	public boolean lock(Context locker) {
 		int l = lock;
+		Context lh = lockHolder;
 
 		if ((l & LockTable.LOCK) != 0) {
+			if (lh == locker)
+				return true;
 			throw LockTable.FAILURE_EXCEPTION;
 		}
 
@@ -52,15 +68,19 @@ public class TL2ArrShortField extends TxArrShortField implements InPlaceLock {
 		if (!isLocked) {
 			throw LockTable.FAILURE_EXCEPTION;
 		}
+		
+		lockHolder = locker; // mark as "locked by"
 
 		return true;
 	}
 
 	public void setAndReleaseLock(int newClock) {
+		lockHolder = null;
 		lock = newClock;
 	}
 
 	public void unLock() {
+		lockHolder = null;
 		lock = lock & LockTable.UNLOCK;
 	}
 

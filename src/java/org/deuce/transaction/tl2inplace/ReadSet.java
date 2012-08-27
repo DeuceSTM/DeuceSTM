@@ -41,9 +41,9 @@ public class ReadSet {
 		return readSet[nextAvaliable++];
 	}
 
-	public void checkClock(int clock) {
+	public void checkClock(int clock, Context lockChecker) {
 		for (int i = 0; i < nextAvaliable; i++) {
-			((InPlaceLock) readSet[i].field).checkLock(clock);
+			((InPlaceLock) readSet[i].field).checkLock(clock, lockChecker);
 			readSet[i].clear();
 		}
 	}
