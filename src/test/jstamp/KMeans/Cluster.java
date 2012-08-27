@@ -71,118 +71,125 @@ package jstamp.KMeans;
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
- *
- * =============================================================================
- */
+*
+* =============================================================================
+*/
 
 public class Cluster {
 
-	public Cluster() {
+  public Cluster() {
 
-	}
+  }
 
-	/*
-	 * ==========================================================================
-	 * === extractMoments
-	 * ========================================================
-	 * =====================
-	 */
-	public static float[] extractMoments(float[] data, int num_elts, int num_moments) {
-		float[] moments = new float[num_moments];
+  /* =============================================================================
+   * extractMoments
+   * =============================================================================
+   */
+  public static float[]
+    extractMoments (float []data, int num_elts, int num_moments)
+    {
+      float[] moments = new float[num_moments];
 
-		for (int i = 0; i < num_elts; i++) {
-			moments[0] += data[i];
-		}
+      for (int i = 0; i < num_elts; i++) {
+        moments[0] += data[i];
+      }
 
-		moments[0] = moments[0] / num_elts;
-		for (int j = 1; j < num_moments; j++) {
-			moments[j] = 0;
-			for (int i = 0; i < num_elts; i++) {
-				moments[j] = (float) (moments[j] + Math.pow((data[i] - moments[0]), j + 1));
-			}
-			moments[j] = moments[j] / num_elts;
-		}
-		return moments;
-	}
+      moments[0] = moments[0] / num_elts;
+      for (int j = 1; j < num_moments; j++) {
+        moments[j] = 0;
+        for (int i = 0; i < num_elts; i++) {
+          moments[j] = (float)(moments[j]+ Math.pow((data[i]-moments[0]), j+1));
+        }
+        moments[j] = moments[j] / num_elts;
+      }
+      return moments;
+    }
 
-	/*
-	 * ==========================================================================
-	 * === zscoreTransform
-	 * ======================================================
-	 * =======================
-	 */
-	public static void zscoreTransform(float[][] data, /*
-														 * in & out:
-														 * [numObjects]
-														 * [numAttributes]
-														 */
-			int numObjects, int numAttributes) {
-		float[] moments;
-		float[] single_variable = new float[numObjects];
-		for (int i = 0; i < numAttributes; i++) {
-			for (int j = 0; j < numObjects; j++) {
-				single_variable[j] = data[j][i];
-			}
-			moments = extractMoments(single_variable, numObjects, 2);
-			moments[1] = (float) Math.sqrt((double) moments[1]);
-			for (int j = 0; j < numObjects; j++) {
-				data[j][i] = (data[j][i] - moments[0]) / moments[1];
-			}
-		}
-	}
 
-	/*
-	 * ==========================================================================
-	 * === cluster_exec
-	 * ==========================================================
-	 * ===================
-	 */
-	public static void cluster_exec(int nthreads, /* in: number of threads */
-			int numObjects, /* number of input objects */
-			int numAttributes, /* size of attribute of each object */
-			float[][] attributes, /* [numObjects][numAttributes] */
-			KMeans kms, /* KMeans class hold the inputs and outputs */
-			GlobalArgs args /* Global thread arguments */
-	) {
-		int itime;
-		int nclusters;
+  /* =============================================================================
+   * zscoreTransform
+   * =============================================================================
+   */
+  public static void
+    zscoreTransform (float[][] data, /* in & out: [numObjects][numAttributes] */
+        int     numObjects,
+        int     numAttributes)
+    {
+      float[] moments;
+      float[] single_variable = new float[numObjects];
+      for (int i = 0; i < numAttributes; i++) {
+        for (int j = 0; j < numObjects; j++) {
+          single_variable[j] = data[j][i];
+        }
+        moments = extractMoments(single_variable, numObjects, 2);
+        moments[1] = (float) Math.sqrt((double)moments[1]);
+        for (int j = 0; j < numObjects; j++) {
+          data[j][i] = (data[j][i]-moments[0])/moments[1];
+        }
+      }
+    }
 
-		float[][] tmp_cluster_centres;
-		int[] membership = new int[numObjects];
 
-		Random randomPtr = new Random();
-		randomPtr.random_alloc();
+  /* =============================================================================
+   * cluster_exec
+   * =============================================================================
+   */
+  public static void
+    cluster_exec (
+        int      nthreads,               /* in: number of threads*/
+        int      numObjects,             /* number of input objects */
+        int      numAttributes,          /* size of attribute of each object */
+        float[][]  attributes,           /* [numObjects][numAttributes] */
+        KMeans kms,                       /* KMeans class hold the inputs and outputs */
+        GlobalArgs args                 /* Global thread arguments */
+        )
+    {
+      int itime;
+      int nclusters;
 
-		if (kms.use_zscore_transform == 1) {
-			zscoreTransform(attributes, numObjects, numAttributes);
-		}
+      float[][] tmp_cluster_centres;
+      int[] membership = new int[numObjects];
 
-		itime = 0;
+      Random randomPtr = new Random();
+      randomPtr.random_alloc();
 
-		/*
-		 * From min_nclusters to max_nclusters, find best_nclusters
-		 */
-		for (nclusters = kms.min_nclusters; nclusters <= kms.max_nclusters; nclusters++) {
+      if (kms.use_zscore_transform == 1) {
+        zscoreTransform(attributes, numObjects, numAttributes);
+      }
 
-			randomPtr.random_seed(7);
+      itime = 0;
 
-			Normal norm = new Normal();
+      /*
+       * From min_nclusters to max_nclusters, find best_nclusters
+       */
+      for (nclusters = kms.min_nclusters; nclusters <= kms.max_nclusters; nclusters++) {
 
-			tmp_cluster_centres = norm.normal_exec(nthreads, attributes, numAttributes, numObjects, nclusters,
-					kms.threshold, membership, randomPtr, args);
+        randomPtr.random_seed(7);
 
-			kms.cluster_centres = tmp_cluster_centres;
-			kms.best_nclusters = nclusters;
+        Normal norm = new Normal();
 
-			itime++;
-		} /* nclusters */
-	}
+        tmp_cluster_centres = norm.normal_exec(nthreads,
+            attributes,
+            numAttributes,
+            numObjects,
+            nclusters,
+            kms.threshold,
+            membership,
+            randomPtr,
+            args);
+
+	kms.cluster_centres = tmp_cluster_centres;
+	kms.best_nclusters = nclusters;
+
+
+        itime++;
+      } /* nclusters */
+    }
 }
 
-/*
- * =============================================================================
- * 
+/* =============================================================================
+ *
  * End of cluster.java
- * 
+ *
  * =============================================================================
  */

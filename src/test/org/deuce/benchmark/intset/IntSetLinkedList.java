@@ -1,6 +1,6 @@
 package org.deuce.benchmark.intset;
 
-import org.deuce.Atomic;
+import org.deuce.*;
 
 /**
  * @author Pascal Felber

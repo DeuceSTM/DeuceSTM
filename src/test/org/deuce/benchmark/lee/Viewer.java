@@ -33,56 +33,55 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 /* 
  * Viewer.java
  */
 package org.deuce.benchmark.lee;
 
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
 
 public class Viewer extends Frame {
-	private BufferedImage image;
+    private BufferedImage image;
 
-	public Viewer() {
-		image = new BufferedImage(600, 600, 1); // TYPE_INT_RGB
-		image.flush();
-		addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				System.exit(0);
-			}
-		});
-		setSize(image.getWidth(null), image.getHeight(null) + 30);
-		setTitle("Picture");
-	}
+    public Viewer() {
+        image = new BufferedImage(600,600,1); //TYPE_INT_RGB
+	image.flush();
+	addWindowListener(new WindowAdapter() {
+	    public void windowClosing(WindowEvent e) {
+		System.exit(0);
+	    }
+	});
+	setSize(image.getWidth(null), image.getHeight(null)+30);
+	setTitle("Picture");
+    }
 
-	public void drawSquare(int x1, int y1, int x2, int y2, int col) {
-		for (int i = x1; i <= x2; i++)
-			for (int j = y1; j <= y2; j++)
-				image.setRGB(i, j, col);
-	}
+    public void drawSquare(int x1,int y1,int x2,int y2,int col){
+        for (int i=x1; i<=x2; i++)
+            for(int j=y1; j<=y2; j++)
+                image.setRGB(i,j,col);
+    }
 
-	public void paint(Graphics graphics) {
-		// drawSquare(10,10,20,20,0xFFFFFF);
-		// drawSquare(10,50,20,60,0xFFFF);
-		// drawSquare(10,90,20,100,0xFF);
-		graphics.drawImage(image, 0, 30, null);
-	}
+    public void paint(Graphics graphics) {
+	//drawSquare(10,10,20,20,0xFFFFFF);
+	//drawSquare(10,50,20,60,0xFFFF);
+	//      drawSquare(10,90,20,100,0xFF);
+	graphics.drawImage(image, 0, 30, null);
+    }
 
-	public void display() {
-		setVisible(true);
-	}
+    public void display(){
+      setVisible(true);
+    }
+    
+    public void pad(int x,int y,int col){
+//      x = x*2;
+//      y = y*2;
+      drawSquare(x-1,y-1,x+1,y+1,col);
+    }
 
-	public void pad(int x, int y, int col) {
-		// x = x*2;
-		// y = y*2;
-		drawSquare(x - 1, y - 1, x + 1, y + 1, col);
-	}
-
-	public void point(int x, int y, int col) {
-		image.setRGB(x, y, col);
-	}
+    public void point(int x,int y,int col){
+      image.setRGB(x,y,col);
+    }
 }

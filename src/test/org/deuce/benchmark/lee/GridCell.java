@@ -36,13 +36,13 @@
 package org.deuce.benchmark.lee;
 
 public class GridCell {
-
+	
 	private int value;
-
+	
 	public int getRouteID() {
 		return value;
 	}
-
+	
 	public void setRouteID(int v) {
 		value = v;
 	}

@@ -41,66 +41,64 @@ import org.deuce.objectweb.asm.MethodVisitor;
  */
 public class MethodInsnNode extends AbstractInsnNode {
 
-	/**
-	 * The internal name of the method's owner class (see
-	 * {@link org.deuce.objectweb.asm.Type#getInternalName() getInternalName}).
-	 */
-	public String owner;
+    /**
+     * The internal name of the method's owner class (see
+     * {@link org.deuce.objectweb.asm.Type#getInternalName() getInternalName}).
+     */
+    public String owner;
 
-	/**
-	 * The method's name.
-	 */
-	public String name;
+    /**
+     * The method's name.
+     */
+    public String name;
 
-	/**
-	 * The method's descriptor (see {@link org.deuce.objectweb.asm.Type}).
-	 */
-	public String desc;
+    /**
+     * The method's descriptor (see {@link org.deuce.objectweb.asm.Type}).
+     */
+    public String desc;
 
-	/**
-	 * Constructs a new {@link MethodInsnNode}.
-	 * 
-	 * @param opcode
-	 *            the opcode of the type instruction to be constructed. This
-	 *            opcode must be INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
-	 *            INVOKEINTERFACE.
-	 * @param owner
-	 *            the internal name of the method's owner class (see
-	 *            {@link org.deuce.objectweb.asm.Type#getInternalName()
-	 *            getInternalName}).
-	 * @param name
-	 *            the method's name.
-	 * @param desc
-	 *            the method's descriptor (see
-	 *            {@link org.deuce.objectweb.asm.Type}).
-	 */
-	public MethodInsnNode(final int opcode, final String owner, final String name, final String desc) {
-		super(opcode);
-		this.owner = owner;
-		this.name = name;
-		this.desc = desc;
-	}
+    /**
+     * Constructs a new {@link MethodInsnNode}.
+     * 
+     * @param opcode the opcode of the type instruction to be constructed. This
+     *        opcode must be INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or
+     *        INVOKEINTERFACE.
+     * @param owner the internal name of the method's owner class (see
+     *        {@link org.deuce.objectweb.asm.Type#getInternalName() getInternalName}).
+     * @param name the method's name.
+     * @param desc the method's descriptor (see {@link org.deuce.objectweb.asm.Type}).
+     */
+    public MethodInsnNode(
+        final int opcode,
+        final String owner,
+        final String name,
+        final String desc)
+    {
+        super(opcode);
+        this.owner = owner;
+        this.name = name;
+        this.desc = desc;
+    }
 
-	/**
-	 * Sets the opcode of this instruction.
-	 * 
-	 * @param opcode
-	 *            the new instruction opcode. This opcode must be INVOKEVIRTUAL,
-	 *            INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
-	 */
-	public void setOpcode(final int opcode) {
-		this.opcode = opcode;
-	}
+    /**
+     * Sets the opcode of this instruction.
+     * 
+     * @param opcode the new instruction opcode. This opcode must be
+     *        INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC or INVOKEINTERFACE.
+     */
+    public void setOpcode(final int opcode) {
+        this.opcode = opcode;
+    }
 
-	public int getType() {
-		return METHOD_INSN;
-	}
+    public int getType() {
+        return METHOD_INSN;
+    }
 
-	public void accept(final MethodVisitor mv) {
-		mv.visitMethodInsn(opcode, owner, name, desc);
-	}
+    public void accept(final MethodVisitor mv) {
+        mv.visitMethodInsn(opcode, owner, name, desc);
+    }
 
-	public AbstractInsnNode clone(final Map labels) {
-		return new MethodInsnNode(opcode, owner, name, desc);
-	}
+    public AbstractInsnNode clone(final Map labels) {
+        return new MethodInsnNode(opcode, owner, name, desc);
+    }
 }

@@ -71,88 +71,86 @@ package jstamp.vacation;
  * =============================================================================
  */
 
+
 public class Customer {
 
-	/*
-	 * ==========================================================================
-	 * === compareReservationInfo
-	 * ================================================
-	 * =============================
-	 */
-	int id;
-	List_t reservationInfoListPtr;
+  
+  /* =============================================================================
+   * compareReservationInfo
+   * =============================================================================
+   */
+  int id;
+  List_t reservationInfoListPtr;
 
-	/*
-	 * ==========================================================================
-	 * === customer_alloc
-	 * ========================================================
-	 * =====================
-	 */
-	public Customer(int id) {
-		this.id = id;
-		reservationInfoListPtr = new List_t();
-	}
+/* =============================================================================
+ * customer_alloc
+ * =============================================================================
+ */
+  public Customer(int id) {
+    this.id=id;
+    reservationInfoListPtr = new List_t();
+  }
+  
 
-	/*
-	 * ==========================================================================
-	 * === customer_compare -- Returns -1 if A < B, 0 if A = B, 1 if A > B
-	 * ======
-	 * =======================================================================
-	 */
-	int customer_compare(Customer aPtr, Customer bPtr) {
-		return (aPtr.id - bPtr.id);
-	}
+/* =============================================================================
+ * customer_compare
+ * -- Returns -1 if A < B, 0 if A = B, 1 if A > B
+ * =============================================================================
+ */
+  int  customer_compare (Customer aPtr, Customer bPtr) {
+    return (aPtr.id - bPtr.id);
+  }
 
-	/*
-	 * ==========================================================================
-	 * === customer_addReservationInfo -- Returns true if success, else FALSE
-	 * ====
-	 * =========================================================================
-	 */
-	boolean customer_addReservationInfo(int type, int id, int price) {
-		Reservation_Info reservationInfoPtr = new Reservation_Info(type, id, price);
-		// assert(reservationInfoPtr != NULL);
 
-		return reservationInfoListPtr.insert(reservationInfoPtr);
-	}
+/* =============================================================================
+ * customer_addReservationInfo
+ * -- Returns true if success, else FALSE
+ * =============================================================================
+ */
+  boolean customer_addReservationInfo (int type, int id, int price) {
+    Reservation_Info reservationInfoPtr= new Reservation_Info(type, id, price);
+    //    assert(reservationInfoPtr != NULL);
+    
+    return reservationInfoListPtr.insert(reservationInfoPtr);
+  }
 
-	/*
-	 * ==========================================================================
-	 * === customer_removeReservationInfo -- Returns true if success, else FALSE
-	 * ==
-	 * ========================================================================
-	 * ===
-	 */
-	boolean customer_removeReservationInfo(int type, int id) {
-		Reservation_Info findReservationInfo = new Reservation_Info(type, id, 0);
 
-		Reservation_Info reservationInfoPtr = (Reservation_Info) reservationInfoListPtr.find(findReservationInfo);
+/* =============================================================================
+ * customer_removeReservationInfo
+ * -- Returns true if success, else FALSE
+ * =============================================================================
+ */
+  boolean customer_removeReservationInfo (int type, int id) {
+    Reservation_Info findReservationInfo =new Reservation_Info(type, id, 0);
+    
+    Reservation_Info reservationInfoPtr = (Reservation_Info)reservationInfoListPtr.find(findReservationInfo);
+    
+    if (reservationInfoPtr == null) {
+      return false;
+    }
 
-		if (reservationInfoPtr == null) {
-			return false;
-		}
+    boolean status = reservationInfoListPtr.remove(findReservationInfo);
+    return true;
+  }
 
-		boolean status = reservationInfoListPtr.remove(findReservationInfo);
-		return true;
-	}
 
-	/*
-	 * ==========================================================================
-	 * === customer_getBill -- Returns total cost of reservations
-	 * ================
-	 * =============================================================
-	 */
-	int customer_getBill() {
-		int bill = 0;
-		List_Node it;
+/* =============================================================================
+ * customer_getBill
+ * -- Returns total cost of reservations
+ * =============================================================================
+ */
+  int customer_getBill () {
+    int bill = 0;
+    List_Node it;
 
-		it = reservationInfoListPtr.head;
-		while (it.nextPtr != null) {
-			it = it.nextPtr;
-			Reservation_Info reservationInfoPtr = (Reservation_Info) it.dataPtr;
-			bill += reservationInfoPtr.price;
-		}
-
-		return bill;
-	}
+    it=reservationInfoListPtr.head;
+    while (it.nextPtr!=null) {
+      it=it.nextPtr;
+      Reservation_Info reservationInfoPtr =
+	(Reservation_Info)it.dataPtr;
+      bill += reservationInfoPtr.price;
+    }
+    
+    return bill;
+  }
 }

@@ -6,8 +6,8 @@ import org.deuce.benchmark.stmbench7.annotations.Update;
 import org.deuce.benchmark.stmbench7.backend.ImmutableCollection;
 
 /**
- * Part of the main benchmark data structure. For a default implementation, see
- * stmbench7.impl.core.ComplexAssemblyImpl.
+ * Part of the main benchmark data structure. For a default
+ * implementation, see stmbench7.impl.core.ComplexAssemblyImpl.
  */
 @Atomic
 public interface ComplexAssembly extends Assembly {

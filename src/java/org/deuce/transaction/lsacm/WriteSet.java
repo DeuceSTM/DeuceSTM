@@ -2,6 +2,7 @@ package org.deuce.transaction.lsacm;
 
 import org.deuce.transaction.lsacm.field.Field.Type;
 import org.deuce.transaction.lsacm.field.WriteFieldAccess;
+import org.deuce.transaction.lsacm.LockTable;
 import org.deuce.transform.ExcludeInternal;
 import org.deuce.trove.THashMap;
 

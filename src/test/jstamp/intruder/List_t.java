@@ -83,9 +83,9 @@ public class List_t {
 		head = new List_Node();
 	}
 
-	/*
-	 * =======================================================================
-	 * allocNode -- Returns null on failure
+	/* =======================================================================
+	 * allocNode
+	 * -- Returns null on failure
 	 * =======================================================================
 	 */
 	private List_Node allocNode(Object dataPtr) {
@@ -94,13 +94,14 @@ public class List_t {
 		return nodePtr;
 	}
 
-	/*
-	 * ==========================================================================
-	 * === list_alloc -- If NULL passed for 'compare' function, will compare
-	 * data pointer addresses -- Returns NULL on failure
-	 * ========================
-	 * ===================================================== list_t* list_alloc
-	 * (long (*compare)(const void*, const void*));
+	/* =============================================================================
+	 * list_alloc
+	 * -- If NULL passed for 'compare' function, will compare data pointer addresses
+	 * -- Returns NULL on failure
+	 * =============================================================================
+	 * list_t* list_alloc (long (*compare)(const void*, const void*));
+	 *
+	 *
 	 */
 
 	public List_t(int chk) {
@@ -108,42 +109,38 @@ public class List_t {
 		this.chk = chk;
 	}
 
-	/*
-	 * ==========================================================================
-	 * === list_free -- If NULL passed for 'compare' function, will compare data
-	 * pointer addresses -- Returns NULL on failure
-	 * ==============================
-	 * =============================================== void list_free (list_t*
-	 * listPtr);
+	/* =============================================================================
+	 * list_free
+	 * -- If NULL passed for 'compare' function, will compare data pointer addresses
+	 * -- Returns NULL on failure
+	 * =============================================================================
+	 * void list_free (list_t* listPtr);
 	 */
 
-	/*
-	 * ==========================================================================
-	 * === list_isEmpty -- Return TRUE if list is empty, else FALSE
-	 * ==============
-	 * =============================================================== bool_t
-	 * list_isEmpty (list_t* listPtr);
+	/* =============================================================================
+	 * list_isEmpty
+	 * -- Return TRUE if list is empty, else FALSE
+	 * =============================================================================
+	 * bool_t list_isEmpty (list_t* listPtr);
 	 */
 	public boolean isEmpty() {
 		return (head.nextPtr == null);
 	}
 
-	/*
-	 * ==========================================================================
-	 * === list_getSize -- Returns size of list
-	 * ==================================
-	 * =========================================== long list_getSize (list_t*
-	 * listPtr);
+	/* =============================================================================
+	 * list_getSize
+	 * -- Returns size of list
+	 * =============================================================================
+	 * long list_getSize (list_t* listPtr);
 	 */
 	public int getSize() {
 		return size;
 	}
 
-	/*
-	 * ==========================================================================
-	 * === findPrevious
-	 * ==========================================================
-	 * =================== void* list_find (list_t* listPtr, void* dataPtr);
+	/* =============================================================================
+	 * findPrevious
+	 * =============================================================================
+	 * void* list_find (list_t* listPtr, void* dataPtr);
 	 */
 	private List_Node findPrevious(Object dataPtr) {
 		List_Node prevPtr = head;
@@ -159,12 +156,11 @@ public class List_t {
 		return prevPtr;
 	}
 
-	/*
-	 * ==========================================================================
-	 * === list_find -- Returns NULL if not found, else returns pointer to data
-	 * ==
-	 * ========================================================================
-	 * === void* list_find (list_t* listPtr, void* dataPtr);
+	/* =============================================================================
+	 * list_find
+	 * -- Returns NULL if not found, else returns pointer to data
+	 * =============================================================================
+	 * void* list_find (list_t* listPtr, void* dataPtr);
 	 */
 	public Object find(Object dataPtr) {
 		List_Node nodePtr;
@@ -186,12 +182,11 @@ public class List_t {
 			return compareObject(obj1, obj2);
 	}
 
-	/*
-	 * ==========================================================================
-	 * === list_insert -- Return TRUE on success, else FALSE
-	 * ====================
-	 * ========================================================= bool_t
-	 * list_insert (list_t* listPtr, void* dataPtr);
+	/* =============================================================================
+	 * list_insert
+	 * -- Return TRUE on success, else FALSE
+	 * =============================================================================
+	 * bool_t list_insert (list_t* listPtr, void* dataPtr);
 	 */
 	public boolean insert(Object dataPtr) {
 		List_Node prevPtr;
@@ -210,12 +205,11 @@ public class List_t {
 		return true;
 	}
 
-	/*
-	 * ==========================================================================
-	 * === list_remove -- Returns TRUE if successful, else FALSE
-	 * ================
-	 * ============================================================= bool_t
-	 * list_remove (list_t* listPtr, void* dataPtr);
+	/* =============================================================================
+	 * list_remove
+	 * -- Returns TRUE if successful, else FALSE
+	 * =============================================================================
+	 * bool_t list_remove (list_t* listPtr, void* dataPtr);
 	 */
 	public boolean remove(Object dataPtr) {
 		List_Node prevPtr;
@@ -241,26 +235,22 @@ public class List_t {
 		return 1;
 	}
 
-	/*
-	 * ==========================================================================
-	 * === list_clear -- Removes all elements
-	 * ====================================
-	 * ========================================= void list_clear (list_t*
-	 * listPtr);
+	/* =============================================================================
+	 * list_clear
+	 * -- Removes all elements
+	 * =============================================================================
+	 * void list_clear (list_t* listPtr);
 	 */
 	public void clear() {
 		head = new List_Node();
 		size = 0;
 	}
 
-	/*
-	 * ==========================================================================
-	 * ===
-	 * 
+	/* =============================================================================
+	 *
 	 * End of list.java
-	 * 
-	 * ==========================================================================
-	 * ===
+	 *
+	 * =============================================================================
 	 */
 
 }

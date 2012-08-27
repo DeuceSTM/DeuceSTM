@@ -41,41 +41,39 @@ import org.deuce.objectweb.asm.MethodVisitor;
  */
 public class LineNumberNode extends AbstractInsnNode {
 
-	/**
-	 * A line number. This number refers to the source file from which the class
-	 * was compiled.
-	 */
-	public int line;
+    /**
+     * A line number. This number refers to the source file from which the class
+     * was compiled.
+     */
+    public int line;
 
-	/**
-	 * The first instruction corresponding to this line number.
-	 */
-	public LabelNode start;
+    /**
+     * The first instruction corresponding to this line number.
+     */
+    public LabelNode start;
 
-	/**
-	 * Constructs a new {@link LineNumberNode}.
-	 * 
-	 * @param line
-	 *            a line number. This number refers to the source file from
-	 *            which the class was compiled.
-	 * @param start
-	 *            the first instruction corresponding to this line number.
-	 */
-	public LineNumberNode(final int line, final LabelNode start) {
-		super(-1);
-		this.line = line;
-		this.start = start;
-	}
+    /**
+     * Constructs a new {@link LineNumberNode}.
+     * 
+     * @param line a line number. This number refers to the source file from
+     *        which the class was compiled.
+     * @param start the first instruction corresponding to this line number.
+     */
+    public LineNumberNode(final int line, final LabelNode start) {
+        super(-1);
+        this.line = line;
+        this.start = start;
+    }
 
-	public int getType() {
-		return LINE;
-	}
+    public int getType() {
+        return LINE;
+    }
 
-	public void accept(final MethodVisitor mv) {
-		mv.visitLineNumber(line, start.getLabel());
-	}
+    public void accept(final MethodVisitor mv) {
+        mv.visitLineNumber(line, start.getLabel());
+    }
 
-	public AbstractInsnNode clone(final Map labels) {
-		return new LineNumberNode(line, clone(start, labels));
-	}
+    public AbstractInsnNode clone(final Map labels) {
+        return new LineNumberNode(line, clone(start, labels));
+    }
 }

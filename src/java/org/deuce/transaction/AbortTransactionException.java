@@ -11,19 +11,17 @@ import org.deuce.transform.ExcludeInternal;
  * @since 1.3
  */
 @ExcludeInternal
-public class AbortTransactionException extends TransactionException {
+public class AbortTransactionException extends TransactionException{
+	
+	final static public String ABORT_TRANSACTION_EXCEPTION_INTERNAL = Type.getInternalName(AbortTransactionException.class);
+	
+	public AbortTransactionException(){}
 
-	final static public String ABORT_TRANSACTION_EXCEPTION_INTERNAL = Type
-			.getInternalName(AbortTransactionException.class);
-
-	public AbortTransactionException() {
-	}
-
-	public AbortTransactionException(String msg) {
+	public AbortTransactionException( String msg){
 		super(msg);
 	}
 
-	public AbortTransactionException(Throwable cause) {
+	public AbortTransactionException( Throwable cause){
 		super(cause);
 	}
 }

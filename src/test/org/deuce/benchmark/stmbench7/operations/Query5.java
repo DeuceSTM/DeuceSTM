@@ -9,45 +9,44 @@ import org.deuce.benchmark.stmbench7.core.BaseAssembly;
 import org.deuce.benchmark.stmbench7.core.CompositePart;
 
 /**
- * Query Q5 / Short traversal ST5 (see the specification). Read-only, iterate on
- * index, short.
+ * Query Q5 / Short traversal ST5 (see the specification).
+ * Read-only, iterate on index, short.
  */
 public class Query5 extends BaseOperation {
 
-	protected Index<Integer, BaseAssembly> baseAssemblyIdIndex;
+    protected Index<Integer,BaseAssembly> baseAssemblyIdIndex;
 
-	public Query5(Setup oo7setup) {
-		this.baseAssemblyIdIndex = oo7setup.getBaseAssemblyIdIndex();
-	}
+    public Query5(Setup oo7setup) {
+    	this.baseAssemblyIdIndex = oo7setup.getBaseAssemblyIdIndex();
+    }
+	
+    @Override
+    @Transactional @ReadOnly
+    public int performOperation() {
+    	int result = 0;
 
-	@Override
-	@Transactional
-	@ReadOnly
-	public int performOperation() {
-		int result = 0;
+    	for(BaseAssembly assembly : baseAssemblyIdIndex) {
+    		result += checkBaseAssembly(assembly);
+    	}
+    		
+    	return result;
+    }
 
-		for (BaseAssembly assembly : baseAssemblyIdIndex) {
-			result += checkBaseAssembly(assembly);
-		}
+    protected int checkBaseAssembly(BaseAssembly assembly) {
+    	int assBuildDate = assembly.getBuildDate();
 
-		return result;
-	}
+    	for(CompositePart part : assembly.getComponents()) {
+    		if(part.getBuildDate() > assBuildDate) {
+    			assembly.nullOperation();
+    			return 1;
+    		}
+    	}
 
-	protected int checkBaseAssembly(BaseAssembly assembly) {
-		int assBuildDate = assembly.getBuildDate();
-
-		for (CompositePart part : assembly.getComponents()) {
-			if (part.getBuildDate() > assBuildDate) {
-				assembly.nullOperation();
-				return 1;
-			}
-		}
-
-		return 0;
-	}
-
-	@Override
-	public OperationId getOperationId() {
-		return OperationId.ST5;
-	}
+    	return 0;
+    }
+    
+    @Override
+    public OperationId getOperationId() {
+    	return OperationId.ST5;
+    }
 }

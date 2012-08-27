@@ -70,174 +70,194 @@
 
 package jstamp.Labyrinth3D;
 
-public class Labyrinth extends Thread {
+import java.io.IOException;
 
-	static String global_inputFile;
-	static boolean global_doPrint;
-	int numThread;
-	int bendCost;
-	int xCost;
-	int yCost;
-	int zCost;
+public class Labyrinth extends Thread{
 
-	// For threads
-	int threadID;
-	Solve_Arg routerArg;
+    static String global_inputFile;
+    static boolean global_doPrint;
+    int numThread;
+    int bendCost;
+    int xCost;
+    int yCost;
+    int zCost;
 
-	private void setDefaultParams() {
 
-		/* default values */
-		global_inputFile = null;
-		global_doPrint = false;
-		bendCost = 1;
-		xCost = 1;
-		yCost = 1;
-		zCost = 2;
-		numThread = 1;
-	}
+    // For threads
+    int threadID;
+    Solve_Arg routerArg;
 
-	private void parseArg(String[] argv) {
-		int i = 0;
-		String arg;
-		boolean opterr = false;
+    private void setDefaultParams() {
 
-		setDefaultParams();
+        /* default values */
+        global_inputFile = null;
+        global_doPrint = false;
+        bendCost = 1;
+        xCost = 1;
+        yCost = 1;
+        zCost = 2;
+        numThread = 1;
+    }
 
-		while (i < argv.length) {
+    private void parseArg(String[] argv) {
+        int i=0;
+        String arg;
+        boolean opterr = false;
 
-			if (argv[i].charAt(0) == '-') {
-				arg = argv[i++];
-				// check options
-				if (arg.equals("-b")) {
-					bendCost = Integer.parseInt(argv[i++]);
-				} else if (arg.equals("-x")) {
-					xCost = Integer.parseInt(argv[i++]);
-				} else if (arg.equals("-y")) {
-					yCost = Integer.parseInt(argv[i++]);
-				} else if (arg.equals("-z")) {
-					zCost = Integer.parseInt(argv[i++]);
-				} else if (arg.equals("-t")) {
-					numThread = Integer.parseInt(argv[i++]);
-				} else if (arg.equals("-i")) {
-					global_inputFile = argv[i++];
-				} else if (arg.equals("-p")) {
-					global_doPrint = true;
-				} else {
-					System.out.println("Non-option argument: " + argv[i]);
-					opterr = true;
-				}
 
-			}
-		}
-		if (opterr) {
-			displayUsage();
-			System.exit(1);
-		}
-	}
+        setDefaultParams();
 
-	public Labyrinth(String[] argv) {
-		parseArg(argv);
-	}
+        while (i < argv.length) {
 
-	public Labyrinth(int myID, Solve_Arg rArg) {
-		threadID = myID;
-		routerArg = rArg;
-	}
+            if(argv[i].charAt(0) == '-' ) {
+                arg = argv[i++];
+                // check options
+                if(arg.equals("-b")) {
+                    bendCost = Integer.parseInt(argv[i++]);
+                }
+                else if(arg.equals("-x")) {
+                    xCost = Integer.parseInt(argv[i++]);
+                    }
+                else if(arg.equals("-y")) {
+                    yCost = Integer.parseInt(argv[i++]);
+                    }
+                else if(arg.equals("-z")) {
+                    zCost = Integer.parseInt(argv[i++]);
+                    }
+                else if(arg.equals("-t")) {
+                        numThread = Integer.parseInt(argv[i++]);
+                }
+                else if(arg.equals("-i")) {
+                    global_inputFile = argv[i++];
+                    }
+                else if(arg.equals("-p")) {
+                        global_doPrint = true;
+                }
+                else {
+                    System.out.println("Non-option argument: " + argv[i]);
+                    opterr = true;
+                }   
+            
+            }
+        }
+        if(opterr) {
+            displayUsage();
+            System.exit(1);
+        }
+    }
 
-	public void run() {
-		Barrier.enterBarrier();
-		Router.solve(routerArg);
-		Barrier.enterBarrier();
-	}
+    public Labyrinth(String[] argv)
+    {     
+        parseArg(argv);
+    }
 
-	public void displayUsage() {
-		System.out.println("Usage: Labyrinth [options]");
-		System.out.println("Options:");
-		System.out.println("    b <INT>     bend cost");
-		System.out.println("    i <FILE>    input file name");
-		System.out.println("    p           print routed maze");
-		System.out.println("    t <INT>     Number of threads");
-		System.out.println("    x <INT>     x movement cost");
-		System.out.println("    y <INT>     y movement cost");
-		System.out.println("    z <INT>     z movement cost");
-	}
 
-	public static void main(String[] argv) {
-		/*
-		 * Initailization
-		 */
+    public Labyrinth(int myID,Solve_Arg rArg)
+    {
+        threadID = myID;
+        routerArg = rArg;
+    }
 
-		Labyrinth labyrinth = new Labyrinth(argv);
+    public void run() {
+            Barrier.enterBarrier();
+            Router.solve(routerArg);
+            Barrier.enterBarrier();
+    }
 
-		Barrier.setBarrier(labyrinth.numThread);
+    public void displayUsage() 
+    {
+        System.out.println("Usage: Labyrinth [options]");
+        System.out.println("Options:");
+        System.out.println("    b <INT>     bend cost");
+        System.out.println("    i <FILE>    input file name");
+        System.out.println("    p           print routed maze");
+        System.out.println("    t <INT>     Number of threads");
+        System.out.println("    x <INT>     x movement cost");
+        System.out.println("    y <INT>     y movement cost");
+        System.out.println("    z <INT>     z movement cost");
+    }
+        
 
-		Maze mazePtr = Maze.alloc();
+    public static void main(String[] argv) 
+    {
+        /*
+         * Initailization
+         */
 
-		try {
-			int numPathToRoute = mazePtr.readMaze(labyrinth.global_inputFile);
+        Labyrinth labyrinth = new Labyrinth(argv);
+
+        Barrier.setBarrier(labyrinth.numThread);
+
+        Maze mazePtr = Maze.alloc();
+
+        try {
+			int numPathToRoute =  mazePtr.readMaze(labyrinth.global_inputFile);		
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		Router routerPtr = Router.alloc(labyrinth.xCost, labyrinth.yCost, labyrinth.zCost, labyrinth.bendCost);
+        Router routerPtr = Router.alloc(labyrinth.xCost,labyrinth.yCost,
+                                        labyrinth.zCost,labyrinth.bendCost);
 
-		List_t pathVectorListPtr = List_t.alloc(0); // list_t.alloc(null)
-		/*
-		 * Run transactions
-		 */
-		Solve_Arg routerArg = new Solve_Arg(routerPtr, mazePtr, pathVectorListPtr);
+        List_t pathVectorListPtr = List_t.alloc(0);     // list_t.alloc(null)
+        /*
+         * Run transactions
+         */
+        Solve_Arg routerArg = new Solve_Arg(routerPtr,mazePtr,pathVectorListPtr);
 
-		/* Create and start thread */
+        /* Create and start thread */
 
-		Labyrinth[] lb = new Labyrinth[labyrinth.numThread];
+        Labyrinth[] lb = new Labyrinth[labyrinth.numThread];
 
-		for (int i = 1; i < labyrinth.numThread; i++) {
-			lb[i] = new Labyrinth(i, routerArg);
-		}
+        for(int i = 1; i<labyrinth.numThread;i++) {
+            lb[i] = new Labyrinth(i,routerArg);
+        }
 
-		for (int i = 1; i < labyrinth.numThread; i++) {
-			lb[i].start();
-		}
-		long start = System.currentTimeMillis();
+        for(int i = 1; i<labyrinth.numThread;i++) {
+            lb[i].start();
+        }
+        long start = System.currentTimeMillis();
 
-		Barrier.enterBarrier();
-		Router.solve(routerArg);
-		Barrier.enterBarrier();
+        Barrier.enterBarrier();
+        Router.solve(routerArg);        
+        Barrier.enterBarrier();
 
-		/* End of Solve */
-		long finish = System.currentTimeMillis();
-		long diff = finish - start;
-		System.out.println("TIME=" + diff);
+        /* End of Solve */
+        long finish = System.currentTimeMillis();
+	long diff=finish-start;
+	System.out.println("TIME="+diff);
 
-		int numPathRouted = 0;
-		List_Iter it = new List_Iter();
 
-		it.reset(pathVectorListPtr);
-		while (it.hasNext(pathVectorListPtr)) {
-			Vector_t pathVectorPtr = (Vector_t) it.next(pathVectorListPtr);
-			numPathRouted += pathVectorPtr.vector_getSize();
-		}
+        int numPathRouted = 0;
+        List_Iter it = new List_Iter();
 
-		float elapsed = ((float) finish - (float) start) / 1000;
+        it.reset(pathVectorListPtr);
+        while(it.hasNext(pathVectorListPtr)) {
+	  Vector_t pathVectorPtr = (Vector_t)it.next(pathVectorListPtr);
+	  numPathRouted += pathVectorPtr.vector_getSize();
+        }
 
-		System.out.println("Paths routed    = " + numPathRouted);
-		System.out.println("Elapsed time    = " + elapsed);
+        float elapsed = ((float)finish-(float)start)/1000;
 
-		boolean stats = mazePtr.checkPaths(pathVectorListPtr, labyrinth.global_doPrint);
-		if (!stats) {
-			System.out.println("Verification not passed");
+        System.out.println("Paths routed    = " + numPathRouted);
+        System.out.println("Elapsed time    = " + elapsed);
 
-		} else
-			System.out.println("Verification passed.");
-		System.out.println("Finished");
-	}
+        boolean stats = mazePtr.checkPaths(pathVectorListPtr,labyrinth.global_doPrint);
+        if(!stats)
+        {
+            System.out.println("Verification not passed");
+            
+        }
+        else 
+            System.out.println("Verification passed.");
+        System.out.println("Finished");    
+    }
 }
 
-/*
- * =============================================================================
- * 
+/* =============================================================================
+ *
  * End of labyrinth.c
- * 
+ *
  * =============================================================================
  */

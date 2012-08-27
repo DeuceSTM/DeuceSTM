@@ -1,5 +1,6 @@
 package org.deuce.transaction.lsa.field;
 
+import org.deuce.transaction.lsa.field.Field;
 import org.deuce.transaction.lsa.field.Field.Type;
 import org.deuce.transform.ExcludeInternal;
 

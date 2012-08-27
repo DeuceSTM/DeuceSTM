@@ -1,5 +1,6 @@
 package jstamp.intruder;
 
+
 /* =============================================================================
  *
  * rbtree.java
@@ -81,586 +82,620 @@ package jstamp.intruder;
  * =============================================================================
  */
 
+
 public class RBTree {
-	public final static int RED = 0;
-	public final static int BLACK = 1;
+	public final static int RED =0;
+	public final static int BLACK =1;
 
 	jstamp.intruder.Node root;
-	int compID;
+    int compID;
 
-	public RBTree() {
-	}
+    public RBTree() {}
 
-	/* private Methods */
-	/* lookup */
-	private Node lookup(int k) {
-		Node p = root;
+    /* private Methods */
+    /* lookup */
+    private Node lookup(int k)
+    {
+        Node p = root;
 
-		while (p != null) {
-			int cmp = compare(k, p.k);
-			if (cmp == 0) {
-				return p;
-			}
-			p = (cmp < 0) ? p.l : p.r;
-		}
+        while(p != null) {
+            int cmp = compare(k,p.k);
+            if(cmp == 0) {
+                return p;
+            }
+            p = (cmp < 0) ? p.l : p.r;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/* rotateLeft */
-	private void rotateLeft(Node x) {
-		Node r = x.r;
-		Node rl = r.l;
-		x.r = rl;
-		if (rl != null) {
-			rl.p = x;
-		}
 
-		Node xp = x.p;
-		r.p = xp;
-		if (xp == null) {
-			root = r;
-		} else if (xp.l == x) {
-			xp.l = r;
-		} else {
-			xp.r = r;
-		}
-		r.l = x;
-		x.p = r;
-	}
+    /* rotateLeft */
+    private void rotateLeft(Node x)
+    {
+        Node r = x.r;
+        Node rl = r.l;
+        x.r = rl;
+        if(rl != null) {
+            rl.p = x;
+        }
 
-	/* rotateRight */
-	private void rotateRight(Node x) {
-		Node l = x.l;
-		Node lr = l.r;
-		x.l = lr;
-		if (lr != null) {
-			lr.p = x;
-		}
-		Node xp = x.p;
-		l.p = xp;
-		if (xp == null) {
-			root = l;
-		} else if (xp.r == x) {
-			xp.r = l;
-		} else {
-			xp.l = l;
-		}
+        Node xp = x.p;
+        r.p = xp;
+        if (xp == null) {
+            root = r;
+        } else if (xp.l == x) {
+            xp.l = r;
+        } else {
+            xp.r = r;
+        }
+        r.l = x;
+        x.p = r;
+    }
 
-		l.r = x;
-		x.p = l;
-	}
+    /* rotateRight */
+    private void rotateRight(Node x)
+    {
+        Node l = x.l;
+        Node lr = l.r;
+        x.l = lr;
+        if (lr != null) {
+            lr.p = x;
+        }
+        Node xp = x.p;
+        l.p = xp;
+        if (xp == null) {
+            root = l;
+        } else if (xp.r == x) {
+            xp.r = l;
+        } else {
+            xp.l = l;
+        }
 
-	/* parentOf */
-	private Node parentOf(Node n) {
-		return ((n != null) ? n.p : null);
-	}
+        l.r = x;
+        x.p = l;
+    }
 
-	/* leftOf */
-	private Node leftOf(Node n) {
-		return ((n != null) ? n.l : null);
-	}
 
-	/* rightOf */
-	private Node rightOf(Node n) {
-		return ((n != null) ? n.r : null);
-	}
+    /* parentOf */
+    private Node parentOf (Node n)
+    {
+        return ((n!=null) ? n.p : null);
+    }
 
-	/* colorOf */
-	private int colorOf(Node n) {
-		return ((n != null) ? n.c : BLACK);
-	}
+    /* leftOf */
+    private Node leftOf (Node n)
+    {
+        return ((n != null)? n.l : null);
+    }
 
-	/* setColor */
-	private void setColor(Node n, int c) {
-		if (n != null) {
-			n.c = c;
-		}
-	}
+    /* rightOf */
+    private Node rightOf(Node n)
+    {
+        return ((n!= null) ? n.r : null);
+    }
 
-	/* fixAfterInsertion */
-	private void fixAfterInsertion(Node x) {
-		x.c = RED;
+    /* colorOf */
+    private int colorOf(Node n)
+    {
+        return ((n!=null) ? n.c : BLACK);
+    }
 
-		while (x != null && x != root) {
-			Node xp = x.p;
-			if (xp.c != RED) {
-				break;
-			}
+    /* setColor */
+    private void setColor(Node n, int c)
+    {
+        if ( n != null) {
+            n.c = c;
+        }
+    }
+    
+    /* fixAfterInsertion */
+    private void fixAfterInsertion(Node x)
+    {
+        x.c = RED;
 
-			if (parentOf(x) == leftOf(parentOf(parentOf(x)))) {
-				Node y = rightOf(parentOf(parentOf(x)));
-				if (colorOf(y) == RED) {
-					setColor(parentOf(x), BLACK);
-					setColor(y, BLACK);
-					setColor(parentOf(parentOf(x)), RED);
-					x = parentOf(parentOf(x));
-				} else {
-					if (x == rightOf(parentOf(x))) {
-						x = parentOf(x);
-						rotateLeft(x);
-					}
-					setColor(parentOf(x), BLACK);
-					setColor(parentOf(parentOf(x)), RED);
-					if (parentOf(parentOf(x)) != null) {
-						rotateRight(parentOf(parentOf(x)));
-					}
-				}
-			} else {
-				Node y = leftOf(parentOf(parentOf(x)));
-				if (colorOf(y) == RED) {
-					setColor(parentOf(x), BLACK);
-					setColor(y, BLACK);
-					setColor(parentOf(parentOf(x)), RED);
-					x = parentOf(parentOf(x));
-				} else {
-					if (x == leftOf(parentOf(x))) {
-						x = parentOf(x);
-						rotateRight(x);
-					}
-					setColor(parentOf(x), BLACK);
-					setColor(parentOf(parentOf(x)), RED);
-					if (parentOf(parentOf(x)) != null) {
-						rotateLeft(parentOf(parentOf(x)));
-					}
-				}
-			}
-		}
+        while (x != null && x != root) {
+            Node xp = x.p;
+            if(xp.c != RED) {
+                break;
+            }
 
-		Node ro = root;
-		if (ro.c != BLACK) {
-			ro.c = BLACK;
-		}
-	}
+            if(parentOf(x) == leftOf(parentOf(parentOf(x)))) {
+                Node y = rightOf(parentOf(parentOf(x)));
+                if(colorOf(y) == RED) {
+                    setColor(parentOf(x),BLACK);
+                    setColor(y,BLACK);
+                    setColor(parentOf(parentOf(x)),RED);
+                    x = parentOf(parentOf(x));
+                } else {
+                    if ( x== rightOf(parentOf(x))) {
+                        x = parentOf(x);
+                        rotateLeft(x);
+                    }
+                    setColor(parentOf(x),BLACK);
+                    setColor(parentOf(parentOf(x)),RED);
+                    if(parentOf(parentOf(x)) != null) {
+                        rotateRight(parentOf(parentOf(x)));
+                    }
+                }
+            } else {
+                Node y = leftOf(parentOf(parentOf(x)));
+                if(colorOf(y) == RED) {
+                    setColor(parentOf(x),BLACK);
+                    setColor(y,BLACK);
+                    setColor(parentOf(parentOf(x)),RED);
+                    x = parentOf(parentOf(x));
+                } else {
+                    if (x == leftOf(parentOf(x))) {
+                        x = parentOf(x);
+                        rotateRight(x);
+                    }
+                    setColor(parentOf(x),BLACK);
+                    setColor(parentOf(parentOf(x)),RED);
+                    if (parentOf(parentOf(x)) != null) {
+                        rotateLeft(parentOf(parentOf(x)));
+                    }
+                }
+            }
+        }
 
-	private Node insert(int k, Object v, Node n) {
-		Node t = root;
-		if (t == null) {
-			if (n == null) {
-				return null;
-			}
-			/* Note: the following STs don't really need to be transactional */
-			n.l = null;
-			n.r = null;
-			n.p = null;
-			n.k = k;
-			n.v = v;
-			n.c = BLACK;
-			root = n;
-			return null;
-		}
+        Node ro = root;
+        if(ro.c != BLACK) {
+            ro.c = BLACK;
+        }
+    }
 
-		while (true) {
-			int cmp = compare(k, t.k);
-			if (cmp == 0) {
-				return t;
-			} else if (cmp < 0) {
-				Node tl = t.l;
-				if (tl != null) {
-					t = tl;
-				} else {
-					n.l = null;
-					n.r = null;
-					n.k = k;
-					n.v = v;
-					n.p = t;
-					t.l = n;
-					fixAfterInsertion(n);
-					return null;
-				}
-			} else { /* cmp > 0 */
-				Node tr = t.r;
-				if (tr != null) {
-					t = tr;
-				} else {
-					n.l = null;
-					n.r = null;
-					n.k = k;
-					n.v = v;
-					n.p = t;
-					t.r = n;
-					fixAfterInsertion(n);
-					return null;
-				}
-			}
-		}
-	}
+    private Node insert(int k,Object v,Node n)
+    {
+        Node t = root;
+        if (t== null) {
+            if (n == null) {
+                return null;
+            }
+            /* Note: the following STs don't really need to be transactional */
+            n.l = null;
+            n.r = null;
+            n.p = null;
+            n.k = k;
+            n.v = v;
+            n.c = BLACK;
+            root = n;
+            return null;
+        }
 
-	/* successor */
-	private Node successor(Node t) {
-		if (t == null) {
-			return null;
-		} else if (t.r != null) {
-			Node p = t.r;
-			while (p.l != null) {
-				p = p.l;
-			}
-			return p;
-		} else {
-			Node p = t.p;
-			Node ch = t;
-			while (p != null && ch == p.r) {
-				ch = p;
-				p = p.p;
-			}
-			return p;
-		}
+        while(true) {
+            int cmp = compare(k,t.k);
+            if (cmp == 0) {
+                return t;
+            } else if (cmp < 0) {
+                Node tl = t.l;
+                if (tl != null) {
+                    t = tl;
+                } else {
+                    n.l = null;
+                    n.r = null;
+                    n.k = k;
+                    n.v = v;
+                    n.p = t;
+                    t.l = n;
+                    fixAfterInsertion(n);
+                    return null;
+                }
+            } else { /* cmp > 0 */
+                Node tr = t.r;
+                if (tr != null) {
+                    t = tr;
+                } else {
+                    n.l = null;
+                    n.r = null;
+                    n.k = k;
+                    n.v = v;
+                    n.p = t;
+                    t.r = n;
+                    fixAfterInsertion(n);
+                    return null;
+                }
+            }
+        }
+    }
 
-	}
+    /* successor */
+    private Node successor(Node t)
+    {
+        if ( t == null) {
+            return null;
+        } else if( t.r != null) {
+            Node p = t.r;
+            while (p.l != null) {
+                p = p.l;
+            }
+            return p;
+        } else {
+            Node p = t.p;
+            Node ch = t;
+            while (p != null && ch == p.r) {
+                ch = p;
+                p = p.p;
+            }
+            return p;
+        }
 
-	/* fixAfterDeletion */
-	private void fixAfterDeletion(Node x) {
-		while (x != root && colorOf(x) == BLACK) {
-			if (x == leftOf(parentOf(x))) {
-				Node sib = rightOf(parentOf(x));
-				if (colorOf(sib) == RED) {
-					setColor(sib, BLACK);
-					setColor(parentOf(x), RED);
-					rotateLeft(parentOf(x));
-					sib = rightOf(parentOf(x));
-				}
-				if (colorOf(leftOf(sib)) == BLACK && colorOf(rightOf(sib)) == BLACK) {
-					setColor(sib, RED);
-					x = parentOf(x);
-				} else {
-					if (colorOf(rightOf(sib)) == BLACK) {
-						setColor(leftOf(sib), BLACK);
-						setColor(sib, RED);
-						rotateRight(sib);
-						sib = rightOf(parentOf(x));
-					}
-					setColor(sib, colorOf(parentOf(x)));
-					setColor(parentOf(x), BLACK);
-					setColor(rightOf(sib), BLACK);
-					rotateLeft(parentOf(x));
-					x = root;
-				}
-			} else { /* symmetric */
-				Node sib = leftOf(parentOf(x));
-				if (colorOf(sib) == RED) {
-					setColor(sib, BLACK);
-					setColor(parentOf(x), RED);
-					rotateRight(parentOf(x));
-					sib = leftOf(parentOf(x));
-				}
-				if (colorOf(rightOf(sib)) == BLACK && colorOf(leftOf(sib)) == BLACK) {
-					setColor(sib, RED);
-					x = parentOf(x);
-				} else {
-					if (colorOf(leftOf(sib)) == BLACK) {
-						setColor(rightOf(sib), BLACK);
-						setColor(sib, RED);
-						rotateLeft(sib);
-						sib = leftOf(parentOf(x));
-					}
-					setColor(sib, colorOf(parentOf(x)));
-					setColor(parentOf(x), BLACK);
-					setColor(leftOf(sib), BLACK);
-					rotateRight(parentOf(x));
-					x = root;
-				}
-			}
-		}
+    }
 
-		if (x != null && x.c != BLACK) {
-			x.c = BLACK;
-		}
-	}
+    /* fixAfterDeletion */
+    private void fixAfterDeletion(Node x)
+    {
+        while (x != root && colorOf(x) == BLACK) {
+            if ( x == leftOf(parentOf(x))) {
+                Node sib = rightOf(parentOf(x));
+                if (colorOf(sib) == RED) {
+                    setColor(sib,BLACK);
+                    setColor(parentOf(x),RED);
+                    rotateLeft(parentOf(x));
+                    sib = rightOf(parentOf(x));
+                }
+                if(colorOf(leftOf(sib)) == BLACK &&
+                        colorOf(rightOf(sib)) == BLACK) {
+                    setColor(sib,RED);
+                    x = parentOf(x);
+                } else {
+                    if(colorOf(rightOf(sib)) == BLACK) {
+                        setColor(leftOf(sib),BLACK);
+                        setColor(sib,RED);
+                        rotateRight(sib);
+                        sib = rightOf(parentOf(x));
+                    }
+                    setColor(sib,colorOf(parentOf(x)));
+                    setColor(parentOf(x),BLACK);
+                    setColor(rightOf(sib),BLACK);
+                    rotateLeft(parentOf(x));
+                    x = root;
+                }
+            } else { /* symmetric */
+                Node sib = leftOf(parentOf(x));
+                if(colorOf(sib) == RED) {
+                    setColor(sib,BLACK);
+                    setColor(parentOf(x),RED);
+                    rotateRight(parentOf(x));
+                    sib = leftOf(parentOf(x));
+                }
+                if (colorOf(rightOf(sib)) == BLACK &&
+                        colorOf(leftOf(sib)) == BLACK) {
+                    setColor(sib,RED);
+                    x = parentOf(x);
+                } else {
+                    if(colorOf(leftOf(sib)) == BLACK) {
+                        setColor(rightOf(sib), BLACK);
+                        setColor(sib,RED);
+                        rotateLeft(sib);
+                        sib = leftOf(parentOf(x));
+                    }
+                    setColor(sib,colorOf(parentOf(x)));
+                    setColor(parentOf(x),BLACK);
+                    setColor(leftOf(sib),BLACK);
+                    rotateRight(parentOf(x));
+                    x = root;
+                }
+            }
+        }
 
-	private Node deleteNode(Node p) {
-		/*
-		 * If strictly internal, copy successor's element to p and then make p
-		 * point to successor
-		 */
-		if (p.l != null && p.r != null) {
-			Node s = successor(p);
-			p.k = s.k;
-			p.v = s.v;
-			p = s;
-		} /* p has 2 children */
+        if (x != null && x.c != BLACK) {
+            x.c = BLACK;
+        }
+    }      
 
-		/* Start fixup at replacement node, if it exists */
-		Node replacement = (p.l != null) ? p.l : p.r;
+    private Node deleteNode(Node p) {
+        /*
+         * If strictly internal, copy successor's element to p and then make p
+         * point to successor
+         */
+        if(p.l != null && p.r != null) {
+            Node s = successor(p);
+            p.k = s.k;
+            p.v = s.v;
+            p = s;
+        } /* p has 2 children */
+            
+        /* Start fixup at replacement node, if it exists */
+        Node replacement = (p.l != null)? p.l : p.r;
 
-		if (replacement != null) {
-			/* Link replacement to parent */
-			replacement.p = p.p;
-			Node pp = p.p;
-			if (pp == null) {
-				root = replacement;
-			} else if (p == pp.l) {
-				pp.l = replacement;
-			} else {
-				pp.r = replacement;
-			}
+        if (replacement != null) {
+            /* Link replacement to parent */
+            replacement.p = p.p;
+            Node pp = p.p;
+            if(pp == null) {
+                root = replacement;
+            } else if( p == pp.l) {
+                pp.l = replacement;
+            } else {
+                pp.r = replacement;
+            }
 
-			/* Null out links so they are OK to use by fixAfterDeletion */
-			p.l = null;
-			p.r = null;
-			p.p = null;
+            /* Null out links so they are OK to use by fixAfterDeletion */
+            p.l = null;
+            p.r = null;
+            p.p = null;
 
-			/* Fix replacement */
-			if (p.c == BLACK) {
-				fixAfterDeletion(replacement);
-			}
-		} else if (p.p == null) { /* return if we are the only node */
-			root = null;
-		} else { /* No children. Use self as phantom replacement and unlink */
-			if (p.c == BLACK) {
-				fixAfterDeletion(p);
-			}
-			Node pp = p.p;
-			if (pp != null) {
-				if (p == pp.l) {
-					pp.l = null;
-				} else if (p == pp.r) {
-					pp.r = null;
-				}
-				p.p = null;
-			}
-		}
-		return p;
-	}
+            /* Fix replacement */
+            if(p.c == BLACK) {
+                fixAfterDeletion(replacement);
+            }
+        } else if(p.p == null) { /* return if we are the only node */
+            root = null;
+        } else { /* No children. Use self as phantom replacement and unlink */
+            if (p.c == BLACK) {
+                fixAfterDeletion(p);
+            }
+            Node pp = p.p;
+            if(pp != null) {
+                if( p == pp.l) {
+                    pp.l = null;
+                } else if( p == pp.r) {
+                    pp.r = null;
+                }
+                p.p = null;
+            }
+        }
+        return p;
+    }
 
-	/*
-	 * Diagnostic section
-	 */
 
-	/* firstEntry */
+    /*
+     * Diagnostic section
+     */
 
-	private Node firstEntry() {
-		Node p = root;
-		if (p != null) {
-			while (p.l != null) {
-				p = p.l;
-			}
-		}
-		return p;
-	}
+    /* firstEntry */
 
-	/* verifyRedBlack */
+    private Node firstEntry()
+    {
+        Node p = root;
+        if( p != null) {
+            while ( p.l != null) {
+                p = p.l;
+            }
+        }
+        return p;
+    }
 
-	private int verifyRedBlack(Node root, int depth) {
-		int height_left;
-		int height_right;
+    /* verifyRedBlack */
 
-		if (root == null) {
-			return 1;
-		}
+    private int verifyRedBlack(Node root,int depth) 
+    {
+        int height_left;
+        int height_right;
 
-		height_left = verifyRedBlack(root.l, depth + 1);
-		height_right = verifyRedBlack(root.r, depth + 1);
-		if (height_left == 0 || height_right == 0) {
-			return 0;
-		}
-		if (height_left != height_right) {
-			System.out.println(" Imbalace @depth = " + depth + " : " + height_left + " " + height_right);
-		}
+        if ( root == null) {
+            return 1;
+        }
 
-		if (root.l != null && root.l.p != root) {
-			System.out.println(" lineage");
-		}
-		if (root.r != null && root.r.p != root) {
-			System.out.println(" lineage");
-		}
+        height_left = verifyRedBlack(root.l,depth+1);
+        height_right = verifyRedBlack(root.r,depth+1);
+        if(height_left == 0 || height_right == 0) {
+            return 0;
+        }
+        if (height_left != height_right) {
+            System.out.println(" Imbalace @depth = " + depth + " : " + height_left + " " + height_right);
+        }
 
-		/* Red-Black alternation */
-		if (root.c == RED) {
-			if (root.l != null && root.l.c != BLACK) {
-				System.out.println("VERIFY in verifyRedBlack");
-				return 0;
-			}
+        if (root.l != null && root.l.p != root) {
+            System.out.println(" lineage");
+        }
+        if (root.r != null && root.r.p != root) {
+            System.out.println(" lineage");
+        }
 
-			if (root.r != null && root.r.c != BLACK) {
-				System.out.println("VERIFY in verifyRedBlack");
-				return 0;
-			}
-			return height_left;
-		}
-		if (root.c != BLACK) {
-			System.out.println("VERIFY in verifyRedBlack");
-			return 0;
-		}
+        /* Red-Black alternation */
+        if (root.c == RED) {
+            if (root.l != null && root.l.c != BLACK) {
+                System.out.println("VERIFY in verifyRedBlack");
+                return 0;
+             }
 
-		return (height_left + 1);
-	}
+            if (root.r != null && root.r.c != BLACK) {
+                 System.out.println("VERIFY in verifyRedBlack");   
+                 return 0;
+            }
+            return height_left;
+        }
+        if(root.c != BLACK) {
+                System.out.println("VERIFY in verifyRedBlack");
+                return 0;
+        }
 
-	/* compareKeysDefault */
-	private int compareKeysDefault(final int a, final int b) {
-		return a - b;
-	}
+        return (height_left + 1);
+    }
 
-	private int compare(int a, int b) {
-		if (compID == 0)
-			return compareKeysDefault(a, b);
-		else
-			return compareKeysDefault(a, b);
-	}
+    /* compareKeysDefault */
+    private int compareKeysDefault (final int a,final int b)
+    {
+        return a - b;
+    }
 
-	/*****************************************
-	 * public methods
-	 *****************************************/
+    private int compare(int a,int b)
+    {
+        if(compID == 0)
+            return compareKeysDefault(a,b);
+        else
+            return compareKeysDefault(a,b);
+    }
 
-	/*
-	 * ==========================================================================
-	 * === rbtree_verify
-	 * ========================================================
-	 * ===================== long rbtree_verify (rbtree_t* s, long verbose);
-	 */
-	public int verify(int verbose) {
-		if (root == null) {
-			return 1;
-		}
-		if (verbose != 0) {
-			System.out.println("Integrity check: ");
-		}
 
-		if (root.p != null) {
-			System.out.println("  (WARNING) root = " + root + " parent = " + root.p);
-			return -1;
-		}
-		if (root.c != BLACK) {
-			System.out.println("  (WARNING) root = " + root + " color = " + root.c);
-		}
 
-		/* Weak check of binary-tree property */
-		int ctr = 0;
-		Node its = firstEntry();
-		while (its != null) {
-			ctr++;
-			Node child = its.l;
-			if (child != null && child.p != its) {
-				System.out.println("bad parent");
-			}
-			child = its.r;
-			if (child != null && child.p != its) {
-				System.out.println("Bad parent");
-			}
-			Node nxt = successor(its);
-			if (nxt == null) {
-				break;
-			}
-			if (compare(its.k, nxt.k) >= 0) {
-				System.out.println("Key order " + its + " (" + its.k + " " + its.v + ") " + nxt + " (" + nxt.k + " "
-						+ nxt.v + ") ");
-				return -3;
-			}
-			its = nxt;
-		}
 
-		int vfy = verifyRedBlack(root, 0);
-		if (verbose != 0) {
-			System.out.println(" Nodes = " + ctr + " Depth = " + vfy);
-		}
 
-		return vfy;
 
-	}
+/*****************************************
+ * public methods
+ *****************************************/
 
-	/*
-	 * ==========================================================================
-	 * === rbtree_alloc
-	 * ==========================================================
-	 * =================== rbtree_t* rbtree_alloc (long (*compare)(const void*,
-	 * const void*));
-	 */
-	public RBTree(int compID) {
-		this.compID = compID;
-		this.root = null;
-	}
 
-	/*
-	 * ==========================================================================
-	 * === rbtree_free
-	 * ==========================================================
-	 * =================== void rbtree_free (rbtree_t* r);
-	 */
+/* =============================================================================
+ * rbtree_verify
+ * =============================================================================
+ long rbtree_verify (rbtree_t* s, long verbose);
+ */
+    public int verify(int verbose) 
+    {
+        if ( root == null) {
+            return 1;
+        }
+        if(verbose != 0) {
+            System.out.println("Integrity check: ");
+        }
 
-	/*
-	 * ==========================================================================
-	 * === rbtree_insert -- Returns TRUE on success
-	 * ==============================
-	 * =============================================== bool_t rbtree_insert
-	 * (rbtree_t* r, void* key, void* val);
-	 */
-	public boolean insert(int key, Object val) {
-		Node node = new Node();
-		Node ex = insert(key, val, node);
-		if (ex != null) {
-			node = null;
-		}
-		return ex == null;
-	}
+        if (root.p != null) {
+            System.out.println("  (WARNING) root = " + root + " parent = " + root.p);
+            return -1;
+        }
+        if (root.c != BLACK) {
+            System.out.println("  (WARNING) root = " + root + " color = " + root.c);
+        }
 
-	/*
-	 * ==========================================================================
-	 * === rbtree_delete
-	 * ========================================================
-	 * ===================== bool_t rbtree_delete (rbtree_t* r, void* key);
-	 */
-	public boolean deleteNode(int key) {
-		Node node = null;
-		node = lookup(key);
+        /* Weak check of binary-tree property */
+        int ctr = 0;
+        Node its = firstEntry();
+        while (its != null) {
+            ctr++;
+            Node child = its.l;
+            if ( child != null && child.p != its) {
+                System.out.println("bad parent");
+            }
+            child = its.r;
+            if ( child != null && child.p != its) {
+                System.out.println("Bad parent");
+            }
+            Node nxt = successor(its);
+            if (nxt == null) {
+                break;
+            }
+            if( compare(its.k,nxt.k) >= 0) {
+                System.out.println("Key order " + its + " ("+its.k+" "+its.v+") " 
+                                                + nxt + " ("+nxt.k+" "+nxt.v+") ");
+                return -3;
+            }
+            its =  nxt;
+        }
 
-		if (node != null) {
-			node = deleteNode(node);
-		}
-		if (node != null) {
-		}
-		return node != null;
-	}
+        int vfy = verifyRedBlack(root, 0);
+        if(verbose != 0) {
+            System.out.println(" Nodes = " + ctr + " Depth = " + vfy);
+        }
 
-	/*
-	 * ==========================================================================
-	 * === rbtree_update -- Return FALSE if had to insert node first
-	 * ============
-	 * ================================================================= bool_t
-	 * rbtree_update (rbtree_t* r, void* key, void* val);
-	 */
-	public boolean update(int key, Object val) {
-		Node nn = new Node();
-		Node ex = insert(key, val, nn);
-		if (ex != null) {
-			ex.v = val;
-			nn = null;
-			return true;
-		}
-		return false;
-	}
+        return vfy;
+    
+    }
 
-	/*
-	 * ==========================================================================
-	 * === rbtree_get
-	 * ============================================================
-	 * ================= void* rbtree_get (rbtree_t* r, void* key);
-	 */
-	public Object get(int key) {
-		Node n = lookup(key);
-		if (n != null) {
-			Object val = n.v;
-			return val;
-		}
-		return null;
-	}
+/* =============================================================================
+ * rbtree_alloc
+ * =============================================================================
+ * rbtree_t* rbtree_alloc (long (*compare)(const void*, const void*));
+ */
+  public RBTree(int compID) {
+    this.compID = compID;
+    this.root = null;
+  }
 
-	/*
-	 * ==========================================================================
-	 * === rbtree_contains
-	 * ======================================================
-	 * ======================= bool_t rbtree_contains (rbtree_t* r, void* key);
-	 */
-	public boolean contains(int key) {
-		Node n = lookup(key);
 
-		return (n != null);
-	}
+
+/* =============================================================================
+ * rbtree_free
+ * =============================================================================
+ * void rbtree_free (rbtree_t* r);
+ */
+
+
+
+/* =============================================================================
+ * rbtree_insert
+ * -- Returns TRUE on success
+ * =============================================================================
+ * bool_t rbtree_insert (rbtree_t* r, void* key, void* val);
+ */
+    public boolean insert(int key,Object val)
+    {
+        Node node = new Node();
+        Node ex = insert(key,val,node);
+        if ( ex != null) {
+            node = null;
+        }
+        return ex == null;
+    }
+
+
+/* =============================================================================
+ * rbtree_delete
+ * =============================================================================
+ * bool_t rbtree_delete (rbtree_t* r, void* key);
+ */
+    public boolean deleteNode(int key) 
+    {
+        Node node = null;
+        node = lookup(key);
+
+        if(node != null) {
+            node = deleteNode(node);
+        }
+        if(node != null) {
+        }
+        return node != null;
+    }
+
+
+
+/* =============================================================================
+ * rbtree_update
+ * -- Return FALSE if had to insert node first
+ * =============================================================================
+ * bool_t rbtree_update (rbtree_t* r, void* key, void* val);
+ */
+    public boolean update(int key,Object val) 
+    {
+        Node nn = new Node();
+        Node ex = insert(key,val,nn);
+        if (ex != null) {
+            ex.v = val;
+            nn = null;
+            return true;
+        }
+        return false;
+    }
+
+
+
+/* =============================================================================
+ * rbtree_get
+ * =============================================================================
+ * void* rbtree_get (rbtree_t* r, void* key);
+ */
+    public Object get(int key) 
+    {
+        Node n = lookup(key);
+        if (n != null) {
+            Object val = n.v;
+            return val;
+        }
+        return null;
+    }
+
+
+
+/* =============================================================================
+ * rbtree_contains
+ * =============================================================================
+ *  bool_t rbtree_contains (rbtree_t* r, void* key);
+ */
+    public boolean contains(int key) 
+    {
+        Node n = lookup(key);
+
+        return (n != null);
+    }
 
 }
 
-/*
- * =============================================================================
- * 
+/* =============================================================================
+ *
  * End of rbtree.java
- * 
+ *
  * =============================================================================
  */

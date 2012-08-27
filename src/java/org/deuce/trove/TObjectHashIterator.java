@@ -16,27 +16,27 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ///////////////////////////////////////////////////////////////////////////////
 
+
 package org.deuce.trove;
 
 /**
- * 
+ *
  * Created: Wed Nov 28 21:30:53 2001
- * 
+ *
  * @author Eric D. Friedman
- * @version $Id: TObjectHashIterator.java,v 1.2 2006/11/10 23:27:56 robeden Exp
- *          $
+ * @version $Id: TObjectHashIterator.java,v 1.2 2006/11/10 23:27:56 robeden Exp $
  */
 
-class TObjectHashIterator<E> extends THashIterator<E> {
-	protected final TObjectHash<E> _objectHash;
+class TObjectHashIterator<E> extends THashIterator<E>  {
+    protected final TObjectHash<E> _objectHash;
 
-	public TObjectHashIterator(TObjectHash<E> hash) {
-		super(hash);
-		_objectHash = hash;
-	}
+    public TObjectHashIterator(TObjectHash<E> hash) {
+        super(hash);
+        _objectHash = hash;
+    }
 
-	protected E objectAtIndex(int index) {
-		return (E) _objectHash._set[index];
-	}
-
+    protected E objectAtIndex(int index) {
+        return (E)_objectHash._set[index];
+    }
+    
 } // TObjectHashIterator

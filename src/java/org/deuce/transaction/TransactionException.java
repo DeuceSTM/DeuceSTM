@@ -15,23 +15,20 @@ public class TransactionException extends RuntimeException {
 
 	final static public String TRANSACTION_EXCEPTION_INTERNAL = Type.getInternalName(TransactionException.class);
 	final static public TransactionException STATIC_TRANSACTION = new TransactionException();
+	
+	public TransactionException(){}
 
-	public TransactionException() {
-	}
-
-	public TransactionException(String msg) {
+	public TransactionException( String msg){
 		super(msg);
 	}
 
-	public TransactionException(Throwable cause) {
+	public TransactionException( Throwable cause){
 		super(cause);
 	}
 
-	@Override
-	public Throwable fillInStackTrace() {
-		return null;
-	} // light exception with no stack trace
-
+	@Override 
+	public Throwable fillInStackTrace(){ return null;} // light exception with no stack trace
+	
 	@Override
 	public Throwable initCause(Throwable cause) {
 		throw new IllegalStateException("Can't set cause.");

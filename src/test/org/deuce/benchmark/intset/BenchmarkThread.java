@@ -50,7 +50,7 @@ public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 				m_nb_contains++;
 		}
 	}
-
+	
 	public String getStats() {
 		return "A=" + m_nb_add + ", R=" + m_nb_remove + ", C=" + m_nb_contains;
 	}

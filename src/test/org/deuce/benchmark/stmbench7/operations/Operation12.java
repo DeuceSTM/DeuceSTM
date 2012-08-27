@@ -8,28 +8,28 @@ import org.deuce.benchmark.stmbench7.core.ComplexAssembly;
 import org.deuce.benchmark.stmbench7.core.OperationFailedException;
 
 /**
- * Operation OP12 (see the specification). Simple update, search on index.
+ * Operation OP12 (see the specification).
+ * Simple update, search on index.
  */
 public class Operation12 extends Operation6 {
 
 	public Operation12(Setup oo7setup) {
 		super(oo7setup);
 	}
-
+    
 	@Override
-	@Transactional
-	@Update
+	@Transactional @Update
 	public int performOperation() throws OperationFailedException {
-		return super.performOperation();
+    	return super.performOperation();
 	}
-
+    
 	@Override
 	protected void performOperationInComplexAssembly(ComplexAssembly assembly) {
 		assembly.updateBuildDate();
 	}
-
-	@Override
-	public OperationId getOperationId() {
-		return OperationId.OP12;
-	}
+	
+    @Override
+    public OperationId getOperationId() {
+    	return OperationId.OP12;
+    }
 }

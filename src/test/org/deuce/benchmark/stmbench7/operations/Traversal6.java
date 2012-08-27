@@ -8,7 +8,8 @@ import org.deuce.benchmark.stmbench7.core.AtomicPart;
 import org.deuce.benchmark.stmbench7.core.CompositePart;
 
 /**
- * Traversal T6 (see the specification). Read-only, long.
+ * Traversal T6 (see the specification).
+ * Read-only, long.
  */
 public class Traversal6 extends Traversal1 {
 
@@ -32,9 +33,9 @@ public class Traversal6 extends Traversal1 {
 		part.nullOperation();
 		return 1;
 	}
-
-	@Override
-	public OperationId getOperationId() {
-		return OperationId.T6;
-	}
+	
+    @Override
+    public OperationId getOperationId() {
+    	return OperationId.T6;
+    }
 }

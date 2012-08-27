@@ -1,7 +1,6 @@
 package org.deuce.benchmark.bank;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Pascal Felber

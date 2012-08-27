@@ -46,14 +46,13 @@ public class DesignObjImpl implements DesignObj, Cloneable {
 	public String getType() {
 		return type;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof DesignObj))
-			return false;
+		if(! (obj instanceof DesignObj)) return false;
 		return ((DesignObj) obj).getId() == id;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		return id;
@@ -63,20 +62,23 @@ public class DesignObjImpl implements DesignObj, Cloneable {
 	public Object clone() {
 		try {
 			return super.clone();
-		} catch (CloneNotSupportedException e) {
+		}
+		catch(CloneNotSupportedException e) {
 			throw new RuntimeError(e);
 		}
 	}
-
+	
 	@Override
 	public String toString() {
-		return this.getClass().getName() + ": id=" + id + ", type=" + type + ", buildDate=" + buildDate;
+		return this.getClass().getName() + 
+			": id=" + id +
+			", type=" + type +
+			", buildDate=" + buildDate; 
 	}
-
+	
 	protected String sequenceToString(Iterable<?> sequence) {
 		String seqString = "{ ";
-		for (Object element : sequence)
-			seqString += element + " ";
+		for(Object element : sequence) seqString += element + " ";
 		seqString += "}";
 		return seqString;
 	}

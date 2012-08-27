@@ -5,7 +5,8 @@ import org.deuce.benchmark.stmbench7.core.DesignObjFactory;
 import org.deuce.benchmark.stmbench7.impl.NoSynchronizationInitializer;
 
 /**
- * An initializer for the medium-grained locking synchronization method.
+ * An initializer for the medium-grained locking synchronization
+ * method.
  */
 public class MGLockingInitializer extends NoSynchronizationInitializer {
 

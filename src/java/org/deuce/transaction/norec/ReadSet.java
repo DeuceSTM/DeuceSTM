@@ -23,7 +23,7 @@ public class ReadSet {
 	private static final int DEFAULT_CAPACITY = 1024;
 
 	private ArrayList<FieldAccess> entries;
-
+	
 	public ReadSet(int initialCapacity) {
 		entries = new ArrayList<FieldAccess>(initialCapacity);
 	}

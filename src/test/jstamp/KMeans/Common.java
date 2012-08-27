@@ -67,66 +67,65 @@ package jstamp.KMeans;
 
 public class Common {
 
-	public Common() {
-	}
+  public Common() {
+  }
 
-	/*
-	 * ==========================================================================
-	 * === common_euclidDist2 -- multi-dimensional spatial Euclid distance
-	 * square
-	 * ====================================================================
-	 * =========
-	 */
-	public static float common_euclidDist2(float[] pt1, float[] pt2, int numdims) {
-		int i;
-		float ans = 0.0f;
 
-		for (i = 0; i < numdims; i++) {
-			ans += (pt1[i] - pt2[i]) * (pt1[i] - pt2[i]);
-		}
+  /* =============================================================================
+   * common_euclidDist2
+   * -- multi-dimensional spatial Euclid distance square
+   * =============================================================================
+   */
+   public static float
+    common_euclidDist2 (float[] pt1, float[] pt2, int numdims)
+    {
+      int i;
+      float ans = 0.0f;
 
-		return ans;
-	}
+      for (i = 0; i < numdims; i++) {
+        ans += (pt1[i] - pt2[i]) * (pt1[i] - pt2[i]);
+      }
 
-	/*
-	 * ==========================================================================
-	 * === common_findNearestPoint
-	 * ==============================================
-	 * ===============================
-	 */
-	public static int common_findNearestPoint(float[] pt, /* [nfeatures] */
-			int nfeatures, float[][] pts, /* [npts][nfeatures] */
-			int npts) {
-		int index = -1;
-		int i;
-		// double max_dist = FLT_MAX;
-		float max_dist = (float) 3.40282347e+38f;
-		float limit = (float) 0.99999;
+      return ans;
+    }
 
-		/* Find the cluster center id with min distance to pt */
-		for (i = 0; i < npts; i++) {
-			float dist = common_euclidDist2(pt, pts[i], nfeatures); /*
-																	 * no need
-																	 * square
-																	 * root
-																	 */
-			if ((dist / max_dist) < limit) {
-				max_dist = dist;
-				index = i;
-				if (max_dist == 0) {
-					break;
-				}
-			}
-		}
 
-		return index;
-	}
+  /* =============================================================================
+   * common_findNearestPoint
+   * =============================================================================
+   */
+  public static int
+    common_findNearestPoint (float[]  pt,        /* [nfeatures] */
+        int     nfeatures,
+        float[][] pts,       /* [npts][nfeatures] */
+        int     npts)
+    {
+      int index = -1;
+      int i;
+      //double max_dist = FLT_MAX;
+      float max_dist = (float)3.40282347e+38f;
+      float limit = (float) 0.99999;
+
+      /* Find the cluster center id with min distance to pt */
+      for (i = 0; i < npts; i++) {
+        float dist = common_euclidDist2(pt, pts[i], nfeatures);  /* no need square root */
+        if ((dist / max_dist) < limit) {
+          max_dist = dist;
+          index = i;
+          if (max_dist == 0) {
+            break;
+          }
+        }
+      }
+
+      return index;
+    }
 }
 
-/*
- * =============================================================================
- * 
+
+/* =============================================================================
+ *
  * End of common.java
- * 
+ *
  * =============================================================================
  */

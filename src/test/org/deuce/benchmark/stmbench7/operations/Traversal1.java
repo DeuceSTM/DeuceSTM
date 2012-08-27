@@ -15,7 +15,8 @@ import org.deuce.benchmark.stmbench7.core.Connection;
 import org.deuce.benchmark.stmbench7.core.Module;
 
 /**
- * Traversal T1 (see the specification). Read-only, long.
+ * Traversal T1 (see the specification).
+ * Read-only, long.
  */
 public class Traversal1 extends BaseOperation {
 
@@ -26,24 +27,21 @@ public class Traversal1 extends BaseOperation {
 	}
 
 	@Override
-	@Transactional
-	@ReadOnly
+	@Transactional @ReadOnly
 	public int performOperation() {
 		ComplexAssembly designRoot = module.getDesignRoot();
 		return traverse(designRoot);
 	}
 
 	protected int traverse(Assembly assembly) {
-		if (assembly instanceof BaseAssembly)
-			return traverse((BaseAssembly) assembly);
-		else
-			return traverse((ComplexAssembly) assembly);
+		if(assembly instanceof BaseAssembly) return traverse((BaseAssembly)assembly);
+		else return traverse((ComplexAssembly)assembly);
 	}
 
 	protected int traverse(ComplexAssembly complexAssembly) {
 		int partsVisited = 0;
 
-		for (Assembly assembly : complexAssembly.getSubAssemblies())
+		for(Assembly assembly : complexAssembly.getSubAssemblies())
 			partsVisited += traverse(assembly);
 
 		return partsVisited;
@@ -52,7 +50,7 @@ public class Traversal1 extends BaseOperation {
 	protected int traverse(BaseAssembly baseAssembly) {
 		int partsVisited = 0;
 
-		for (CompositePart component : baseAssembly.getComponents())
+		for(CompositePart component : baseAssembly.getComponents())
 			partsVisited += traverse(component);
 
 		return partsVisited;
@@ -66,16 +64,14 @@ public class Traversal1 extends BaseOperation {
 	}
 
 	protected int traverse(AtomicPart part, HashSet<AtomicPart> setOfVisitedPartIds) {
-		if (part == null)
-			return 0;
-		if (setOfVisitedPartIds.contains(part))
-			return 0;
+		if(part == null) return 0;
+		if(setOfVisitedPartIds.contains(part)) return 0;
 
 		int result = performOperationInAtomicPart(part, setOfVisitedPartIds);
 
 		setOfVisitedPartIds.add(part);
 
-		for (Connection connection : part.getToConnections())
+		for(Connection connection : part.getToConnections())
 			result += traverse(connection.getDestination(), setOfVisitedPartIds);
 
 		return result;
@@ -85,9 +81,9 @@ public class Traversal1 extends BaseOperation {
 		part.nullOperation();
 		return 1;
 	}
-
-	@Override
-	public OperationId getOperationId() {
-		return OperationId.T1;
-	}
+	
+    @Override
+    public OperationId getOperationId() {
+    	return OperationId.T1;
+    }
 }

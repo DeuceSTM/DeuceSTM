@@ -31,8 +31,8 @@ package org.deuce.objectweb.asm.tree;
 
 import java.util.Map;
 
-import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
+import org.deuce.objectweb.asm.MethodVisitor;
 
 /**
  * A node that represents a MULTIANEWARRAY instruction.
@@ -41,41 +41,38 @@ import org.deuce.objectweb.asm.Opcodes;
  */
 public class MultiANewArrayInsnNode extends AbstractInsnNode {
 
-	/**
-	 * An array type descriptor (see {@link org.deuce.objectweb.asm.Type}).
-	 */
-	public String desc;
+    /**
+     * An array type descriptor (see {@link org.deuce.objectweb.asm.Type}).
+     */
+    public String desc;
 
-	/**
-	 * Number of dimensions of the array to allocate.
-	 */
-	public int dims;
+    /**
+     * Number of dimensions of the array to allocate.
+     */
+    public int dims;
 
-	/**
-	 * Constructs a new {@link MultiANewArrayInsnNode}.
-	 * 
-	 * @param desc
-	 *            an array type descriptor (see
-	 *            {@link org.deuce.objectweb.asm.Type}).
-	 * @param dims
-	 *            number of dimensions of the array to allocate.
-	 */
-	public MultiANewArrayInsnNode(final String desc, final int dims) {
-		super(Opcodes.MULTIANEWARRAY);
-		this.desc = desc;
-		this.dims = dims;
-	}
+    /**
+     * Constructs a new {@link MultiANewArrayInsnNode}.
+     * 
+     * @param desc an array type descriptor (see {@link org.deuce.objectweb.asm.Type}).
+     * @param dims number of dimensions of the array to allocate.
+     */
+    public MultiANewArrayInsnNode(final String desc, final int dims) {
+        super(Opcodes.MULTIANEWARRAY);
+        this.desc = desc;
+        this.dims = dims;
+    }
 
-	public int getType() {
-		return MULTIANEWARRAY_INSN;
-	}
+    public int getType() {
+        return MULTIANEWARRAY_INSN;
+    }
 
-	public void accept(final MethodVisitor mv) {
-		mv.visitMultiANewArrayInsn(desc, dims);
-	}
+    public void accept(final MethodVisitor mv) {
+        mv.visitMultiANewArrayInsn(desc, dims);
+    }
 
-	public AbstractInsnNode clone(final Map labels) {
-		return new MultiANewArrayInsnNode(desc, dims);
-	}
+    public AbstractInsnNode clone(final Map labels) {
+        return new MultiANewArrayInsnNode(desc, dims);
+    }
 
 }

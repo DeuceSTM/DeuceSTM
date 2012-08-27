@@ -7,8 +7,8 @@ import org.deuce.benchmark.stmbench7.Setup;
 import org.deuce.benchmark.stmbench7.core.AtomicPart;
 
 /**
- * Traversal T3, variant (c) (see the specification). Simple update, update on
- * index, long.
+ * Traversal T3, variant (c) (see the specification).
+ * Simple update, update on index, long.
  */
 public class Traversal3c extends Traversal3a {
 
@@ -23,10 +23,10 @@ public class Traversal3c extends Traversal3a {
 		updateBuildDate(part);
 		updateBuildDate(part);
 		return 4;
-	}
-
-	@Override
-	public OperationId getOperationId() {
-		return OperationId.T3c;
-	}
+    }
+	
+    @Override
+    public OperationId getOperationId() {
+    	return OperationId.T3c;
+    }
 }

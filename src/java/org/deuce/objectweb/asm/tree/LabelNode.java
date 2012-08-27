@@ -39,37 +39,37 @@ import org.deuce.objectweb.asm.MethodVisitor;
  */
 public class LabelNode extends AbstractInsnNode {
 
-	private Label label;
+    private Label label;
 
-	public LabelNode() {
-		super(-1);
-	}
+    public LabelNode() {
+        super(-1);
+    }
 
-	public LabelNode(final Label label) {
-		super(-1);
-		this.label = label;
-	}
+    public LabelNode(final Label label) {
+        super(-1);
+        this.label = label;
+    }
 
-	public int getType() {
-		return LABEL;
-	}
+    public int getType() {
+        return LABEL;
+    }
 
-	public Label getLabel() {
-		if (label == null) {
-			label = new Label();
-		}
-		return label;
-	}
+    public Label getLabel() {
+        if (label == null) {
+            label = new Label();
+        }
+        return label;
+    }
 
-	public void accept(final MethodVisitor cv) {
-		cv.visitLabel(getLabel());
-	}
+    public void accept(final MethodVisitor cv) {
+        cv.visitLabel(getLabel());
+    }
 
-	public AbstractInsnNode clone(final Map labels) {
-		return (LabelNode) labels.get(this);
-	}
+    public AbstractInsnNode clone(final Map labels) {
+        return (LabelNode) labels.get(this);
+    }
 
-	public void resetLabel() {
-		label = null;
-	}
+    public void resetLabel() {
+        label = null;
+    }
 }

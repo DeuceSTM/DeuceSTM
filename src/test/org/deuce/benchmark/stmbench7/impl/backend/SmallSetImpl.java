@@ -6,8 +6,8 @@ import org.deuce.benchmark.stmbench7.annotations.ContainedInAtomic;
 import org.deuce.benchmark.stmbench7.backend.ImmutableCollection;
 
 /**
- * A simple implementation of a small-size set (used by Assembly and AtomicPart
- * objects).
+ * A simple implementation of a small-size set
+ * (used by Assembly and AtomicPart objects).
  */
 @ContainedInAtomic
 public class SmallSetImpl<E> extends ArrayList<E> {
@@ -17,19 +17,18 @@ public class SmallSetImpl<E> extends ArrayList<E> {
 	public SmallSetImpl() {
 		super();
 	}
-
+	
 	public SmallSetImpl(SmallSetImpl<E> source) {
 		super(source);
 	}
-
+	
 	public boolean add(E element) {
-		if (contains(element))
-			return false;
+		if(contains(element)) return false;
 
 		super.add(element);
 		return true;
 	}
-
+	
 	public ImmutableCollection<E> immutableView() {
 		return new ImmutableViewImpl<E>(this);
 	}

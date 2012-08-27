@@ -15,12 +15,12 @@ public class Stream {
 		attackMapPtr = new RBTree(0);
 	}
 
-	/*
-	 * splintIntoPackets -- Packets will be equal-size chunks except for last
-	 * one, which will have all extra bytes
+	/* splintIntoPackets
+	 * -- Packets will be equal-size chunks except for last one, which will have
+	 *    all extra bytes
 	 */
-	private void splitIntoPackets(byte[] str, int flowId, Random randomPtr, Vector_t allocVectorPtr,
-			Queue_t packetQueuePtr) {
+	private void splitIntoPackets(byte[] str, int flowId, Random randomPtr,
+			Vector_t allocVectorPtr, Queue_t packetQueuePtr) {
 		int numByte = str.length;
 		int numPacket = randomPtr.random_generate() % numByte + 1;
 		int numDataByte = numByte / numPacket;
@@ -57,12 +57,12 @@ public class Stream {
 		status = packetQueuePtr.queue_push(bytes);
 	}
 
-	/*
-	 * ================================================== /* stream_generate --
-	 * Returns number of attacks generated
-	 * /*==================================================
-	 */
-	public int generate(Dictionary dictionaryPtr, int numFlow, int seed, int maxLength) {
+	/*==================================================
+	/* stream_generate 
+	 * -- Returns number of attacks generated
+	/*==================================================*/
+	public int generate(Dictionary dictionaryPtr, int numFlow, int seed,
+			int maxLength) {
 		int numAttack = 0;
 		ERROR error = new ERROR();
 		Detector detectorPtr = new Detector();
@@ -75,7 +75,8 @@ public class Stream {
 		for (f = 1; f <= numFlow; f++) {
 			byte[] c;
 			if ((randomPtr.random_generate() % 100) < percentAttack) {
-				int s = randomPtr.random_generate() % dictionaryPtr.global_numDefaultSignature;
+				int s = randomPtr.random_generate()
+						% dictionaryPtr.global_numDefaultSignature;
 				String str = dictionaryPtr.get(s);
 				c = str.getBytes();
 				status = attackMapPtr.insert(f, c);
@@ -102,17 +103,17 @@ public class Stream {
 		return numAttack;
 	}
 
-	/*
-	 * ======================================================== stream_getPacket
+	/*========================================================
+	 * stream_getPacket
 	 * -- If none, returns null
-	 * ======================================================
+	 *  ======================================================
 	 */
 	Packet getPacket() {
 		return (Packet) packetQueuePtr.queue_pop();
 	}
 
-	/*
-	 * ======================================================= stream_isAttack
+	/* =======================================================
+	 * stream_isAttack
 	 * =======================================================
 	 */
 	boolean isAttack(int flowId) {

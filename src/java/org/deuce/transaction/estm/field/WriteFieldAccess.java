@@ -4,7 +4,8 @@ import org.deuce.transaction.estm.field.ReadFieldAccess.Field.Type;
 import org.deuce.transform.ExcludeInternal;
 
 /**
- * The write entry Based on the code from Pascal Felber
+ * The write entry
+ * Based on the code from Pascal Felber
  * 
  * @author Vincent Gramoli
  */

@@ -24,8 +24,7 @@ public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 	int m_nb_writes;
 	final private Random m_random;
 
-	BenchmarkThread(int id, int nb, Account[] accounts, int max, int read_frequency, int write_frequency,
-			int read_threads, int write_threads) {
+	BenchmarkThread(int id, int nb, Account[] accounts, int max, int read_frequency, int write_frequency, int read_threads, int write_threads) {
 		m_id = id;
 		m_nb = nb;
 		m_accounts = accounts;
@@ -73,7 +72,7 @@ public class BenchmarkThread extends org.deuce.benchmark.BenchmarkThread {
 					src = m_accounts[m_random.nextInt(m_accounts.length)];
 					dst = m_accounts[m_random.nextInt(m_accounts.length)];
 				}
-
+	
 				try {
 					Account.transfer(src, dst, amount);
 					if (phase == Benchmark.TEST_PHASE)

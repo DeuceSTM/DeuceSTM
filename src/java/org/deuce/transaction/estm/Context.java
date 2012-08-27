@@ -5,12 +5,17 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.deuce.transaction.TransactionException;
+//import org.deuce.transaction.estm.field.Field;
 import org.deuce.transaction.estm.field.ReadFieldAccess.Field;
 import org.deuce.transaction.estm.field.ReadFieldAccess.Field.Type;
+//import org.deuce.transaction.estm.field.Field.Type;
+import org.deuce.transaction.estm.ReadSet;
+import org.deuce.transaction.estm.WriteSet;
 import org.deuce.transform.ExcludeInternal;
 
 /**
- * E-STM An STM implementing regular and elastic transactions.
+ * E-STM
+ * An STM implementing regular and elastic transactions.
  * 
  * See the companion paper, Elastic Transactions [DISC '09]
  * 
@@ -22,35 +27,35 @@ final public class Context implements org.deuce.transaction.Context {
 
 	/** Type of the tx, (!elastic) means regular type */
 	private boolean elastic;
-	/** The time lower bound above which the tx can be serialized */
+	/**  The time lower bound above which the tx can be serialized */
 	private int lb;
-	/** The time upper bound below which the tx can be serialized */
+	/**  The time upper bound below which the tx can be serialized */
 	private int ub;
-
-	final private static TransactionException BETWEEN_SUCCESSIVE_READS_EXCEPTION = new TransactionException(
-			"Fail to read successively.");
-	final private static TransactionException BETWEEN_READ_AND_WRITE_EXCEPTION = new TransactionException(
-			"Fail to read successively.");
-	final private static TransactionException WRITE_FAILURE_EXCEPTION = new TransactionException(
-			"Fail on write (read previous version).");
-	final private static TransactionException EXTEND_FAILURE_EXCEPTION = new TransactionException(
-			"Fail on extend (regular mode).");
+	
+	final private static TransactionException BETWEEN_SUCCESSIVE_READS_EXCEPTION =
+		new TransactionException("Fail to read successively.");
+	final private static TransactionException BETWEEN_READ_AND_WRITE_EXCEPTION =
+		new TransactionException("Fail to read successively.");
+	final private static TransactionException WRITE_FAILURE_EXCEPTION =
+		new TransactionException("Fail on write (read previous version).");
+	final private static TransactionException EXTEND_FAILURE_EXCEPTION =
+		new TransactionException("Fail on extend (regular mode).");
 
 	final private static AtomicInteger clock = new AtomicInteger(0);
 	final private static AtomicInteger threadID = new AtomicInteger(0);
-
-	// Global lock used to allow only one irrevocable transaction solely.
+	
+	//Global lock used to allow only one irrevocable transaction solely. 
 	final private static ReentrantReadWriteLock irrevocableAccessLock = new ReentrantReadWriteLock();
 	private boolean irrevocableState = false;
-
+	
 	/**
 	 * The last-read-entries contains up to k=2 entries.
 	 * 
-	 * This is a hack of the C-based E-STM to check that the previous read is
-	 * not being made inconsistent by the garbage collector.
+	 * This is a hack of the C-based E-STM to check that the previous read is not 
+	 * being made inconsistent by the garbage collector.
 	 */
 	final private LastReadEntries lreSet = new LastReadEntries();
-
+	
 	/** Read set, used by any regular reads or after an elastic write */
 	final private ReadSet readSet = new ReadSet(1024);
 	/** Write set, usual redo-log */
@@ -59,7 +64,7 @@ final public class Context implements org.deuce.transaction.Context {
 	private int readHash;
 	private int readLock;
 	private Object readValue;
-
+	
 	private int id;
 
 	public Context() {
@@ -71,17 +76,17 @@ final public class Context implements org.deuce.transaction.Context {
 	 * The begin delimiter of the transaction
 	 */
 	public void init(int blockId, String metainf) {
-		elastic = (metainf.indexOf("elastic") != -1);
+        elastic = (metainf.indexOf("elastic") != -1);
 		writeSet.clear();
 		readSet.clear();
 		lreSet.clear();
-
-		// Lock according to the transaction irrevocable state
-		if (irrevocableState)
+		
+		//Lock according to the transaction irrevocable state
+		if(irrevocableState)
 			irrevocableAccessLock.writeLock().lock();
 		else
 			irrevocableAccessLock.readLock().lock();
-
+		
 		lb = ub = clock.get();
 	}
 
@@ -89,7 +94,7 @@ final public class Context implements org.deuce.transaction.Context {
 	 * The end delimiter of the transaction
 	 */
 	public boolean commit() {
-		try {
+		try{
 			if (!writeSet.isEmpty()) {
 				int newClock = clock.incrementAndGet();
 				if (newClock != lb + 1 && !readSet.validate(id)) {
@@ -100,11 +105,13 @@ final public class Context implements org.deuce.transaction.Context {
 				writeSet.commit(newClock);
 			}
 			return true;
-		} finally {
-			if (irrevocableState) {
+		}
+		finally{
+			if(irrevocableState){
 				irrevocableState = false;
 				irrevocableAccessLock.writeLock().unlock();
-			} else {
+			}
+			else{
 				irrevocableAccessLock.readLock().unlock();
 			}
 		}
@@ -136,20 +143,17 @@ final public class Context implements org.deuce.transaction.Context {
 		// Check if the field is locked (may throw an exception)
 		readLock = LockTable.checkLock(readHash, id);
 	}
-
+	
 	/**
 	 * Upon reading
 	 * 
-	 * @param obj
-	 *            the object of the field
-	 * @param field
-	 *            the field to access
-	 * @param type
-	 *            the type
+	 * @param obj the object of the field
+	 * @param field the field to access
+	 * @param type the type 
 	 * @return
 	 */
 	private boolean onReadAccess(Object obj, long field, Type type) {
-
+		
 		if (readLock < 0) {
 			// We already own that lock
 			Object v = writeSet.getValue(readHash, obj, field);
@@ -159,9 +163,9 @@ final public class Context implements org.deuce.transaction.Context {
 			return true;
 		}
 		boolean b = false;
-
+		
 		while (true) {
-			// check timestamp
+			// check timestamp 
 			while (readLock <= ub) {
 				// check version value version
 				int lock = LockTable.checkLock(readHash, id);
@@ -173,18 +177,15 @@ final public class Context implements org.deuce.transaction.Context {
 				}
 				// We have read a valid value (in snapshot)
 				// Save to read set
-				if (elastic && writeSet.isEmpty())
-					lreSet.add(obj, field, readHash, lock);
-				else
-					readSet.add(obj, field, readHash, lock);
+				if (elastic && writeSet.isEmpty()) lreSet.add(obj, field, readHash, lock);
+				else readSet.add(obj, field, readHash, lock);
 				return b;
 			}
-
+			
 			// Partial validation
 			if (elastic && writeSet.isEmpty()) {
 				// check if last read entries have been updated
-				if (!lreSet.validate(id, ub))
-					throw BETWEEN_SUCCESSIVE_READS_EXCEPTION;
+				if (!lreSet.validate(id, ub)) throw BETWEEN_SUCCESSIVE_READS_EXCEPTION;
 				ub = readLock;
 				return b;
 			} else {
@@ -193,27 +194,24 @@ final public class Context implements org.deuce.transaction.Context {
 					throw EXTEND_FAILURE_EXCEPTION;
 				}
 			}
-
+			
 		}
 	}
 
 	/**
 	 * Upon writing
 	 * 
-	 * @param obj
-	 *            the object of the field
-	 * @param field
-	 *            the field to access
-	 * @param type
-	 *            the type
+	 * @param obj the object of the field
+	 * @param field the field to access
+	 * @param type the type 
 	 * @return
 	 */
 	private void onWriteAccess(Object obj, long field, Object value, Type type) {
-
+		
 		int hash = LockTable.hash(obj, field);
 		// Lock entry (might throw an exception)
 		int timestamp = LockTable.lock(hash, id);
-
+		
 		if (timestamp < 0) {
 			// We already own that lock
 			writeSet.append(hash, obj, field, value, type);
@@ -226,11 +224,10 @@ final public class Context implements org.deuce.transaction.Context {
 				LockTable.setAndReleaseLock(hash, timestamp);
 				throw WRITE_FAILURE_EXCEPTION;
 			}
-			// We delay validation until later (although we could already
-			// validate once here)
+			// We delay validation until later (although we could already validate once here)
 		}
-
-		// Additional validation
+		
+		// Additional validation 
 		if (elastic && !lreSet.validate(id, ub)) {
 			LockTable.setAndReleaseLock(hash, timestamp);
 			throw BETWEEN_READ_AND_WRITE_EXCEPTION;
@@ -318,10 +315,10 @@ final public class Context implements org.deuce.transaction.Context {
 	@ExcludeInternal
 	static public class LockTable {
 
-		// Failure transaction
-		final private static TransactionException FAILURE_EXCEPTION = new TransactionException(
-				"Fail on lock (already locked).");
-
+		// Failure transaction 
+		final private static TransactionException FAILURE_EXCEPTION =
+			new TransactionException("Fail on lock (already locked).");
+		
 		final private static int ARRAYSIZE = 1 << 20; // 2^20
 		final private static int MASK = ARRAYSIZE - 1;
 		final private static int LOCK = 1 << 31;
@@ -381,8 +378,7 @@ final public class Context implements org.deuce.transaction.Context {
 
 	@Override
 	public void onIrrevocableAccess() {
-		if (irrevocableState) // already in irrevocable state so no need to
-								// restart transaction.
+		if(irrevocableState) // already in irrevocable state so no need to restart transaction.
 			return;
 
 		irrevocableState = true;

@@ -7,14 +7,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * 
- * @author Guy Korland
+ *
+ * @author	Guy Korland
  * @since 1.0
  */
 @Target(METHOD)
 @Retention(CLASS)
 public @interface Atomic {
 	int retries() default Integer.MAX_VALUE;
-
 	String metainf() default "";
 }

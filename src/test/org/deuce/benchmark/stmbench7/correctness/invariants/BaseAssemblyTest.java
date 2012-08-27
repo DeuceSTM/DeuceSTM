@@ -15,14 +15,14 @@ import org.deuce.benchmark.stmbench7.core.Module;
 @ThreadLocal
 public class BaseAssemblyTest extends InvariantTest {
 
-	public static void checkInvariants(BaseAssembly assembly, boolean initial, ComplexAssembly parentAssembly,
-			Module module, TraversedObjects traversedObjects) {
+	public static void checkInvariants(BaseAssembly assembly, boolean initial,
+			ComplexAssembly parentAssembly, Module module, TraversedObjects traversedObjects) {
 
 		traversedObjects.baseAssemblies.add(assembly);
-
+		
 		AssemblyTest.checkInvariants(assembly, initial, Parameters.MaxBaseAssemblies, parentAssembly, module);
-
-		for (CompositePart component : assembly.getComponents())
+		
+		for(CompositePart component : assembly.getComponents())
 			CompositePartTest.checkInvariants(component, initial, assembly, traversedObjects);
 	}
 }

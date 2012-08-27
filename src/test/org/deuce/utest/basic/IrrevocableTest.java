@@ -1,5 +1,6 @@
 package org.deuce.utest.basic;
 
+
 import java.lang.reflect.Field;
 
 import junit.framework.TestCase;
@@ -7,170 +8,131 @@ import junit.framework.TestCase;
 import org.deuce.Atomic;
 import org.deuce.transaction.Context;
 import org.deuce.transaction.ContextDelegator;
-import org.deuce.transaction.IContext;
 
 /**
  * Tests that Irrevocable is called on the context
  * 
  * @author guy
- * 
+ *
  */
-public class IrrevocableTest extends TestCase {
+public class IrrevocableTest extends TestCase{
 
 	public void testIrrevocableCalled() throws Exception {
 
-		IContext originalInstance = ContextDelegator.getInstance(); // save the
-																	// real
-																	// context
-																	// before
-																	// setting
-																	// the moke
+		Context originalInstance = (Context) ContextDelegator.getInstance(); // save the real context before setting the moke
 		Field declaredField = ContextDelegator.class.getDeclaredField("THREAD_CONTEXT");
 		declaredField.setAccessible(true);
-		ThreadLocal<IContext> threadLocal = (ThreadLocal<IContext>) declaredField.get(Thread.currentThread());
+		ThreadLocal<Context> threadLocal = (ThreadLocal<Context>) declaredField.get(Thread.currentThread());
 
-		try {
+		try{
 			MockContext context = new MockContext();
 			threadLocal.set(context);
 
 			foo();
 
 			assertEquals(2, context.isIrrevocableCalled());
-		} finally {
+		}finally{
 			threadLocal.set(originalInstance); // restore the real context
 		}
 	}
 
 	@Atomic
-	private void foo() {
+	private void foo(){
 
-		try {
+		try{
 			nativeMethod();
-		} catch (UnsatisfiedLinkError e) {
+		}catch(UnsatisfiedLinkError e){
 		}
-
-		try {
+		
+		try{
 			staticNativeMethod(1);
-		} catch (UnsatisfiedLinkError e) {
+		}catch(UnsatisfiedLinkError e){
 		}
-
+		
 		nonNativeMethod();
 	}
 
 	public native void nativeMethod();
-
+	
 	public native static void staticNativeMethod(int x);
-
-	public void nonNativeMethod() {
-
+	
+	public void nonNativeMethod(){
+		
 	}
 
-	public static class MockContext implements Context {
+
+	public static class MockContext implements Context{
 
 		private int irrevocableCalled = 0;
+		
+		@Override
+		public void beforeReadAccess(Object obj, long field) {}
 
 		@Override
-		public void beforeReadAccess(Object obj, long field) {
-		}
+		public boolean commit() {return true;}
 
 		@Override
-		public boolean commit() {
-			return true;
-		}
+		public void init(int atomicBlockId, String metainf) {}
 
 		@Override
-		public void init(int atomicBlockId, String metainf) {
-		}
+		public Object onReadAccess(Object obj, Object value, long field) {return null;}
 
 		@Override
-		public Object onReadAccess(Object obj, Object value, long field) {
-			return null;
-		}
+		public boolean onReadAccess(Object obj, boolean value, long field) {return false;}
 
 		@Override
-		public boolean onReadAccess(Object obj, boolean value, long field) {
-			return false;
-		}
+		public byte onReadAccess(Object obj, byte value, long field) {return 0;}
 
 		@Override
-		public byte onReadAccess(Object obj, byte value, long field) {
-			return 0;
-		}
+		public char onReadAccess(Object obj, char value, long field) {return 0;}
 
 		@Override
-		public char onReadAccess(Object obj, char value, long field) {
-			return 0;
-		}
+		public short onReadAccess(Object obj, short value, long field) {return 0;}
 
 		@Override
-		public short onReadAccess(Object obj, short value, long field) {
-			return 0;
-		}
+		public int onReadAccess(Object obj, int value, long field) {return 0;}
 
 		@Override
-		public int onReadAccess(Object obj, int value, long field) {
-			return 0;
-		}
+		public long onReadAccess(Object obj, long value, long field) {return 0;}
 
 		@Override
-		public long onReadAccess(Object obj, long value, long field) {
-			return 0;
-		}
+		public float onReadAccess(Object obj, float value, long field) {return 0;}
 
 		@Override
-		public float onReadAccess(Object obj, float value, long field) {
-			return 0;
-		}
+		public double onReadAccess(Object obj, double value, long field) {return 0;}
 
 		@Override
-		public double onReadAccess(Object obj, double value, long field) {
-			return 0;
-		}
+		public void onWriteAccess(Object obj, Object value, long field) {}
 
 		@Override
-		public void onWriteAccess(Object obj, Object value, long field) {
-		}
+		public void onWriteAccess(Object obj, boolean value, long field) {}
 
 		@Override
-		public void onWriteAccess(Object obj, boolean value, long field) {
-		}
+		public void onWriteAccess(Object obj, byte value, long field) {}
 
 		@Override
-		public void onWriteAccess(Object obj, byte value, long field) {
-		}
+		public void onWriteAccess(Object obj, char value, long field) {}
 
 		@Override
-		public void onWriteAccess(Object obj, char value, long field) {
-		}
+		public void onWriteAccess(Object obj, short value, long field) {}
 
 		@Override
-		public void onWriteAccess(Object obj, short value, long field) {
-		}
+		public void onWriteAccess(Object obj, int value, long field) {}
 
 		@Override
-		public void onWriteAccess(Object obj, int value, long field) {
-		}
+		public void onWriteAccess(Object obj, long value, long field) {}
 
 		@Override
-		public void onWriteAccess(Object obj, long value, long field) {
-		}
+		public void onWriteAccess(Object obj, float value, long field) {}
 
 		@Override
-		public void onWriteAccess(Object obj, float value, long field) {
-		}
+		public void onWriteAccess(Object obj, double value, long field) {}
 
 		@Override
-		public void onWriteAccess(Object obj, double value, long field) {
-		}
+		public void rollback() {}
 
 		@Override
-		public void rollback() {
-		}
-
-		@Override
-		public void onIrrevocableAccess() {
-			irrevocableCalled++;
-		}
+		public void onIrrevocableAccess() {irrevocableCalled++;}
 
 		public int isIrrevocableCalled() {
 			return irrevocableCalled;

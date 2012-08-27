@@ -7,8 +7,11 @@ import org.deuce.benchmark.stmbench7.annotations.NonAtomic;
  */
 @NonAtomic
 public enum OperationType {
-	TRAVERSAL, TRAVERSAL_RO, SHORT_TRAVERSAL, SHORT_TRAVERSAL_RO, OPERATION, OPERATION_RO, STRUCTURAL_MODIFICATION;
-
+	TRAVERSAL, TRAVERSAL_RO, 
+	SHORT_TRAVERSAL, SHORT_TRAVERSAL_RO,
+	OPERATION, OPERATION_RO,
+	STRUCTURAL_MODIFICATION;
+	
 	/**
 	 * Some helper fields to make life easier.
 	 */

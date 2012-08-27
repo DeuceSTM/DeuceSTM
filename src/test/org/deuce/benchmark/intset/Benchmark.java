@@ -56,15 +56,12 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 				error = true;
 		}
 		if (error) {
-			System.out
-					.println("Benchmark arguments: (LinkedList|SkipList|RBTree) [-i initial-size] [-r range] [-w write-rate]");
+			System.out.println("Benchmark arguments: (LinkedList|SkipList|RBTree) [-i initial-size] [-r range] [-w write-rate]");
 			System.exit(1);
 		}
 		Random random = new Random();
 		for (int i = 0; i < initial; i++)
 			m_set.add(random.nextInt(m_range));
-		
-		
 		System.out.println("Initial size        = " + initial);
 		System.out.println("Range               = " + m_range);
 		System.out.println("Write rate          = " + m_rate + "%");
@@ -80,9 +77,9 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 		int remove = 0;
 		int contains = 0;
 		for (int i = 0; i < threads.length; i++) {
-			add += ((BenchmarkThread) threads[i]).m_nb_add;
-			remove += ((BenchmarkThread) threads[i]).m_nb_remove;
-			contains += ((BenchmarkThread) threads[i]).m_nb_contains;
+			add += ((BenchmarkThread)threads[i]).m_nb_add;
+			remove += ((BenchmarkThread)threads[i]).m_nb_remove;
+			contains += ((BenchmarkThread)threads[i]).m_nb_contains;
 		}
 		return "A=" + add + ", R=" + remove + ", C=" + contains;
 	}

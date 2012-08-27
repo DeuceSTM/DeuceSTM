@@ -12,40 +12,39 @@ import org.deuce.benchmark.stmbench7.core.CompositePart;
 import org.deuce.benchmark.stmbench7.core.OperationFailedException;
 
 /**
- * Operation OP8 (see the specification). Read-only, search on index.
+ * Operation OP8 (see the specification).
+ * Read-only, search on index.
  */
 public class Operation8 extends BaseOperation {
-
-	protected Index<Integer, BaseAssembly> baseAssemblyIdIndex;
-
+	
+	protected Index<Integer,BaseAssembly> baseAssemblyIdIndex;
+	
 	public Operation8(Setup oo7setup) {
 		this.baseAssemblyIdIndex = oo7setup.getBaseAssemblyIdIndex();
 	}
-
+	
 	@Override
-	@Transactional
-	@ReadOnly
+	@Transactional @ReadOnly
 	public int performOperation() throws OperationFailedException {
-		int baseAssemblyId = ThreadRandom.nextInt(Parameters.MaxBaseAssemblies) + 1;
+		int baseAssemblyId = ThreadRandom.nextInt(Parameters.MaxBaseAssemblies) +1;
 		BaseAssembly baseAssembly = baseAssemblyIdIndex.get(baseAssemblyId);
-		if (baseAssembly == null)
-			throw new OperationFailedException();
-
+		if(baseAssembly == null) throw new OperationFailedException();
+		
 		int count = 0;
-		for (CompositePart component : baseAssembly.getComponents()) {
+		for(CompositePart component : baseAssembly.getComponents()) {
 			performOperationInComponent(component);
 			count++;
 		}
-
+		
 		return count;
 	}
-
+	
 	protected void performOperationInComponent(CompositePart component) {
 		component.nullOperation();
 	}
-
-	@Override
-	public OperationId getOperationId() {
-		return OperationId.OP8;
-	}
+	
+    @Override
+    public OperationId getOperationId() {
+    	return OperationId.OP8;
+    }
 }

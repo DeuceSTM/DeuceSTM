@@ -15,8 +15,8 @@ final public class LastReadEntries {
 
 	protected ReadFieldAccess[] entries;
 	private int size;
-	private boolean first = true;
-
+	private boolean first = true;	
+	
 	public LastReadEntries() {
 		// by default, record k=2 read entries
 		entries = new ReadFieldAccess[2];
@@ -24,23 +24,22 @@ final public class LastReadEntries {
 		entries[1] = new ReadFieldAccess();
 		size = 0;
 	}
-
+	
 	public void clear() {
 		size = 0;
 	}
-
+	
 	public void add(Object reference, long field, int hash, int lock) {
-		if (size < 2)
-			size++;
+		if (size < 2) size++;
 		ReadFieldAccess r = first ? entries[0] : entries[1];
 		r.init(reference, field, hash, lock);
 		first = !first;
 	}
 
 	public boolean isEmpty() {
-		return (size == 0);
+		return (size==0);
 	}
-
+	
 	public int getSize() {
 		return size;
 	}

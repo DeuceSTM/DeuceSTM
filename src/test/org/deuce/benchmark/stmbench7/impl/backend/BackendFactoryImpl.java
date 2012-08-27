@@ -6,9 +6,10 @@ import org.deuce.benchmark.stmbench7.backend.Index;
 import org.deuce.benchmark.stmbench7.backend.LargeSet;
 
 /**
- * Implements methods that create objects implementing interfaces defined in
- * stmbench7.backend: Index, IdPool, and LargeSet. This default implementation
- * constructs objects that are NOT thread-safe.
+ * Implements methods that create objects implementing
+ * interfaces defined in stmbench7.backend: Index, IdPool,
+ * and LargeSet. This default implementation constructs
+ * objects that are NOT thread-safe. 
  */
 public class BackendFactoryImpl extends BackendFactory {
 
@@ -18,8 +19,8 @@ public class BackendFactoryImpl extends BackendFactory {
 	}
 
 	@Override
-	public <K extends Comparable<K>, V> Index<K, V> createIndex() {
-		return new TreeMapIndex<K, V>();
+	public <K extends Comparable<K>, V> Index<K,V> createIndex() {
+		return new TreeMapIndex<K,V>();
 	}
 
 	@Override

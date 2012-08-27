@@ -6,20 +6,19 @@ import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
 import org.deuce.transform.ExcludeInternal;
 
 /**
- * The Polite contention manager resolves conflicts by backing off and retrying
- * the lock. If after {@code MAX_BACKOFF_TIMES} the lock cannot be acquired the
- * current transaction tries to abort the other transaction.
+ * The Polite contention manager resolves conflicts by backing off and retrying the lock. 
+ * If after {@code MAX_BACKOFF_TIMES} the lock cannot be acquired the current transaction tries to abort the other transaction.
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  * @since 1.2
  */
 @ExcludeInternal
 public class Polite extends AbstractContentionManager {
-
+	
 	private static final int MAX_BACKOFF_TIMES = 22;
 	private static int K = 4;
 	private int counter = 0;
-
+	
 	public Polite(int k) {
 		K = k;
 	}
@@ -34,18 +33,17 @@ public class Polite extends AbstractContentionManager {
 		if (counter == MAX_BACKOFF_TIMES) {
 			// The thread is not allowed to back-off any longer
 			int statusRecord = other.getStatusRecord();
-			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED
-					|| other.kill(Context.getTxLocalClock(statusRecord))) {
+			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED || other.kill(Context.getTxLocalClock(statusRecord))) {
 				return Action.CONTINUE;
-			} else {
+			}
+			else {
 				me.kill(-1);
 				return Action.RESTART;
 			}
 		}
 		// increase back-off counter and loop until the time comes to retry
 		int timeToWait = calculateTimeToWait(counter);
-		for (int i = 0; i < timeToWait; i++)
-			;
+		for (int i=0; i<timeToWait; i++);
 		counter++;
 		return Action.RETRY;
 	}
@@ -54,10 +52,10 @@ public class Polite extends AbstractContentionManager {
 		if (counter == MAX_BACKOFF_TIMES) {
 			// The thread is not allowed to back-off any longer
 			int statusRecord = other.getStatusRecord();
-			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED
-					|| other.kill(Context.getTxLocalClock(statusRecord))) {
+			if (Context.getTxStatus(statusRecord) == Context.TX_ABORTED || other.kill(Context.getTxLocalClock(statusRecord))) {
 				return Action.RETRY;
-			} else {
+			}
+			else {
 				me.kill(-1);
 				return Action.RESTART;
 			}
@@ -65,8 +63,7 @@ public class Polite extends AbstractContentionManager {
 		// increase back-off counter and loop until
 		// the time comes to retry
 		int timeToWait = calculateTimeToWait(counter);
-		for (int i = 0; i < timeToWait; i++)
-			;
+		for (int i=0; i<timeToWait; i++);
 		counter++;
 		return Action.RETRY;
 	}
@@ -75,9 +72,9 @@ public class Polite extends AbstractContentionManager {
 		return "Polite busy-waiting [K=" + K + "Max backoff=" + MAX_BACKOFF_TIMES + "]";
 	}
 
-	private int calculateTimeToWait(int n) {
-		int t = (int) Math.pow(2, n + K);
+	private int calculateTimeToWait(int n) { 
+		int t = (int) Math.pow(2, n+K); 
 		return t;
 	}
-
+	
 }

@@ -20,28 +20,36 @@ import org.deuce.transform.ExcludeInternal;
 public class Factory {
 
 	private static final String TL2CM_CONTENTIONMANAGER = "org.deuce.transaction.tl2cm.ContentionManager";
-
+	
 	public static ContentionManager createContentionManager() {
 		String cmId = System.getProperty(TL2CM_CONTENTIONMANAGER);
 		ContentionManager cm = null;
 		if ("Suicide".equals(cmId)) {
 			cm = new Suicide();
-		} else if ("Aggressive".equals(cmId)) {
+		}
+		else if ("Aggressive".equals(cmId)) {
 			cm = new Aggressive();
-		} else if ("Polite".equals(cmId)) {
+		}
+		else if ("Polite".equals(cmId)) {
 			cm = new Polite(2);
-		} else if ("Karma".equals(cmId)) {
-			cm = new Karma(4);
-		} else if ("KarmaLS".equals(cmId)) {
+		}
+		else if ("Karma".equals(cmId)) {
+			cm = new Karma(4); 
+		}
+		else if ("KarmaLS".equals(cmId)) {
 			cm = new KarmaLS();
-		} else if ("Polka".equals(cmId)) {
+		}
+		else if ("Polka".equals(cmId)) {
 			cm = new Polka(10);
-		} else if ("AggressiveLS".equals(cmId)) {
+		}
+		else if ("AggressiveLS".equals(cmId)) {
 			cm = new AggressiveLS();
-		} else if ("KillPrioLS".equals(cmId)) {
+		}
+		else if ("KillPrioLS".equals(cmId)) {
 			cm = new KillPrioLS();
-		} else {
-			cm = new KillPrioLS(); // This is the default CM
+		}
+		else {
+			cm = new KillPrioLS();	// This is the default CM
 		}
 		return cm;
 	}

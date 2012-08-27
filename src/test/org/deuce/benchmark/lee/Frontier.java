@@ -48,6 +48,7 @@ public class Frontier {
 
 	@Override
 	public String toString() {
-		return "Frontier [dw=" + dw + ", x=" + x + ", y=" + y + ", z=" + z + "]";
+		return "Frontier [dw=" + dw + ", x=" + x + ", y=" + y + ", z=" + z
+				+ "]";
 	}
 }

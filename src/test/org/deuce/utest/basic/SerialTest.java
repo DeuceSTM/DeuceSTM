@@ -5,27 +5,27 @@ import junit.framework.TestCase;
 
 import org.deuce.Atomic;
 
-public class SerialTest extends TestCase {
-
+public class SerialTest extends TestCase{
+	
 	private int var0;
 	private int var1;
 	private int var2;
 	private int var3;
 	private int var4;
-
-	@Override
-	public void setUp() {
-		var0 = 0;
-		var1 = 1;
-		var2 = 2;
-		var3 = 3;
-		var4 = 4;
+	
+    @Override
+    public void setUp() { 
+    	var0 = 0;
+    	var1 = 1;
+    	var2 = 2;
+    	var3 = 3;
+    	var4 = 4;
 	}
-
+	
 	public void testSingleRead() {
 		atomicSingleRead();
 	}
-
+	
 	@Atomic
 	private void atomicSingleRead() {
 		int x = var1;
@@ -49,12 +49,12 @@ public class SerialTest extends TestCase {
 		atomicSingleWrite();
 		Assert.assertEquals(10, var0);
 	}
-
+	
 	@Atomic
-	public void atomicSingleWrite() {
-		var0 = 10;
+	public void atomicSingleWrite(){
+		var0 = 10;	
 	}
-
+	
 	public void testMultiWrite() {
 		atmicMultiWrite();
 	}

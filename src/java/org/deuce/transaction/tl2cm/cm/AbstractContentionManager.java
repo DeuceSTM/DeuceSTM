@@ -12,15 +12,15 @@ abstract public class AbstractContentionManager implements ContentionManager {
 	public boolean requiresPriorities() {
 		return false;
 	}
-
+	
 	@Override
 	public boolean requiresKillPriorities() {
 		return false;
 	}
-
+	
 	@Override
 	public void init() {
-
+		
 	}
 
 }

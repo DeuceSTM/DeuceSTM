@@ -66,7 +66,7 @@ public class Grid {
 	private static int debugCount = 0;
 
 	private static int divisor = 100000;
-
+	
 	private final boolean releasable;
 
 	/** Creates a new instance of Grid */
@@ -115,22 +115,30 @@ public class Grid {
 					for (int y = 1; y < height - 1; y++)
 						if (grid[x][y][z].getRouteID() == LeeRouterGlobalLock.OCC) {
 							if (grid[x][y + 1][z].getRouteID() == LeeRouterGlobalLock.EMPTY)
-								grid[x][y + 1][z].setRouteID(LeeRouterGlobalLock.MAX_WEIGHT);
+								grid[x][y + 1][z]
+										.setRouteID(LeeRouterGlobalLock.MAX_WEIGHT);
 							if (grid[x + 1][y][z].getRouteID() == LeeRouterGlobalLock.EMPTY)
-								grid[x + 1][y][z].setRouteID(LeeRouterGlobalLock.MAX_WEIGHT);
+								grid[x + 1][y][z]
+										.setRouteID(LeeRouterGlobalLock.MAX_WEIGHT);
 							if (grid[x][y - 1][z].getRouteID() == LeeRouterGlobalLock.EMPTY)
-								grid[x][y - 1][z].setRouteID(LeeRouterGlobalLock.MAX_WEIGHT);
+								grid[x][y - 1][z]
+										.setRouteID(LeeRouterGlobalLock.MAX_WEIGHT);
 							if (grid[x - 1][y][z].getRouteID() == LeeRouterGlobalLock.EMPTY)
-								grid[x - 1][y][z].setRouteID(LeeRouterGlobalLock.MAX_WEIGHT);
+								grid[x - 1][y][z]
+										.setRouteID(LeeRouterGlobalLock.MAX_WEIGHT);
 						} else if (grid[x][y][z].getRouteID() != LeeRouterGlobalLock.EMPTY) {
 							if (grid[x][y + 1][z].getRouteID() == LeeRouterGlobalLock.EMPTY)
-								grid[x][y + 1][z].setRouteID(grid[x][y][z].getRouteID() - 1);
+								grid[x][y + 1][z].setRouteID(grid[x][y][z]
+										.getRouteID() - 1);
 							if (grid[x + 1][y][z].getRouteID() == LeeRouterGlobalLock.EMPTY)
-								grid[x + 1][y][z].setRouteID(grid[x][y][z].getRouteID() - 1);
+								grid[x + 1][y][z].setRouteID(grid[x][y][z]
+										.getRouteID() - 1);
 							if (grid[x][y - 1][z].getRouteID() == LeeRouterGlobalLock.EMPTY)
-								grid[x][y - 1][z].setRouteID(grid[x][y][z].getRouteID() - 1);
+								grid[x][y - 1][z].setRouteID(grid[x][y][z]
+										.getRouteID() - 1);
 							if (grid[x - 1][y][z].getRouteID() == LeeRouterGlobalLock.EMPTY)
-								grid[x - 1][y][z].setRouteID(grid[x][y][z].getRouteID() - 1);
+								grid[x - 1][y][z].setRouteID(grid[x][y][z]
+										.getRouteID() - 1);
 						}
 	}
 
@@ -196,7 +204,8 @@ public class Grid {
 		return found;
 	}
 
-	private boolean isNeighbouringCellNN(int x, int y, int z, int nn, LinkedList<Triplet> trackSoFar) {
+	private boolean isNeighbouringCellNN(int x, int y, int z, int nn,
+			LinkedList<Triplet> trackSoFar) {
 		boolean retval = false;
 		if (x + 1 < width && debugGrid[x + 1][y][z].getRouteID() == nn
 				&& !trackSoFar.contains(new Triplet(x + 1, y, z))) {

@@ -1,8 +1,8 @@
 package org.deuce.benchmark.intset;
 
-import java.util.Random;
+import java.util.*;
 
-import org.deuce.Atomic;
+import org.deuce.*;
 
 /**
  * @author Pascal Felber

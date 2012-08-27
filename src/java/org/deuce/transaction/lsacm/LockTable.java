@@ -3,6 +3,7 @@ package org.deuce.transaction.lsacm;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 import org.deuce.transaction.TransactionException;
+import org.deuce.transaction.lsacm.Context;
 import org.deuce.transaction.lsacm.ContentionManager.ConflictType;
 import org.deuce.transform.ExcludeInternal;
 
@@ -12,9 +13,9 @@ import org.deuce.transform.ExcludeInternal;
 @ExcludeInternal
 public class LockTable {
 
-	// Failure transaction
-	final private static TransactionException FAILURE_EXCEPTION = new TransactionException(
-			"Fail on lock (already locked).");
+	// Failure transaction 
+	final private static TransactionException FAILURE_EXCEPTION =
+		new TransactionException("Fail on lock (already locked).");
 
 	final private static int ARRAYSIZE = 1 << 20; // 2^20
 	final private static int MASK = ARRAYSIZE - 1;
@@ -42,7 +43,7 @@ public class LockTable {
 		while (true) {
 			long lock = locks.get(hash);
 			if ((lock & RWLOCK) != 0) {
-				int owner = (int) ((lock & IDMASK) >> IDOFFSET);
+				int owner = (int)((lock & IDMASK) >> IDOFFSET);
 				if (owner != id) {
 					// Already locked by other thread
 					ConflictType type;
@@ -58,8 +59,7 @@ public class LockTable {
 				} else {
 					// We already own this lock
 					if (write && (lock & WLOCK) == 0) {
-						// Upgrade lock (use CAS as another thread might be
-						// releasing our locks)
+						// Upgrade lock (use CAS as another thread might be releasing our locks)
 						if (!locks.compareAndSet(hash, lock, lock | WLOCK))
 							throw FAILURE_EXCEPTION;
 					}
@@ -67,7 +67,7 @@ public class LockTable {
 				}
 			}
 
-			long l = lock | ((long) id << IDOFFSET) | (write ? WLOCK : RLOCK);
+			long l = lock | ((long)id << IDOFFSET) | (write ? WLOCK : RLOCK);
 			if (locks.compareAndSet(hash, lock, l)) {
 				// Return old timestamp (lock bit is not set)
 				return lock & TSMASK;
@@ -80,7 +80,7 @@ public class LockTable {
 		while (true) {
 			long lock = locks.get(hash);
 			if ((lock & WLOCK) != 0) {
-				int owner = (int) ((lock & IDMASK) >> IDOFFSET);
+				int owner = (int)((lock & IDMASK) >> IDOFFSET);
 				if (owner != id) {
 					// Already locked by other thread
 					throw FAILURE_EXCEPTION;

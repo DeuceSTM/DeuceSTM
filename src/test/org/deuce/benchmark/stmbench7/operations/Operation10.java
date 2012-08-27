@@ -8,28 +8,28 @@ import org.deuce.benchmark.stmbench7.core.AtomicPart;
 import org.deuce.benchmark.stmbench7.core.OperationFailedException;
 
 /**
- * Operation OP10 (see the specification). Simple update, range query on index.
+ * Operation OP10 (see the specification).
+ * Simple update, range query on index.
  */
 public class Operation10 extends Query2 {
 
-	public Operation10(Setup oo7setup) {
-		super(oo7setup, 1);
-	}
-
-	@Override
-	@Transactional
-	@Update
+    public Operation10(Setup oo7setup) {
+    	super(oo7setup, 1);
+    }
+    
+    @Override
+	@Transactional @Update
 	public int performOperation() throws OperationFailedException {
-		return super.performOperation();
+    	return super.performOperation();
 	}
-
-	@Override
+    
+    @Override
 	protected void performOperationInAtomicPart(AtomicPart atomicPart) {
 		atomicPart.swapXY();
 	}
-
-	@Override
-	public OperationId getOperationId() {
-		return OperationId.OP10;
-	}
+    
+    @Override
+    public OperationId getOperationId() {
+    	return OperationId.OP10;
+    }
 }

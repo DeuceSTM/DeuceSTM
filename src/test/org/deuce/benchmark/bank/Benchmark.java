@@ -67,8 +67,7 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 				error = true;
 		}
 		if (error) {
-			System.out
-					.println("Benchmark arguments: [-n nb-accounts] [-i initial-amount] [-m max-transfer] [-r read-all-frequency] [-w write-all-frequency] [-R read-all-threads] [-W write-all-threads] [-d] [-y]");
+			System.out.println("Benchmark arguments: [-n nb-accounts] [-i initial-amount] [-m max-transfer] [-r read-all-frequency] [-w write-all-frequency] [-R read-all-threads] [-W write-all-threads] [-d] [-y]");
 			System.exit(1);
 		}
 		m_accounts = new Account[nb];
@@ -92,8 +91,7 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 	}
 
 	public org.deuce.benchmark.BenchmarkThread createThread(int i, int nb) {
-		return new BenchmarkThread(i, nb, m_accounts, m_max, m_read_frequency, m_write_frequency, m_read_threads,
-				m_write_threads);
+		return new BenchmarkThread(i, nb, m_accounts, m_max, m_read_frequency, m_write_frequency, m_read_threads, m_write_threads);
 	}
 
 	public String getStats(org.deuce.benchmark.BenchmarkThread[] threads) {
@@ -109,9 +107,9 @@ public class Benchmark implements org.deuce.benchmark.Benchmark {
 		int reads = 0;
 		int writes = 0;
 		for (int i = 0; i < threads.length; i++) {
-			transfers += ((BenchmarkThread) threads[i]).m_nb_transfers;
-			reads += ((BenchmarkThread) threads[i]).m_nb_reads;
-			writes += ((BenchmarkThread) threads[i]).m_nb_writes;
+			transfers += ((BenchmarkThread)threads[i]).m_nb_transfers;
+			reads += ((BenchmarkThread)threads[i]).m_nb_reads;
+			writes += ((BenchmarkThread)threads[i]).m_nb_writes;
 		}
 
 		return "T=" + transfers + ", R=" + reads + ", W=" + writes + ", TOTAL=" + total + sb.toString();

@@ -41,39 +41,37 @@ import org.deuce.objectweb.asm.Opcodes;
  */
 public class IincInsnNode extends AbstractInsnNode {
 
-	/**
-	 * Index of the local variable to be incremented.
-	 */
-	public int var;
+    /**
+     * Index of the local variable to be incremented.
+     */
+    public int var;
 
-	/**
-	 * Amount to increment the local variable by.
-	 */
-	public int incr;
+    /**
+     * Amount to increment the local variable by.
+     */
+    public int incr;
 
-	/**
-	 * Constructs a new {@link IincInsnNode}.
-	 * 
-	 * @param var
-	 *            index of the local variable to be incremented.
-	 * @param incr
-	 *            increment amount to increment the local variable by.
-	 */
-	public IincInsnNode(final int var, final int incr) {
-		super(Opcodes.IINC);
-		this.var = var;
-		this.incr = incr;
-	}
+    /**
+     * Constructs a new {@link IincInsnNode}.
+     * 
+     * @param var index of the local variable to be incremented.
+     * @param incr increment amount to increment the local variable by.
+     */
+    public IincInsnNode(final int var, final int incr) {
+        super(Opcodes.IINC);
+        this.var = var;
+        this.incr = incr;
+    }
 
-	public int getType() {
-		return IINC_INSN;
-	}
+    public int getType() {
+        return IINC_INSN;
+    }
 
-	public void accept(final MethodVisitor mv) {
-		mv.visitIincInsn(var, incr);
-	}
+    public void accept(final MethodVisitor mv) {
+        mv.visitIincInsn(var, incr);
+    }
 
-	public AbstractInsnNode clone(final Map labels) {
-		return new IincInsnNode(var, incr);
-	}
+    public AbstractInsnNode clone(final Map labels) {
+        return new IincInsnNode(var, incr);
+    }
 }

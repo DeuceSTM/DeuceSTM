@@ -8,14 +8,16 @@ import org.deuce.transaction.norec.field.BooleanFieldAccess;
 import org.deuce.transaction.norec.field.ByteFieldAccess;
 import org.deuce.transaction.norec.field.CharFieldAccess;
 import org.deuce.transaction.norec.field.DoubleFieldAccess;
-import org.deuce.transaction.norec.field.Field;
-import org.deuce.transaction.norec.field.Field.Type;
 import org.deuce.transaction.norec.field.FieldAccess;
+import org.deuce.transaction.norec.field.Field;
 import org.deuce.transaction.norec.field.FloatFieldAccess;
 import org.deuce.transaction.norec.field.IntFieldAccess;
 import org.deuce.transaction.norec.field.LongFieldAccess;
 import org.deuce.transaction.norec.field.ObjectFieldAccess;
 import org.deuce.transaction.norec.field.ShortFieldAccess;
+import org.deuce.transaction.norec.field.Field.Type;
+import org.deuce.transaction.norec.ReadSet;
+import org.deuce.transaction.norec.WriteSet;
 import org.deuce.transform.ExcludeInternal;
 
 /**
@@ -26,7 +28,8 @@ import org.deuce.transform.ExcludeInternal;
 @ExcludeInternal
 final public class Context implements org.deuce.transaction.Context {
 
-	final private static TransactionException VALIDATE_FAILURE_EXCEPTION = new TransactionException("Fail on validate.");
+	final private static TransactionException VALIDATE_FAILURE_EXCEPTION =
+		new TransactionException("Fail on validate.");
 
 	final private static int LOCK = 1;
 
@@ -34,8 +37,8 @@ final public class Context implements org.deuce.transaction.Context {
 
 	final private ReadSet readSet = new ReadSet(1024);
 	final private WriteSet writeSet = new WriteSet(32);
-
-	// Global lock used to allow only one irrevocable transaction solely.
+	
+	//Global lock used to allow only one irrevocable transaction solely. 
 	final private static ReentrantReadWriteLock irrevocableAccessLock = new ReentrantReadWriteLock();
 	private boolean irrevocableState = false;
 
@@ -48,21 +51,21 @@ final public class Context implements org.deuce.transaction.Context {
 	public void init(int blockId, String metainf) {
 		readSet.clear();
 		writeSet.clear();
-
-		// Lock according to the transaction irrevocable state
-		if (irrevocableState)
+		
+		//Lock according to the transaction irrevocable state
+		if(irrevocableState)
 			irrevocableAccessLock.writeLock().lock();
 		else
 			irrevocableAccessLock.readLock().lock();
-
+		
 		do {
 			timeStamp = clock.get();
-		} while ((timeStamp & LOCK) != 0);
+		} while((timeStamp & LOCK) != 0);
 	}
 
 	@Override
 	public boolean commit() {
-		try {
+		try{
 			if (writeSet.isEmpty())
 				return true;
 
@@ -78,11 +81,13 @@ final public class Context implements org.deuce.transaction.Context {
 			clock.set(timeStamp + 2);
 
 			return true;
-		} finally {
-			if (irrevocableState) {
+		}
+		finally{
+			if(irrevocableState){
 				irrevocableState = false;
 				irrevocableAccessLock.writeLock().unlock();
-			} else {
+			}
+			else{
 				irrevocableAccessLock.readLock().unlock();
 			}
 
@@ -100,13 +105,13 @@ final public class Context implements org.deuce.transaction.Context {
 
 	private int validate() {
 		int lastClock = clock.get();
-		while (true) {
-			while ((lastClock & LOCK) != 0)
+		while(true) {
+			while((lastClock & LOCK) != 0)
 				lastClock = clock.get();
-
+			
 			if (!readSet.validate())
 				return -1;
-
+			
 			int tempClock = clock.get();
 			if (lastClock == tempClock)
 				break;
@@ -276,16 +281,15 @@ final public class Context implements org.deuce.transaction.Context {
 	public void onWriteAccess(Object obj, float value, long field) {
 		writeSet.add(obj, field, value);
 	}
-
+	
 	@Override
 	public void onWriteAccess(Object obj, double value, long field) {
 		writeSet.add(obj, field, value);
 	}
-
+	
 	@Override
 	public void onIrrevocableAccess() {
-		if (irrevocableState) // already in irrevocable state so no need to
-								// restart transaction.
+		if(irrevocableState) // already in irrevocable state so no need to restart transaction.
 			return;
 
 		irrevocableState = true;

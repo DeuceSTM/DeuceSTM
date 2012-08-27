@@ -1,16 +1,19 @@
 package org.deuce.transaction.lsacm;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.deuce.transaction.TransactionException;
-import org.deuce.transaction.lsacm.ContentionManager.ConflictType;
 import org.deuce.transaction.lsacm.field.Field;
 import org.deuce.transaction.lsacm.field.Field.Type;
 import org.deuce.transaction.lsacm.field.WriteFieldAccess;
+import org.deuce.transaction.lsacm.ReadSet;
+import org.deuce.transaction.lsacm.WriteSet;
+import org.deuce.transaction.lsacm.ContentionManager;
+import org.deuce.transaction.lsacm.ContentionManager.ConflictType;
 import org.deuce.transaction.util.BooleanArrayList;
 import org.deuce.transform.ExcludeInternal;
 
@@ -32,16 +35,17 @@ final public class Context implements org.deuce.transaction.Context {
 	final private static int STATUS_BITS = 3;
 	final private static int STATUS_MASK = (1 << STATUS_BITS) - 1;
 
-	final private static TransactionException WRITE_FAILURE_EXCEPTION = new TransactionException(
-			"Fail on write (read previous version).");
+	final private static TransactionException WRITE_FAILURE_EXCEPTION =
+		new TransactionException("Fail on write (read previous version).");
 
-	final private static TransactionException EXTEND_FAILURE_EXCEPTION = new TransactionException("Fail on extend.");
+	final private static TransactionException EXTEND_FAILURE_EXCEPTION =
+		new TransactionException("Fail on extend.");
 
-	final private static TransactionException READ_ONLY_FAILURE_EXCEPTION = new TransactionException(
-			"Fail on write (read-only hint was set).");
+	final private static TransactionException READ_ONLY_FAILURE_EXCEPTION =
+		new TransactionException("Fail on write (read-only hint was set).");
 
-	final private static TransactionException KILLED_EXCEPTION = new TransactionException(
-			"Transaction has been killed.");
+	final private static TransactionException KILLED_EXCEPTION =
+		new TransactionException("Transaction has been killed.");
 
 	final private static AtomicLong clock = new AtomicLong(0);
 	final private static AtomicInteger threadID = new AtomicInteger(0);
@@ -54,7 +58,7 @@ final public class Context implements org.deuce.transaction.Context {
 
 	final private static ContentionManager cm;
 
-	// Global lock used to allow only one irrevocable transaction solely.
+	//Global lock used to allow only one irrevocable transaction solely. 
 	final private static ReentrantReadWriteLock irrevocableAccessLock = new ReentrantReadWriteLock();
 	private boolean irrevocableState = false;
 
@@ -91,7 +95,7 @@ final public class Context implements org.deuce.transaction.Context {
 				System.err.println("Cannot create contention manager: " + s);
 			}
 		}
-		cm = (ContentionManager) o;
+		cm = (ContentionManager)o;
 	}
 
 	public Context() {
@@ -113,13 +117,13 @@ final public class Context implements org.deuce.transaction.Context {
 	public void init(int blockId, String metainf) {
 		readSet.clear();
 		writeSet.clear();
-
-		// Lock according to the transaction irrevocable state
-		if (irrevocableState)
+		
+		//Lock according to the transaction irrevocable state
+		if(irrevocableState)
 			irrevocableAccessLock.writeLock().lock();
 		else
 			irrevocableAccessLock.readLock().lock();
-
+		
 		endTime = clock.get();
 		startTime.set(endTime);
 		status.set(((status.get() + (1 << STATUS_BITS)) & ~STATUS_MASK) | TX_ACTIVE);
@@ -133,7 +137,7 @@ final public class Context implements org.deuce.transaction.Context {
 
 	@Override
 	public boolean commit() {
-		try {
+		try{
 			if (!writeSet.isEmpty()) {
 				int v = status.get();
 				int s = v & STATUS_MASK;
@@ -147,23 +151,23 @@ final public class Context implements org.deuce.transaction.Context {
 					writeSet.commit(newClock);
 					status.set(v + (TX_COMMITTED - TX_ACTIVE));
 				} else {
-					// We have been killed: wait for our locks to have been
-					// released
+					// We have been killed: wait for our locks to have been released
 					while (s != TX_ABORTED)
 						s = status.get() & STATUS_MASK;
 					return false;
 				}
 			} else {
-				// No need to set status to COMMITTED (we cannot be killed with
-				// an empty write set)
+				// No need to set status to COMMITTED (we cannot be killed with an empty write set)
 			}
 			attempts = 0;
 			return true;
-		} finally {
-			if (irrevocableState) {
+		}
+		finally{
+			if(irrevocableState){
 				irrevocableState = false;
 				irrevocableAccessLock.writeLock().unlock();
-			} else {
+			}
+			else{
 				irrevocableAccessLock.readLock().unlock();
 			}
 
@@ -173,10 +177,10 @@ final public class Context implements org.deuce.transaction.Context {
 	@Override
 	public void rollback() {
 		rollback0();
-
+		
 		irrevocableAccessLock.readLock().unlock();
 	}
-
+	
 	private void rollback0() {
 		if (!writeSet.isEmpty()) {
 			int v = status.get();
@@ -195,10 +199,9 @@ final public class Context implements org.deuce.transaction.Context {
 					s = status.get() & STATUS_MASK;
 			}
 		} else {
-			// No need to set status to ABORTED (at that point we do not hold
-			// locks anymore)
+			// No need to set status to ABORTED (at that point we do not hold locks anymore)
 		}
-
+		
 		irrevocableAccessLock.readLock().unlock();
 	}
 
@@ -260,11 +263,9 @@ final public class Context implements org.deuce.transaction.Context {
 			readLock = LockTable.lock(this, readHash, id, false);
 			if (readLock >= 0) {
 				synchronized (writeSet) {
-					// Mutual exclusion on write set to allow other transaction
-					// to drop locks
+					// Mutual exclusion on write set to allow other transaction to drop locks
 					if ((status.get() & STATUS_MASK) != TX_ACTIVE) {
-						// We have been killed: drop lock we just acquired (not
-						// in write set)
+						// We have been killed: drop lock we just acquired (not in write set)
 						LockTable.setAndReleaseLock(readHash, readLock);
 						// Abort
 						throw KILLED_EXCEPTION;
@@ -350,8 +351,7 @@ final public class Context implements org.deuce.transaction.Context {
 		long timestamp = LockTable.lock(this, hash, id, true);
 
 		synchronized (writeSet) {
-			// Mutual exclusion on write set to allow other transaction to drop
-			// locks
+			// Mutual exclusion on write set to allow other transaction to drop locks
 			if ((status.get() & STATUS_MASK) != TX_ACTIVE) {
 				// We have been killed
 				if (timestamp >= 0) {
@@ -373,8 +373,7 @@ final public class Context implements org.deuce.transaction.Context {
 						LockTable.setAndReleaseLock(hash, timestamp);
 						throw WRITE_FAILURE_EXCEPTION;
 					}
-					// We delay validation until later (although we could
-					// already validate once here)
+					// We delay validation until later (although we could already validate once here)
 				}
 				// Add to write set
 				writeSet.addWrite(hash, obj, field, value, type, timestamp);
@@ -474,8 +473,7 @@ final public class Context implements org.deuce.transaction.Context {
 
 	@Override
 	public void onIrrevocableAccess() {
-		if (irrevocableState) // already in irrevocable state so no need to
-								// restart transaction.
+		if(irrevocableState) // already in irrevocable state so no need to restart transaction.
 			return;
 
 		irrevocableState = true;

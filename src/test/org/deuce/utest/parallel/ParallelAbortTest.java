@@ -2,24 +2,23 @@ package org.deuce.utest.parallel;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.TestCase;
-
 import org.deuce.Atomic;
 import org.deuce.transaction.AbortTransactionException;
 import org.junit.Assert;
 
+import junit.framework.TestCase;
+
 /**
  * Test parallel threads that abort transactions
- * 
  * @author Guy Korland
  * @since 1.3
  */
 public class ParallelAbortTest extends TestCase {
 
 	final static private int THREADS = 10;
-
+	
 	public void testPrallelAbort() throws Throwable {
-
+		
 		final AtomicInteger abortCounter = new AtomicInteger();
 		final Counter counter = new Counter();
 		Thread[] threads = new Thread[THREADS];
@@ -46,10 +45,11 @@ public class ParallelAbortTest extends TestCase {
 		for (int i = 0; i < THREADS; i++) {
 			threads[i].join();
 		}
-
+		
 		Assert.assertEquals(90, counter.getValue());
 		Assert.assertEquals(10, abortCounter.get());
 	}
+
 
 	public class Counter {
 

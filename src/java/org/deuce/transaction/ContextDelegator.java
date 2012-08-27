@@ -16,82 +16,77 @@ import org.deuce.transform.inplacemetadata.type.TxArrShortField;
 import org.deuce.transform.inplacemetadata.type.TxField;
 
 /**
- * Cluster static delegate methods. These methods delegates calls from the
- * dynamic generated code to the context.
+ * Cluster static delegate methods.
+ * These methods delegates calls from the dynamic generated code to the context.
  * 
  * 
- * @author Guy Korland
- * @since 1.0
- * 
+ * @author	Guy Korland
+ * @since	1.0
+ *
  */
 public class ContextDelegator {
 
 	final static public String CONTEXT_DELEGATOR_INTERNAL = Type.getInternalName(ContextDelegator.class);
-
+	
 	final static public String BEFORE_READ_METHOD_NAME = "beforeReadAccess";
-	final static public String BEFORE_READ_METHOD_DESC = "(Ljava/lang/Object;J" + Context.CONTEXT_DESC + ")V";
+	final static public String BEFORE_READ_METHOD_DESC = "(Ljava/lang/Object;J" + Context.CONTEXT_DESC +")V";
 	final static public String IRREVOCABLE_METHOD_NAME = "onIrrevocableAccess";
 	final static public String IRREVOCABLE_METHOD_DESC = "(" + Context.CONTEXT_DESC + ")V";
-
+	
 	final static public String WRITE_METHOD_NAME = "onWriteAccess";
 	final static public String WRITE_ARR_METHOD_NAME = "onArrayWriteAccess";
 	final static public String STATIC_WRITE_METHOD_NAME = "addStaticWriteAccess";
 	final static public String READ_METHOD_NAME = "onReadAccess";
 	final static public String READ_ARR_METHOD_NAME = "onArrayReadAccess";
 
-	final static private String WRITE_METHOD_BOOLEAN_DESC = "(Ljava/lang/Object;ZJ" + Context.CONTEXT_DESC + ")V";
-	final static private String WRITE_METHOD_BYTE_DESC = "(Ljava/lang/Object;BJ" + Context.CONTEXT_DESC + ")V";
-	final static private String WRITE_METHOD_CHAR_DESC = "(Ljava/lang/Object;CJ" + Context.CONTEXT_DESC + ")V";
-	final static private String WRITE_METHOD_SHORT_DESC = "(Ljava/lang/Object;SJ" + Context.CONTEXT_DESC + ")V";
-	final static private String WRITE_METHOD_INT_DESC = "(Ljava/lang/Object;IJ" + Context.CONTEXT_DESC + ")V";
-	final static private String WRITE_METHOD_LONG_DESC = "(Ljava/lang/Object;JJ" + Context.CONTEXT_DESC + ")V";
-	final static private String WRITE_METHOD_FLOAT_DESC = "(Ljava/lang/Object;FJ" + Context.CONTEXT_DESC + ")V";
-	final static private String WRITE_METHOD_DOUBLE_DESC = "(Ljava/lang/Object;DJ" + Context.CONTEXT_DESC + ")V";
-	final static private String WRITE_METHOD_OBJ_DESC = "(Ljava/lang/Object;Ljava/lang/Object;J" + Context.CONTEXT_DESC
-			+ ")V";
+	final static private String WRITE_METHOD_BOOLEAN_DESC = "(Ljava/lang/Object;ZJ" + Context.CONTEXT_DESC +")V";
+	final static private String WRITE_METHOD_BYTE_DESC = "(Ljava/lang/Object;BJ" + Context.CONTEXT_DESC +")V";
+	final static private String WRITE_METHOD_CHAR_DESC = "(Ljava/lang/Object;CJ" + Context.CONTEXT_DESC +")V";
+	final static private String WRITE_METHOD_SHORT_DESC = "(Ljava/lang/Object;SJ" + Context.CONTEXT_DESC +")V";
+	final static private String WRITE_METHOD_INT_DESC = "(Ljava/lang/Object;IJ" + Context.CONTEXT_DESC +")V";
+	final static private String WRITE_METHOD_LONG_DESC = "(Ljava/lang/Object;JJ" + Context.CONTEXT_DESC +")V";
+	final static private String WRITE_METHOD_FLOAT_DESC = "(Ljava/lang/Object;FJ" + Context.CONTEXT_DESC +")V";
+	final static private String WRITE_METHOD_DOUBLE_DESC = "(Ljava/lang/Object;DJ" + Context.CONTEXT_DESC +")V";
+	final static private String WRITE_METHOD_OBJ_DESC = "(Ljava/lang/Object;Ljava/lang/Object;J" + Context.CONTEXT_DESC +")V";
 
-	final static private String STATIC_WRITE_METHOD_BOOLEAN_DESC = "(ZLjava/lang/Object;J" + Context.CONTEXT_DESC
-			+ ")V";
-	final static private String STATIC_WRITE_METHOD_BYTE_DESC = "(BLjava/lang/Object;J" + Context.CONTEXT_DESC + ")V";
-	final static private String STATIC_WRITE_METHOD_CHAR_DESC = "(CLjava/lang/Object;J" + Context.CONTEXT_DESC + ")V";
-	final static private String STATIC_WRITE_METHOD_SHORT_DESC = "(SLjava/lang/Object;J" + Context.CONTEXT_DESC + ")V";
-	final static private String STATIC_WRITE_METHOD_INT_DESC = "(ILjava/lang/Object;J" + Context.CONTEXT_DESC + ")V";
-	final static private String STATIC_WRITE_METHOD_LONG_DESC = "(JLjava/lang/Object;J" + Context.CONTEXT_DESC + ")V";
-	final static private String STATIC_WRITE_METHOD_FLOAT_DESC = "(FLjava/lang/Object;J" + Context.CONTEXT_DESC + ")V";
-	final static private String STATIC_WRITE_METHOD_DOUBLE_DESC = "(DLjava/lang/Object;J" + Context.CONTEXT_DESC + ")V";
-	final static private String STATIC_WRITE_METHOD_OBJ_DESC = "(Ljava/lang/Object;Ljava/lang/Object;J"
-			+ Context.CONTEXT_DESC + ")V";
+	final static private String STATIC_WRITE_METHOD_BOOLEAN_DESC = "(ZLjava/lang/Object;J" + Context.CONTEXT_DESC +")V";
+	final static private String STATIC_WRITE_METHOD_BYTE_DESC = "(BLjava/lang/Object;J" + Context.CONTEXT_DESC +")V";
+	final static private String STATIC_WRITE_METHOD_CHAR_DESC = "(CLjava/lang/Object;J" + Context.CONTEXT_DESC +")V";
+	final static private String STATIC_WRITE_METHOD_SHORT_DESC = "(SLjava/lang/Object;J" + Context.CONTEXT_DESC +")V";
+	final static private String STATIC_WRITE_METHOD_INT_DESC = "(ILjava/lang/Object;J" + Context.CONTEXT_DESC +")V";
+	final static private String STATIC_WRITE_METHOD_LONG_DESC = "(JLjava/lang/Object;J" + Context.CONTEXT_DESC +")V";
+	final static private String STATIC_WRITE_METHOD_FLOAT_DESC = "(FLjava/lang/Object;J" + Context.CONTEXT_DESC +")V";
+	final static private String STATIC_WRITE_METHOD_DOUBLE_DESC = "(DLjava/lang/Object;J" + Context.CONTEXT_DESC +")V";
+	final static private String STATIC_WRITE_METHOD_OBJ_DESC = "(Ljava/lang/Object;Ljava/lang/Object;J" + Context.CONTEXT_DESC +")V";
 
-	final static private String READ_METHOD_BOOLEAN_DESC = "(Ljava/lang/Object;ZJ" + Context.CONTEXT_DESC + ")Z";
-	final static private String READ_METHOD_BYTE_DESC = "(Ljava/lang/Object;BJ" + Context.CONTEXT_DESC + ")B";
-	final static private String READ_METHOD_CHAR_DESC = "(Ljava/lang/Object;CJ" + Context.CONTEXT_DESC + ")C";
-	final static private String READ_METHOD_SHORT_DESC = "(Ljava/lang/Object;SJ" + Context.CONTEXT_DESC + ")S";
-	final static private String READ_METHOD_INT_DESC = "(Ljava/lang/Object;IJ" + Context.CONTEXT_DESC + ")I";
-	final static private String READ_METHOD_LONG_DESC = "(Ljava/lang/Object;JJ" + Context.CONTEXT_DESC + ")J";
-	final static private String READ_METHOD_FLOAT_DESC = "(Ljava/lang/Object;FJ" + Context.CONTEXT_DESC + ")F";
-	final static private String READ_METHOD_DOUBLE_DESC = "(Ljava/lang/Object;DJ" + Context.CONTEXT_DESC + ")D";
-	final static private String READ_METHOD_OBJ_DESC = "(Ljava/lang/Object;Ljava/lang/Object;J" + Context.CONTEXT_DESC
-			+ ")Ljava/lang/Object;";
+	final static private String READ_METHOD_BOOLEAN_DESC = "(Ljava/lang/Object;ZJ" + Context.CONTEXT_DESC +")Z";
+	final static private String READ_METHOD_BYTE_DESC = "(Ljava/lang/Object;BJ" + Context.CONTEXT_DESC +")B";
+	final static private String READ_METHOD_CHAR_DESC = "(Ljava/lang/Object;CJ" + Context.CONTEXT_DESC +")C";
+	final static private String READ_METHOD_SHORT_DESC = "(Ljava/lang/Object;SJ" + Context.CONTEXT_DESC +")S";
+	final static private String READ_METHOD_INT_DESC = "(Ljava/lang/Object;IJ" + Context.CONTEXT_DESC +")I";
+	final static private String READ_METHOD_LONG_DESC = "(Ljava/lang/Object;JJ" + Context.CONTEXT_DESC +")J";
+	final static private String READ_METHOD_FLOAT_DESC = "(Ljava/lang/Object;FJ" + Context.CONTEXT_DESC +")F";
+	final static private String READ_METHOD_DOUBLE_DESC = "(Ljava/lang/Object;DJ" + Context.CONTEXT_DESC +")D";
+	final static private String READ_METHOD_OBJ_DESC = "(Ljava/lang/Object;Ljava/lang/Object;J" + Context.CONTEXT_DESC +")Ljava/lang/Object;";
 
-	final static public String WRITE_ARRAY_METHOD_BYTE_DESC = "([BIB" + Context.CONTEXT_DESC + ")V";
-	final static public String WRITE_ARRAY_METHOD_CHAR_DESC = "([CIC" + Context.CONTEXT_DESC + ")V";
-	final static public String WRITE_ARRAY_METHOD_SHORT_DESC = "([SIS" + Context.CONTEXT_DESC + ")V";
-	final static public String WRITE_ARRAY_METHOD_INT_DESC = "([III" + Context.CONTEXT_DESC + ")V";
-	final static public String WRITE_ARRAY_METHOD_LONG_DESC = "([JIJ" + Context.CONTEXT_DESC + ")V";
-	final static public String WRITE_ARRAY_METHOD_FLOAT_DESC = "([FIF" + Context.CONTEXT_DESC + ")V";
-	final static public String WRITE_ARRAY_METHOD_DOUBLE_DESC = "([DID" + Context.CONTEXT_DESC + ")V";
-	final static public String WRITE_ARRAY_METHOD_OBJ_DESC = "([Ljava/lang/Object;ILjava/lang/Object;"
-			+ Context.CONTEXT_DESC + ")V";
+	final static public String WRITE_ARRAY_METHOD_BYTE_DESC = "([BIB" + Context.CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_CHAR_DESC = "([CIC" + Context.CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_SHORT_DESC = "([SIS" + Context.CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_INT_DESC = "([III" + Context.CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_LONG_DESC = "([JIJ" + Context.CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_FLOAT_DESC = "([FIF" + Context.CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_DOUBLE_DESC = "([DID" + Context.CONTEXT_DESC +")V";
+	final static public String WRITE_ARRAY_METHOD_OBJ_DESC = "([Ljava/lang/Object;ILjava/lang/Object;" + Context.CONTEXT_DESC +")V";
 
-	final static public String READ_ARRAY_METHOD_BYTE_DESC = "([BI" + Context.CONTEXT_DESC + ")B";
-	final static public String READ_ARRAY_METHOD_CHAR_DESC = "([CI" + Context.CONTEXT_DESC + ")C";
-	final static public String READ_ARRAY_METHOD_SHORT_DESC = "([SI" + Context.CONTEXT_DESC + ")S";
-	final static public String READ_ARRAY_METHOD_INT_DESC = "([II" + Context.CONTEXT_DESC + ")I";
-	final static public String READ_ARRAY_METHOD_LONG_DESC = "([JI" + Context.CONTEXT_DESC + ")J";
-	final static public String READ_ARRAY_METHOD_FLOAT_DESC = "([FI" + Context.CONTEXT_DESC + ")F";
-	final static public String READ_ARRAY_METHOD_DOUBLE_DESC = "([DI" + Context.CONTEXT_DESC + ")D";
-	final static public String READ_ARRAY_METHOD_OBJ_DESC = "([Ljava/lang/Object;I" + Context.CONTEXT_DESC
-			+ ")Ljava/lang/Object;";
+	final static public String READ_ARRAY_METHOD_BYTE_DESC = "([BI" + Context.CONTEXT_DESC +")B";
+	final static public String READ_ARRAY_METHOD_CHAR_DESC = "([CI" + Context.CONTEXT_DESC +")C";
+	final static public String READ_ARRAY_METHOD_SHORT_DESC = "([SI" + Context.CONTEXT_DESC +")S";
+	final static public String READ_ARRAY_METHOD_INT_DESC = "([II" + Context.CONTEXT_DESC +")I";
+	final static public String READ_ARRAY_METHOD_LONG_DESC = "([JI" + Context.CONTEXT_DESC +")J";
+	final static public String READ_ARRAY_METHOD_FLOAT_DESC = "([FI" + Context.CONTEXT_DESC +")F";
+	final static public String READ_ARRAY_METHOD_DOUBLE_DESC = "([DI" + Context.CONTEXT_DESC +")D";
+	final static public String READ_ARRAY_METHOD_OBJ_DESC = "([Ljava/lang/Object;I" + Context.CONTEXT_DESC +")Ljava/lang/Object;";
+
 
 	final static private int BYTE_ARR_BASE = AddressUtil.arrayBaseOffset(byte[].class);
 	final static private int CHAR_ARR_BASE = AddressUtil.arrayBaseOffset(char[].class);
@@ -416,12 +411,13 @@ public class ContextDelegator {
 	final private static ContextThreadLocal THREAD_CONTEXT = new ContextThreadLocal();
 
 	@ExcludeInternal
-	private static class ContextThreadLocal extends ThreadLocal<IContext> {
-		private Class<? extends IContext> contextClass;
+	private static class ContextThreadLocal extends ThreadLocal<IContext>
+	{
+		private Class<? extends IContext> contextClass;  
 
-		public ContextThreadLocal() {
-			String className = System.getProperty("org.deuce.transaction.contextClass");
-			if (className != null) {
+		public ContextThreadLocal(){
+			String className = System.getProperty( "org.deuce.transaction.contextClass");
+			if( className != null){
 				try {
 					this.contextClass = (Class<? extends IContext>) Class.forName(className);
 					return;
@@ -437,16 +433,16 @@ public class ContextDelegator {
 			try {
 				return this.contextClass.newInstance();
 			} catch (Exception e) {
-				throw new TransactionException(e);
+				throw new TransactionException( e);
 			}
 		}
 	}
 
-	public static IContext getInstance() {
+	public static IContext getInstance(){
 		return THREAD_CONTEXT.get();
 	}
 
-	public static String getWriteMethodDesc(Type type) {
+	public static String getWriteMethodDesc( Type type) {
 		if (!inLocalMetadata()) {
 			switch (type.getSort()) {
 			case Type.BOOLEAN:
@@ -611,276 +607,258 @@ public class ContextDelegator {
 		}
 	}
 
-	static public void beforeReadAccess(Object obj, long field, IContext context) {
+	static public void beforeReadAccess( Object obj, long field, IContext context) {
 		((Context) context).beforeReadAccess(obj, field);
 	}
 
+	static public Object onReadAccess( Object obj, Object value, long field, IContext context) {
+		return ((Context) context).onReadAccess(obj, value, field);
+	}
+	static public boolean onReadAccess( Object obj, boolean value, long field, IContext context) {
+		return ((Context) context).onReadAccess(obj, value, field);
+	}
+	static public byte onReadAccess( Object obj, byte value, long field, IContext context) {
+		return ((Context) context).onReadAccess(obj, value, field);
+	}
+	static public char onReadAccess( Object obj, char value, long field, IContext context) {
+		return ((Context) context).onReadAccess(obj, value, field);
+	}
+	static public short onReadAccess( Object obj, short value, long field, IContext context) {
+		return ((Context) context).onReadAccess(obj, value, field);
+	}
+	static public int onReadAccess( Object obj, int value, long field, IContext context) {
+		return ((Context) context).onReadAccess(obj, value, field);
+	}
+	static public long onReadAccess( Object obj, long value, long field, IContext context) {
+		return ((Context) context).onReadAccess(obj, value, field);
+	}
+	static public float onReadAccess( Object obj, float value, long field, IContext context) {
+		return ((Context) context).onReadAccess(obj, value, field);
+	}
+	static public double onReadAccess( Object obj, double value, long field, IContext context) {
+		return ((Context) context).onReadAccess(obj, value, field);
+	}
+
+	static public void onWriteAccess( Object obj, Object value, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void onWriteAccess( Object obj, boolean value, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void onWriteAccess( Object obj, byte value, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void onWriteAccess( Object obj, char value, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void onWriteAccess( Object obj, short value, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void onWriteAccess( Object obj, int value, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void onWriteAccess( Object obj, long value, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void onWriteAccess( Object obj, float value, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void onWriteAccess( Object obj, double value, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+
+	static public void addStaticWriteAccess( Object value, Object obj, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void addStaticWriteAccess( boolean value, Object obj, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void addStaticWriteAccess( byte value, Object obj, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void addStaticWriteAccess( char value, Object obj, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void addStaticWriteAccess( short value, Object obj, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void addStaticWriteAccess( int value, Object obj, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void addStaticWriteAccess( long value, Object obj, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void addStaticWriteAccess( float value, Object obj, long field, IContext context) {
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+	static public void addStaticWriteAccess( double value, Object obj, long field, IContext context) { 
+		((Context) context).onWriteAccess(obj, value, field);
+	}
+
+	static public Object onArrayReadAccess( Object[] arr, int index, IContext context) {
+		int address = OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index;
+		((Context) context).beforeReadAccess(arr, address);
+		return ((Context) context).onReadAccess(arr, arr[index], address);
+	}
+	static public byte onArrayReadAccess( byte[] arr, int index, IContext context) {
+		int address = BYTE_ARR_BASE + BYTE_ARR_SCALE*index;
+		((Context) context).beforeReadAccess(arr, address);
+		return ((Context) context).onReadAccess(arr, arr[index], address);
+	}
+	static public char onArrayReadAccess( char[] arr, int index, IContext context) {
+		int address = CHAR_ARR_BASE + CHAR_ARR_SCALE*index;
+		((Context) context).beforeReadAccess(arr, address);
+		return ((Context) context).onReadAccess(arr, arr[index], address);
+	}
+	static public short onArrayReadAccess( short[] arr, int index, IContext context) {
+		int address = SHORT_ARR_BASE + SHORT_ARR_SCALE*index;
+		((Context) context).beforeReadAccess(arr, address);
+		return ((Context) context).onReadAccess(arr, arr[index], address);
+	}
+	static public int onArrayReadAccess( int[] arr, int index, IContext context) {
+		int address = INT_ARR_BASE + INT_ARR_SCALE*index;
+		((Context) context).beforeReadAccess(arr, address);
+		return ((Context) context).onReadAccess(arr, arr[index], address);
+	}
+	static public long onArrayReadAccess( long[] arr, int index, IContext context) {
+		int address = LONG_ARR_BASE + LONG_ARR_SCALE*index;
+		((Context) context).beforeReadAccess(arr, address);
+		return ((Context) context).onReadAccess(arr, arr[index], address);
+	}
+	static public float onArrayReadAccess( float[] arr, int index, IContext context) {
+		int address = FLOAT_ARR_BASE + FLOAT_ARR_SCALE*index;
+		((Context) context).beforeReadAccess(arr, address);
+		return ((Context) context).onReadAccess(arr, arr[index], address);
+	}
+	static public double onArrayReadAccess( double[] arr, int index, IContext context) {
+		int address = DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index;
+		((Context) context).beforeReadAccess(arr, address);
+		return ((Context) context).onReadAccess(arr, arr[index], address);
+	}
+	
+	static public <T> void onArrayWriteAccess( T[] arr,  int index, T value, IContext context) {
+		T t = arr[index]; // dummy access just to check the index in range
+		((Context) context).onWriteAccess(arr, value, OBJECT_ARR_BASE + OBJECT_ARR_SCALE*index);
+	}
+	static public void onArrayWriteAccess( byte[] arr, int index, byte value, IContext context) {
+		byte t = arr[index]; // dummy access just to check the index in range
+		((Context) context).onWriteAccess(arr, value, BYTE_ARR_BASE + BYTE_ARR_SCALE*index);
+	}
+	static public void onArrayWriteAccess( char[] arr, int index, char value, IContext context) {
+		char t = arr[index]; // dummy access just to check the index in range
+		((Context) context).onWriteAccess(arr, value, CHAR_ARR_BASE + CHAR_ARR_SCALE*index);
+	}
+	static public void onArrayWriteAccess( short[] arr, int index, short value, IContext context) {
+		short t = arr[index]; // dummy access just to check the index in range
+		((Context) context).onWriteAccess(arr, value, SHORT_ARR_BASE + SHORT_ARR_SCALE*index);
+	}
+	static public void onArrayWriteAccess( int[] arr, int index, int value, IContext context) {
+		int t = arr[index]; // dummy access just to check the index in range
+		((Context) context).onWriteAccess(arr, value, INT_ARR_BASE + INT_ARR_SCALE*index);
+	}
+	static public void onArrayWriteAccess( long[] arr, int index, long value, IContext context) {
+		long t = arr[index]; // dummy access just to check the index in range
+		((Context) context).onWriteAccess(arr, value, LONG_ARR_BASE + LONG_ARR_SCALE*index);
+	}
+	static public void onArrayWriteAccess( float[] arr, int index, float value, IContext context) {
+		float t = arr[index]; // dummy access just to check the index in range
+		((Context) context).onWriteAccess(arr, value, FLOAT_ARR_BASE + FLOAT_ARR_SCALE*index);
+	}
+	static public void onArrayWriteAccess( double[] arr, int index, double value, IContext context) {
+		double t = arr[index]; // dummy access just to check the index in range
+		((Context) context).onWriteAccess(arr, value, DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE*index);
+	}
+	
+	static public void onIrrevocableAccess(IContext context) {
+		context.onIrrevocableAccess();
+	}
+	
 	static public void beforeReadAccess(TxField field, IContext context) {
 		((ContextMetadata) context).beforeReadAccess(field);
 	}
-
-	static public Object onReadAccess(Object obj, Object value, long field, IContext context) {
-		return ((Context) context).onReadAccess(obj, value, field);
-	}
-
-	static public boolean onReadAccess(Object obj, boolean value, long field, IContext context) {
-		return ((Context) context).onReadAccess(obj, value, field);
-	}
-
-	static public byte onReadAccess(Object obj, byte value, long field, IContext context) {
-		return ((Context) context).onReadAccess(obj, value, field);
-	}
-
-	static public char onReadAccess(Object obj, char value, long field, IContext context) {
-		return ((Context) context).onReadAccess(obj, value, field);
-	}
-
-	static public short onReadAccess(Object obj, short value, long field, IContext context) {
-		return ((Context) context).onReadAccess(obj, value, field);
-	}
-
-	static public int onReadAccess(Object obj, int value, long field, IContext context) {
-		return ((Context) context).onReadAccess(obj, value, field);
-	}
-
-	static public long onReadAccess(Object obj, long value, long field, IContext context) {
-		return ((Context) context).onReadAccess(obj, value, field);
-	}
-
-	static public float onReadAccess(Object obj, float value, long field, IContext context) {
-		return ((Context) context).onReadAccess(obj, value, field);
-	}
-
-	static public double onReadAccess(Object obj, double value, long field, IContext context) {
-		return ((Context) context).onReadAccess(obj, value, field);
-	}
-
+	
 	static public Object onReadAccess(Object value, TxField field, IContext context) {
 		return ((ContextMetadata) context).onReadAccess(value, field);
 	}
-
 	static public boolean onReadAccess(boolean value, TxField field, IContext context) {
 		return ((ContextMetadata) context).onReadAccess(value, field);
 	}
-
 	static public byte onReadAccess(byte value, TxField field, IContext context) {
 		return ((ContextMetadata) context).onReadAccess(value, field);
 	}
-
 	static public char onReadAccess(char value, TxField field, IContext context) {
 		return ((ContextMetadata) context).onReadAccess(value, field);
 	}
-
 	static public short onReadAccess(short value, TxField field, IContext context) {
 		return ((ContextMetadata) context).onReadAccess(value, field);
 	}
-
 	static public int onReadAccess(int value, TxField field, IContext context) {
 		return ((ContextMetadata) context).onReadAccess(value, field);
 	}
-
 	static public long onReadAccess(long value, TxField field, IContext context) {
 		return ((ContextMetadata) context).onReadAccess(value, field);
 	}
-
 	static public float onReadAccess(float value, TxField field, IContext context) {
 		return ((ContextMetadata) context).onReadAccess(value, field);
 	}
-
 	static public double onReadAccess(double value, TxField field, IContext context) {
 		return ((ContextMetadata) context).onReadAccess(value, field);
-	}
-
-	static public void onWriteAccess(Object obj, Object value, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void onWriteAccess(Object obj, boolean value, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void onWriteAccess(Object obj, byte value, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void onWriteAccess(Object obj, char value, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void onWriteAccess(Object obj, short value, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void onWriteAccess(Object obj, int value, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void onWriteAccess(Object obj, long value, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void onWriteAccess(Object obj, float value, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void onWriteAccess(Object obj, double value, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
 	}
 
 	static public void onWriteAccess(Object value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void onWriteAccess(boolean value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void onWriteAccess(byte value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void onWriteAccess(char value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void onWriteAccess(short value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void onWriteAccess(int value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void onWriteAccess(long value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void onWriteAccess(float value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void onWriteAccess(double value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
-	static public void addStaticWriteAccess(Object value, Object obj, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void addStaticWriteAccess(boolean value, Object obj, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void addStaticWriteAccess(byte value, Object obj, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void addStaticWriteAccess(char value, Object obj, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void addStaticWriteAccess(short value, Object obj, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void addStaticWriteAccess(int value, Object obj, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void addStaticWriteAccess(long value, Object obj, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void addStaticWriteAccess(float value, Object obj, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
-	static public void addStaticWriteAccess(double value, Object obj, long field, IContext context) {
-		((Context) context).onWriteAccess(obj, value, field);
-	}
-
+	
 	static public void addStaticWriteAccess(Object value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void addStaticWriteAccess(boolean value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void addStaticWriteAccess(byte value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void addStaticWriteAccess(char value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void addStaticWriteAccess(short value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void addStaticWriteAccess(int value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void addStaticWriteAccess(long value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void addStaticWriteAccess(float value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
 	}
-
 	static public void addStaticWriteAccess(double value, TxField field, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, field);
-	}
-
-	static public Object onArrayReadAccess(Object[] arr, int index, IContext context) {
-		int address = OBJECT_ARR_BASE + OBJECT_ARR_SCALE * index;
-		((Context) context).beforeReadAccess(arr, address);
-		return ((Context) context).onReadAccess(arr, arr[index], address);
-	}
-
-	static public byte onArrayReadAccess(byte[] arr, int index, IContext context) {
-		int address = BYTE_ARR_BASE + BYTE_ARR_SCALE * index;
-		((Context) context).beforeReadAccess(arr, address);
-		return ((Context) context).onReadAccess(arr, arr[index], address);
-	}
-
-	static public char onArrayReadAccess(char[] arr, int index, IContext context) {
-		int address = CHAR_ARR_BASE + CHAR_ARR_SCALE * index;
-		((Context) context).beforeReadAccess(arr, address);
-		return ((Context) context).onReadAccess(arr, arr[index], address);
-	}
-
-	static public short onArrayReadAccess(short[] arr, int index, IContext context) {
-		int address = SHORT_ARR_BASE + SHORT_ARR_SCALE * index;
-		((Context) context).beforeReadAccess(arr, address);
-		return ((Context) context).onReadAccess(arr, arr[index], address);
-	}
-
-	static public int onArrayReadAccess(int[] arr, int index, IContext context) {
-		int address = INT_ARR_BASE + INT_ARR_SCALE * index;
-		((Context) context).beforeReadAccess(arr, address);
-		return ((Context) context).onReadAccess(arr, arr[index], address);
-	}
-
-	static public long onArrayReadAccess(long[] arr, int index, IContext context) {
-		int address = LONG_ARR_BASE + LONG_ARR_SCALE * index;
-		((Context) context).beforeReadAccess(arr, address);
-		return ((Context) context).onReadAccess(arr, arr[index], address);
-	}
-
-	static public float onArrayReadAccess(float[] arr, int index, IContext context) {
-		int address = FLOAT_ARR_BASE + FLOAT_ARR_SCALE * index;
-		((Context) context).beforeReadAccess(arr, address);
-		return ((Context) context).onReadAccess(arr, arr[index], address);
-	}
-
-	static public double onArrayReadAccess(double[] arr, int index, IContext context) {
-		int address = DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE * index;
-		((Context) context).beforeReadAccess(arr, address);
-		return ((Context) context).onReadAccess(arr, arr[index], address);
 	}
 
 	static public Object onArrayObjectReadAccess(TxArrObjectField[] arr, int index, IContext context) {
@@ -888,123 +866,64 @@ public class ContextDelegator {
 		((ContextMetadata) context).beforeReadAccess(elem);
 		return ((ContextMetadata) context).onReadAccess(elem.nextDim == null ? elem.array[index] : elem.nextDim, elem);
 	}
-
 	static public byte onArrayByteReadAccess(TxArrByteField[] arr, int index, IContext context) {
 		TxArrByteField elem = arr[index];
 		((ContextMetadata) context).beforeReadAccess(elem);
 		return ((ContextMetadata) context).onReadAccess(elem.array[index], elem);
 	}
-
 	static public char onArrayCharReadAccess(TxArrCharField[] arr, int index, IContext context) {
 		TxArrCharField elem = arr[index];
 		((ContextMetadata) context).beforeReadAccess(elem);
 		return ((ContextMetadata) context).onReadAccess(elem.array[index], elem);
 	}
-
 	static public short onArrayShortReadAccess(TxArrShortField[] arr, int index, IContext context) {
 		TxArrShortField elem = arr[index];
 		((ContextMetadata) context).beforeReadAccess(elem);
 		return ((ContextMetadata) context).onReadAccess(elem.array[index], elem);
 	}
-
 	static public int onArrayIntReadAccess(TxArrIntField[] arr, int index, IContext context) {
 		TxArrIntField elem = arr[index];
 		((ContextMetadata) context).beforeReadAccess(elem);
 		return ((ContextMetadata) context).onReadAccess(elem.array[index], elem);
 	}
-
 	static public long onArrayLongReadAccess(TxArrLongField[] arr, int index, IContext context) {
 		TxArrLongField elem = arr[index];
 		((ContextMetadata) context).beforeReadAccess(elem);
 		return ((ContextMetadata) context).onReadAccess(elem.array[index], elem);
 	}
-
 	static public float onArrayFloatReadAccess(TxArrFloatField[] arr, int index, IContext context) {
 		TxArrFloatField elem = arr[index];
 		((ContextMetadata) context).beforeReadAccess(elem);
 		return ((ContextMetadata) context).onReadAccess(elem.array[index], elem);
 	}
-
 	static public double onArrayDoubleReadAccess(TxArrDoubleField[] arr, int index, IContext context) {
 		TxArrDoubleField elem = arr[index];
 		((ContextMetadata) context).beforeReadAccess(elem);
 		return ((ContextMetadata) context).onReadAccess(elem.array[index], elem);
 	}
 
-	static public <T> void onArrayWriteAccess(T[] arr, int index, T value, IContext context) {
-		T t = arr[index]; // dummy access just to check the index in range
-		((Context) context).onWriteAccess(arr, value, OBJECT_ARR_BASE + OBJECT_ARR_SCALE * index);
-	}
-
-	static public void onArrayWriteAccess(byte[] arr, int index, byte value, IContext context) {
-		byte t = arr[index]; // dummy access just to check the index in range
-		((Context) context).onWriteAccess(arr, value, BYTE_ARR_BASE + BYTE_ARR_SCALE * index);
-	}
-
-	static public void onArrayWriteAccess(char[] arr, int index, char value, IContext context) {
-		char t = arr[index]; // dummy access just to check the index in range
-		((Context) context).onWriteAccess(arr, value, CHAR_ARR_BASE + CHAR_ARR_SCALE * index);
-	}
-
-	static public void onArrayWriteAccess(short[] arr, int index, short value, IContext context) {
-		short t = arr[index]; // dummy access just to check the index in range
-		((Context) context).onWriteAccess(arr, value, SHORT_ARR_BASE + SHORT_ARR_SCALE * index);
-	}
-
-	static public void onArrayWriteAccess(int[] arr, int index, int value, IContext context) {
-		int t = arr[index]; // dummy access just to check the index in range
-		((Context) context).onWriteAccess(arr, value, INT_ARR_BASE + INT_ARR_SCALE * index);
-	}
-
-	static public void onArrayWriteAccess(long[] arr, int index, long value, IContext context) {
-		long t = arr[index]; // dummy access just to check the index in range
-		((Context) context).onWriteAccess(arr, value, LONG_ARR_BASE + LONG_ARR_SCALE * index);
-	}
-
-	static public void onArrayWriteAccess(float[] arr, int index, float value, IContext context) {
-		float t = arr[index]; // dummy access just to check the index in range
-		((Context) context).onWriteAccess(arr, value, FLOAT_ARR_BASE + FLOAT_ARR_SCALE * index);
-	}
-
-	static public void onArrayWriteAccess(double[] arr, int index, double value, IContext context) {
-		double t = arr[index]; // dummy access just to check the index in range
-		((Context) context).onWriteAccess(arr, value, DOUBLE_ARR_BASE + DOUBLE_ARR_SCALE * index);
-	}
-
 	static public <T> void onArrayWriteAccess(TxArrObjectField[] arr, int index, T value, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, arr[index]);
 	}
-
 	static public void onArrayWriteAccess(TxArrByteField[] arr, int index, byte value, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, arr[index]);
 	}
-
 	static public void onArrayWriteAccess(TxArrCharField[] arr, int index, char value, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, arr[index]);
 	}
-
 	static public void onArrayWriteAccess(TxArrShortField[] arr, int index, short value, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, arr[index]);
 	}
-
 	static public void onArrayWriteAccess(TxArrIntField[] arr, int index, int value, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, arr[index]);
 	}
-
 	static public void onArrayWriteAccess(TxArrLongField[] arr, int index, long value, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, arr[index]);
 	}
-
 	static public void onArrayWriteAccess(TxArrFloatField[] arr, int index, float value, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, arr[index]);
 	}
-
 	static public void onArrayWriteAccess(TxArrDoubleField[] arr, int index, double value, IContext context) {
 		((ContextMetadata) context).onWriteAccess(value, arr[index]);
 	}
-
-	static public void onIrrevocableAccess(IContext context) {
-		context.onIrrevocableAccess();
-	}
-
 }

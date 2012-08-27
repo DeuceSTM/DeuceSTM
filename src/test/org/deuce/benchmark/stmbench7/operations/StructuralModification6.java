@@ -16,33 +16,31 @@ import org.deuce.benchmark.stmbench7.core.OperationFailedException;
 public class StructuralModification6 extends StructuralModification5 {
 
 	protected Index<Integer, BaseAssembly> baseAssemblyIdIndex;
-
+	
 	public StructuralModification6(Setup oo7setup) {
 		super(oo7setup);
 		this.baseAssemblyIdIndex = oo7setup.getBaseAssemblyIdIndex();
 	}
 
 	@Override
-	@Transactional
-	@Update
+	@Transactional @Update
 	public int performOperation() throws OperationFailedException {
 		int baseAssemblyToRemoveId = ThreadRandom.nextInt(Parameters.MaxBaseAssemblies) + 1;
 		BaseAssembly baseAssemblyToRemove = baseAssemblyIdIndex.get(baseAssemblyToRemoveId);
-		if (baseAssemblyToRemove == null)
-			throw new OperationFailedException();
-
-		// We want the tree of BAs/CAs to keep its form
+		if(baseAssemblyToRemove == null) throw new OperationFailedException();
+		
+		// We want the tree of BAs/CAs to keep its form 
 		// so that each CA has always at least one child sub-assembly
-		if (baseAssemblyToRemove.getSuperAssembly().getSubAssemblies().size() == 1)
+		if(baseAssemblyToRemove.getSuperAssembly().getSubAssemblies().size() == 1)
 			throw new OperationFailedException();
-
+		
 		assemblyBuilder.unregisterAndRecycleBaseAssembly(baseAssemblyToRemove);
-
+		
 		return 1;
 	}
-
-	@Override
-	public OperationId getOperationId() {
-		return OperationId.SM6;
-	}
+	
+    @Override
+    public OperationId getOperationId() {
+    	return OperationId.SM6;
+    }
 }

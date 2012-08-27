@@ -16,34 +16,32 @@ import org.deuce.benchmark.stmbench7.core.OperationFailedException;
  */
 public class StructuralModification3 extends BaseOperation {
 
-	protected Index<Integer, BaseAssembly> baseAssemblyIdIndex;
-	protected Index<Integer, CompositePart> compositePartIdIndex;
-
+	protected Index<Integer,BaseAssembly> baseAssemblyIdIndex;
+	protected Index<Integer,CompositePart> compositePartIdIndex;
+	
 	public StructuralModification3(Setup oo7setup) {
-
+	
 		this.baseAssemblyIdIndex = oo7setup.getBaseAssemblyIdIndex();
 		this.compositePartIdIndex = oo7setup.getCompositePartIdIndex();
 	}
-
+	
 	@Override
-	@Transactional
-	@Update
+	@Transactional @Update
 	public int performOperation() throws OperationFailedException {
 		int baseAssemblyId = ThreadRandom.nextInt(Parameters.MaxBaseAssemblies) + 1;
 		int componentId = ThreadRandom.nextInt(Parameters.MaxCompParts) + 1;
 		BaseAssembly baseAssembly = baseAssemblyIdIndex.get(baseAssemblyId);
 		CompositePart component = compositePartIdIndex.get(componentId);
-
-		if (baseAssembly == null || component == null)
-			throw new OperationFailedException();
-
+		
+		if(baseAssembly == null || component == null) throw new OperationFailedException();
+		
 		baseAssembly.addComponent(component);
-
+		
 		return 0;
 	}
-
-	@Override
-	public OperationId getOperationId() {
-		return OperationId.SM3;
-	}
+	
+    @Override
+    public OperationId getOperationId() {
+    	return OperationId.SM3;
+    }
 }

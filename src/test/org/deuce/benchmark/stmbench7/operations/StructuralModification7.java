@@ -18,31 +18,29 @@ import org.deuce.benchmark.stmbench7.core.OperationFailedException;
 public class StructuralModification7 extends BaseOperation {
 
 	protected AssemblyBuilder assemblyBuilder;
-	protected Index<Integer, ComplexAssembly> complexAssemblyIdIndex;
+	protected Index<Integer,ComplexAssembly> complexAssemblyIdIndex;
 	protected Module module;
-
+	
 	public StructuralModification7(Setup oo7setup) {
 		this.complexAssemblyIdIndex = oo7setup.getComplexAssemblyIdIndex();
 		this.module = oo7setup.getModule();
 		assemblyBuilder = oo7setup.getAssemblyBuilder();
 	}
-
+	
 	@Override
-	@Transactional
-	@Update
+	@Transactional @Update
 	public int performOperation() throws OperationFailedException {
 		int superAssemblyId = ThreadRandom.nextInt(Parameters.MaxComplexAssemblies) + 1;
 		ComplexAssembly superAssembly = complexAssemblyIdIndex.get(superAssemblyId);
-		if (superAssembly == null)
-			throw new OperationFailedException();
+		if(superAssembly == null) throw new OperationFailedException();
 
 		assemblyBuilder.createAndRegisterAssembly(module, superAssembly);
-
+		
 		return 1;
 	}
 
-	@Override
-	public OperationId getOperationId() {
-		return OperationId.SM7;
-	}
+    @Override
+    public OperationId getOperationId() {
+    	return OperationId.SM7;
+    }
 }

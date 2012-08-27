@@ -12,55 +12,55 @@ import org.deuce.transform.Exclude;
 
 /**
  * @author guy
- * 
+ *
  */
-public class AbortTest extends TestCase {
+public class AbortTest extends TestCase{
 
 	final private AtomicInteger cout = new AtomicInteger();
 	private int i = 0;
-
+	
 	public void testAbort() throws Exception {
-		try {
+		try{
 			foo();
 			Assert.fail("Should get TransactionException");
-		} catch (TransactionException ex) {
+		}catch(TransactionException ex){
 			Assert.assertEquals(0, i);
 			Assert.assertEquals(5, cout.get());
 		}
-		try {
+		try{
 			fooAbort();
 			Assert.fail("Should get AbortTransactionException");
-		} catch (AbortTransactionException ex) {
+		}catch(AbortTransactionException ex){
 			Assert.assertEquals(0, i);
 			Assert.assertEquals(6, cout.get());
 		}
 	}
-
-	@Atomic(retries = 5)
-	private void foo() {
+	
+	@Atomic(retries=5)
+	private void foo(){
 		++i;
 		cout.incrementAndGet();
 		throw new TransactionException();
 	}
-
-	@Atomic(retries = 5)
-	private void fooAbort() {
+	
+	@Atomic(retries=5)
+	private void fooAbort(){
 		++i;
 		cout.incrementAndGet();
 		throw new AbortTransactionException();
 	}
-
+	
 	@Exclude
-	private static class Counter {
+	private static class Counter{
 		private int count = 0;
-
-		public void inc() {
+		public void inc(){
 			++count;
 		}
-
-		public int get() {
+		
+		public int get(){
 			return count;
 		}
 	}
-
+	
 }
+

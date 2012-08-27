@@ -13,31 +13,31 @@ import org.deuce.transaction.tl2.BloomFilter;
  */
 public class BloomFilterTest extends TestCase {
 
-	public void testCheckInFilter() {
+	public void testCheckInFilter(){
 		BloomFilter filter = new BloomFilter();
 		filter.add(34254354);
 		Assert.assertTrue(filter.contains(34254354));
 	}
-
-	public void testCheckNotInFilter() {
+	
+	public void testCheckNotInFilter(){
 		BloomFilter filter = new BloomFilter();
 		filter.add(34254354);
 		Assert.assertFalse(filter.contains(435646));
 	}
-
-	public void testCheckClearFilter() {
+	
+	public void testCheckClearFilter(){
 		BloomFilter filter = new BloomFilter();
 		filter.add(34254354);
 		filter.clear();
 		Assert.assertFalse(filter.contains(34254354));
 	}
-
-	public void testCheckManyInFilter() {
+	
+	public void testCheckManyInFilter(){
 		BloomFilter filter = new BloomFilter();
-		for (int i = 0; i < 1000000; i += 3)
+		for( int i=0 ; i<1000000; i+=3)
 			filter.add(i);
-
-		for (int i = 0; i < 1000000; i += 3)
+		
+		for( int i=0 ; i<1000000; i+=3)
 			Assert.assertTrue(filter.contains(i));
 	}
 }

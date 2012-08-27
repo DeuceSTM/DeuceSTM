@@ -13,25 +13,26 @@ import org.deuce.benchmark.stmbench7.core.Document;
 @ThreadLocal
 public class DocumentationTest extends InvariantTest {
 
-	public static void checkInvariants(Document documentation, CompositePart component,
-			TraversedObjects traversedObjects) {
+	public static void checkInvariants(Document documentation,
+			CompositePart component, TraversedObjects traversedObjects) {
 
 		traversedObjects.documents.add(documentation);
-
+		
 		int id = documentation.getDocumentId();
-		if (id < 1 || id > Parameters.MaxCompParts)
+		if(id < 1 || id > Parameters.MaxCompParts)
 			reportError(documentation, id, "id", 1, Parameters.MaxCompParts, id);
-
-		if (documentation.getCompositePart() != component)
+		
+		if(documentation.getCompositePart() != component)
 			reportError(documentation, id, "invalid reference to CompositePart parent");
-
-		String title = documentation.getTitle(), titleShouldBe = "Composite Part #" + component.getId();
-		if (!title.equals(titleShouldBe))
+		
+		String title = documentation.getTitle(),
+			titleShouldBe = "Composite Part #" + component.getId();
+		if(! title.equals(titleShouldBe))
 			reportError(documentation, id, "title", titleShouldBe, title);
-
+		
 		String text = documentation.getText();
-		if (!text.startsWith("I am the documentation for composite part #" + component.getId())
-				&& !text.startsWith("This is the documentation for composite part #" + component.getId()))
+		if(!text.startsWith("I am the documentation for composite part #" + component.getId()) &&
+				!text.startsWith("This is the documentation for composite part #" + component.getId()) )
 			reportError(documentation, id, "text (prefix)", "I am / This is the documentation for composite part #...",
 					text.substring(0, 30));
 	}

@@ -13,8 +13,7 @@ public class ReadFieldAccess {
 	private int hash;
 	private long lock;
 
-	public ReadFieldAccess() {
-	}
+	public ReadFieldAccess() { }
 
 	public ReadFieldAccess(Object reference, long field, int hash, long lock) {
 		init(reference, field, hash, lock);

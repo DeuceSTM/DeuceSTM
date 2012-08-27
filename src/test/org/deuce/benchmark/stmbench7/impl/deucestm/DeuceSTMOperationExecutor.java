@@ -7,11 +7,11 @@ import org.deuce.benchmark.stmbench7.core.OperationFailedException;
 public class DeuceSTMOperationExecutor implements OperationExecutor {
 
 	private final Operation op;
-
+	
 	public DeuceSTMOperationExecutor(Operation op) {
 		this.op = op;
 	}
-
+	
 	@Override
 	@org.deuce.Atomic
 	public int execute() throws OperationFailedException {

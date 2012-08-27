@@ -5,7 +5,7 @@ import junit.framework.Assert;
 import org.deuce.Atomic;
 
 public class NoStaticSerial {
-
+	
 	public byte bb;
 	public char cc;
 	public int ss;
@@ -14,8 +14,8 @@ public class NoStaticSerial {
 	public float ff;
 	public double dd;
 	public String st;
-
-	public NoStaticSerial() {
+	
+	public NoStaticSerial(){
 		bb = 0;
 		cc = 0;
 		ss = 0;
@@ -24,8 +24,8 @@ public class NoStaticSerial {
 		ff = 0;
 		dd = 0;
 	}
-
-	public static void main(String[] args) {
+	
+	public static void main(String[] args){
 		new NoStaticSerial().testSingleRead();
 		System.out.print(".");
 		new NoStaticSerial().testSingleWrite();
@@ -37,12 +37,13 @@ public class NoStaticSerial {
 		new NoStaticSerial().testReadWrite();
 		System.out.print(".");
 	}
+	
 
 	public void testSingleRead() {
 		atomicSingleRead();
 		Assert.assertEquals(0, bb);
 	}
-
+	
 	@Atomic
 	private void atomicSingleRead() {
 		int x = bb;
@@ -69,19 +70,19 @@ public class NoStaticSerial {
 		x += ii;
 		x += ff;
 		x += dd;
-		return x;
+		return x; 
 	}
 
 	public void testSingleWrite() {
 		atomicSingleWrite();
 		Assert.assertEquals(10, bb);
 	}
-
+	
 	@Atomic
-	public void atomicSingleWrite() {
-		bb = 10;
+	public void atomicSingleWrite(){
+		bb = 10;	
 	}
-
+	
 	public void testMuliWrite() {
 		atomicMultiWrite();
 		Assert.assertEquals(10, bb);
@@ -105,7 +106,7 @@ public class NoStaticSerial {
 		dd = 10;
 		st = "st";
 	}
-
+	
 	public void testReadWrite() {
 		atomicReadWrite();
 		Assert.assertEquals(0, bb);
@@ -116,11 +117,12 @@ public class NoStaticSerial {
 
 	@Atomic
 	private void atomicReadWrite() {
-		cc = (char) bb;
+		cc = (char)bb;
 		cc = 10;
 		ll = cc;
 		st = "10";
 		st = st + ll;
 	}
+
 
 }
