@@ -23,9 +23,9 @@ import org.deuce.transform.inplacemetadata.type.TxField;
 import org.deuce.trove.TObjectProcedure;
 
 /**
- * TL2_INplaceLocks implementation
+ * TL2 with in-place metadata.
  * 
- * @author Ricardo Dias
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt}>
  */
 @ExcludeInternal
 @InPlaceMetadata(

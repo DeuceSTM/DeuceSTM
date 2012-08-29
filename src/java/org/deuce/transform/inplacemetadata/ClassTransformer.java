@@ -20,6 +20,10 @@ import org.deuce.transform.asm.type.TypeCodeResolver;
 import org.deuce.transform.asm.type.TypeCodeResolverFactory;
 import org.deuce.transform.util.Util;
 
+/**
+ * 
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt>
+ */
 @ExcludeInternal
 public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder {
 	final private static String ENUM_DESC = Type.getInternalName(Enum.class);

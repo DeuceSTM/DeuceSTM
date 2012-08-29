@@ -4,6 +4,10 @@ import org.deuce.reflection.UnsafeHolder;
 import org.deuce.transform.ExcludeInternal;
 import org.deuce.transform.inplacemetadata.type.TxField;
 
+/**
+ * 
+ * @author Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
+ */
 @ExcludeInternal
 public class ByteWriteFieldAccess extends WriteFieldAccess {
 

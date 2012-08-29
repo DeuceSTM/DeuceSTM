@@ -13,6 +13,10 @@ import org.deuce.transform.asm.ExcludeIncludeStore;
 import org.deuce.transform.asm.FieldsHolder;
 import org.deuce.transform.util.Util;
 
+/**
+ * 
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt>
+ */
 public class DuplicateMethod extends MethodAdapter {
 
 	final static public String LOCAL_VARIBALE_NAME = "__transactionContext__";

@@ -21,6 +21,10 @@ import org.deuce.transform.asm.method.MethodAnnotationVisitor;
 import org.deuce.transform.inplacemetadata.ClassTransformer.MultiArrayMethod;
 import org.deuce.transform.inplacemetadata.ClassTransformer.NonInsnMethod;
 
+/**
+ * 
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt>
+ */
 public class MethodTransformer implements MethodVisitor {
 	final static private String UNSAFE_DESCRIPTOR = Type.getDescriptor(Unsafe.class);
 

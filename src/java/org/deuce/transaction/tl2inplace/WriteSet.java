@@ -9,7 +9,7 @@ import org.deuce.trove.TObjectProcedure;
 /**
  * Represents the transaction write set.
  * 
- * @author Ricardo Dias
+ * @author Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
  */
 @ExcludeInternal
 public class WriteSet {

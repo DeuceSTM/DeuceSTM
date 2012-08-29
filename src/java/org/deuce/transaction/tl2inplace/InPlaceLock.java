@@ -1,5 +1,10 @@
 package org.deuce.transaction.tl2inplace;
 
+/**
+ * TL2 in-place metadata.
+ * 
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt}>
+ */
 public interface InPlaceLock {
 
 //	boolean lock();

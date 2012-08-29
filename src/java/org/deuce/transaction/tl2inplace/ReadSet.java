@@ -7,7 +7,7 @@ import org.deuce.transform.ExcludeInternal;
  * Represents the transaction read set. And acts as a recycle pool of the
  * {@link ReadFieldAccess}.
  * 
- * @author Ricardo Dias
+ * @author Guy Korland, Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
  */
 @ExcludeInternal
 public class ReadSet {

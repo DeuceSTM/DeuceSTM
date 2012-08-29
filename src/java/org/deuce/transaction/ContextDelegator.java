@@ -20,7 +20,7 @@ import org.deuce.transform.inplacemetadata.type.TxField;
  * These methods delegates calls from the dynamic generated code to the context.
  * 
  * 
- * @author	Guy Korland
+ * @author	Guy Korland, Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt>
  * @since	1.0
  *
  */

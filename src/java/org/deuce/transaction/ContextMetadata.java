@@ -4,12 +4,12 @@ import org.deuce.transform.ExcludeInternal;
 import org.deuce.transform.inplacemetadata.type.TxField;
 
 /**
- * All the STM implementations that use inlocal metadata should implement this
+ * All the STM implementations that use in-place metadata should implement this
  * interface and annotate the subclass with LocalMetadata annotation. Using the
  * -Dorg.deuce.transaction.contextClass property one can switch between the
  * different implementations.
  * 
- * @author Ricardo Dias
+ * @author Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
  */
 @ExcludeInternal
 public interface ContextMetadata extends IContext {

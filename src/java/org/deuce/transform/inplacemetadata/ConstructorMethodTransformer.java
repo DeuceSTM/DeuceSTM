@@ -8,6 +8,10 @@ import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.AnalyzerAdapter;
 import org.deuce.objectweb.asm.commons.Method;
 
+/**
+ * 
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt>
+ */
 /*
  * TODO Class fields should not be instrumented inside the constructor We need
  *      to implement this optimization!

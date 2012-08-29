@@ -7,6 +7,12 @@ import org.deuce.transform.ExcludeInternal;
 import org.deuce.trove.THashSet;
 import org.deuce.trove.TObjectProcedure;
 
+/**
+ * Represents the transaction write set.
+ *  
+ * @author Guy Korland
+ * @since 0.7
+ */
 @ExcludeInternal
 public class WriteSet{
 	

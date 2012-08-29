@@ -11,7 +11,7 @@ import org.deuce.transform.inplacemetadata.ClassTransformer.MultiArrayMethod;
  * This class creates a static method that receives a multiarray as its first
  * parameter. This means the original multiarray can be accessed by ALOAD_0.
  * 
- * @author tvale
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt>
  */
 public class MultiArrayMethodTransformer extends MethodAdapter {
 	private MultiArrayMethod insnM;

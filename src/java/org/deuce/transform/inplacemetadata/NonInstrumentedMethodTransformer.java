@@ -10,6 +10,10 @@ import org.deuce.transaction.Context;
 import org.deuce.transform.inplacemetadata.ClassTransformer.MultiArrayMethod;
 import org.deuce.transform.inplacemetadata.ClassTransformer.NonInsnMethod;
 
+/**
+ * 
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt>
+ */
 public class NonInstrumentedMethodTransformer extends MethodAdapter {
 	private NonInsnMethod insnM;
 	private ClassTransformer clazzT;

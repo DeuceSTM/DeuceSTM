@@ -6,7 +6,7 @@ import org.deuce.trove.TObjectProcedure;
 /**
  * Procedure used to scan the WriteSet on commit.
  * 
- * @author Guy
+ * @author Guy, Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
  * @since 1.4 
  */
 public class LockProcedure implements TObjectProcedure<WriteFieldAccess>{

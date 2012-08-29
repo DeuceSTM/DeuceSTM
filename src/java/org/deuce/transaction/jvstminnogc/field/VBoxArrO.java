@@ -7,6 +7,10 @@ import org.deuce.transaction.jvstminnogc.LockTable;
 import org.deuce.transform.ExcludeInternal;
 import org.deuce.transform.inplacemetadata.type.TxArrObjectField;
 
+/**
+ * 
+ * @author Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
+ */
 @ExcludeInternal
 public class VBoxArrO extends TxArrObjectField implements VBoxO {
 	public VersionO version;

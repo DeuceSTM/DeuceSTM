@@ -6,6 +6,10 @@ import org.deuce.transaction.jvstminnogc.LockTable;
 import org.deuce.transform.ExcludeInternal;
 import org.deuce.transform.inplacemetadata.type.TxBooleanField;
 
+/**
+ * 
+ * @author Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
+ */
 @ExcludeInternal
 public class VBoxFieldZ extends TxBooleanField implements VBoxZ {
 	public VersionZ version;

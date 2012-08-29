@@ -4,7 +4,13 @@ import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.ContextDelegator;
+import org.deuce.transform.ExcludeInternal;
 
+/**
+ * 
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt>
+ */
+@ExcludeInternal
 public class ArrayUtil {
 
 	public static Type getArrayType(String desc) {

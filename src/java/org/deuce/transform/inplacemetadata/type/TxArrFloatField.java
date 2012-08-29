@@ -3,6 +3,11 @@ package org.deuce.transform.inplacemetadata.type;
 import org.deuce.reflection.AddressUtil;
 import org.deuce.transform.ExcludeInternal;
 
+/**
+ * In-place metadata class hierarchy.
+ * 
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt>
+ */
 @ExcludeInternal
 public class TxArrFloatField extends TxField {
 	final static private int ARR_BASE = AddressUtil.arrayBaseOffset(float[].class);

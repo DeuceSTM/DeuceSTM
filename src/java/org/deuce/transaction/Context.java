@@ -9,11 +9,12 @@ package org.deuce.transaction;
 import org.deuce.transform.ExcludeInternal;
 
 /**
- * All the STM implementations should implement this interface.
+ * All the STM implementations using an out-place metadata approach
+ * should implement this interface.
  * Using the -Dorg.deuce.transaction.contextClass property one can
  * switch between the different implementations. 
  *
- * @author	Guy Korland
+ * @author	Guy Korland, Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
  * @since	1.0
  */
 @ExcludeInternal

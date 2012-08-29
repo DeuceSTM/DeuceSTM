@@ -6,7 +6,7 @@ import org.deuce.transform.inplacemetadata.type.TxField;
 /**
  * Represents a base class for field write access.
  * 
- * @author Ricardo Dias
+ * @author Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
  */
 @ExcludeInternal
 public class ReadFieldAccess {

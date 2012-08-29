@@ -3,6 +3,13 @@ package org.deuce.transaction.jvstminnogc;
 import org.deuce.transaction.jvstminnogc.field.ReadFieldAccess;
 import org.deuce.transform.ExcludeInternal;
 
+/**
+ * Represents the transaction read set.
+ * And acts as a recycle pool of the {@link ReadFieldAccess}.
+ *  
+ * @author Guy Korland, Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
+ * @since 0.7
+ */
 @ExcludeInternal
 public class ReadSet{
 	

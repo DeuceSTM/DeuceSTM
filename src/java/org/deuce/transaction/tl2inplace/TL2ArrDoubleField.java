@@ -5,6 +5,11 @@ import org.deuce.reflection.UnsafeHolder;
 import org.deuce.transform.ExcludeInternal;
 import org.deuce.transform.inplacemetadata.type.TxArrDoubleField;
 
+/**
+ * TL2 in-place metadata.
+ * 
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt}>
+ */
 @ExcludeInternal
 public class TL2ArrDoubleField extends TxArrDoubleField implements InPlaceLock {
 

@@ -1,3 +1,9 @@
+/**
+ * Contains a field information.
+ * 
+ * @author Guy Korland, Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
+ * @since 1.0
+ */
 package org.deuce.transform.inplacemetadata;
 
 import org.deuce.objectweb.asm.Type;

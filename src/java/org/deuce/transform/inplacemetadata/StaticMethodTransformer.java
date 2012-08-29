@@ -7,6 +7,10 @@ import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.Opcodes;
 import org.deuce.objectweb.asm.Type;
 
+/**
+ * 
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt>
+ */
 public class StaticMethodTransformer extends MethodAdapter {
 
 	final static public String CLASS_BASE = "__CLASS_BASE__";

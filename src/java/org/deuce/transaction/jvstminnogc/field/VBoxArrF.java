@@ -6,6 +6,10 @@ import org.deuce.transaction.jvstminnogc.LockTable;
 import org.deuce.transform.ExcludeInternal;
 import org.deuce.transform.inplacemetadata.type.TxArrFloatField;
 
+/**
+ * 
+ * @author Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
+ */
 @ExcludeInternal
 public class VBoxArrF extends TxArrFloatField implements VBoxF {
 	public VersionF version;

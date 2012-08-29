@@ -90,8 +90,8 @@ import org.deuce.transform.ExcludeInternal;
  *  Multiarray context:
  *    - ref points to this object;
  *    - address is the offset of the nextDim field.
- *    
- * @author tvale
+ *
+ * @author Ricardo Dias, Tiago Vale <{ricardo.dias,t.vale}@campus.fct.unl.pt>
  */
 @ExcludeInternal
 public class TxArrObjectField extends TxField {

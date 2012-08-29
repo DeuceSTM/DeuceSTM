@@ -2,6 +2,11 @@ package org.deuce.transaction;
 
 import org.deuce.objectweb.asm.Type;
 
+/**
+ * Common functionality for both {out,in}-place metadata contexts.
+ * 
+ * @author Guy Korland, Ricardo Dias <ricardo.dias@campus.fct.unl.pt>
+ */
 public interface IContext {
 
 	final static public Type CONTEXT_TYPE = Type.getType(IContext.class);
