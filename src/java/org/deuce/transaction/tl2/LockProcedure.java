@@ -1,6 +1,7 @@
 package org.deuce.transaction.tl2;
 
 import org.deuce.transaction.tl2.field.WriteFieldAccess;
+import org.deuce.transform.ExcludeInternal;
 import org.deuce.trove.TIntArrayList;
 import org.deuce.trove.TIntProcedure;
 import org.deuce.trove.TObjectProcedure;
@@ -11,6 +12,7 @@ import org.deuce.trove.TObjectProcedure;
  * @author Guy
  * @since 1.4 
  */
+@ExcludeInternal
 public class LockProcedure implements TObjectProcedure<WriteFieldAccess>{
 		
 		private final TIntArrayList lockSet = new TIntArrayList();

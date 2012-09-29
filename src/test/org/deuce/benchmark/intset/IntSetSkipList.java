@@ -69,13 +69,18 @@ public class IntSetSkipList implements IntSet {
 		m_probability = probability;
 		m_level = 0;
 		m_head = new Node(m_maxLevel, Integer.MIN_VALUE);
-		Node tail = new Node(m_maxLevel, Integer.MAX_VALUE);
-		for (int i = 0; i <= m_maxLevel; i++)
-			m_head.setForward(i, tail);
+		init();
 	}
 
 	public IntSetSkipList() {
 		this(32, 0.25);
+	}
+	
+	@Atomic
+	private void init() {
+		Node tail = new Node(m_maxLevel, Integer.MAX_VALUE);
+		for (int i = 0; i <= m_maxLevel; i++)
+			m_head.setForward(i, tail);
 	}
 
 	protected int randomLevel() {

@@ -26,7 +26,7 @@ public class AtomicBlockIDTest extends TestCase{
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run(){
-				Context originalInstance = ContextDelegator.getInstance(); // save the real context before setting the moke
+				Context originalInstance = (Context) ContextDelegator.getInstance(); // save the real context before setting the moke
 				ThreadLocal<Context> threadLocal = null;
 				try
 				{

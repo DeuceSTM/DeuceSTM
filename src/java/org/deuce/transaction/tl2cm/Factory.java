@@ -9,14 +9,14 @@ import org.deuce.transaction.tl2cm.cm.KillPrioLS;
 import org.deuce.transaction.tl2cm.cm.Polite;
 import org.deuce.transaction.tl2cm.cm.Polka;
 import org.deuce.transaction.tl2cm.cm.Suicide;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * Factory for creating contention mangers
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  */
-@Exclude 
+@ExcludeInternal
 public class Factory {
 
 	private static final String TL2CM_CONTENTIONMANAGER = "org.deuce.transaction.tl2cm.ContentionManager";

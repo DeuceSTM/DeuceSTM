@@ -2,13 +2,13 @@ package org.deuce.benchmark.intset;
 
 import java.util.Random;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  * @since 0.1
  */
-@Exclude
+@ExcludeInternal
 public class Benchmark implements org.deuce.benchmark.Benchmark {
 
 	IntSet m_set;

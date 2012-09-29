@@ -2,9 +2,17 @@
 
 <project name="Deuce" default="agent-jar" basedir=".">
 
+	<property name="dist.dir" location="${basedir}/bin"/>
+	<property name="source.dir" location="${basedir}/src"/>
+	<property name="deucesrc.dir" location="${source.dir}/java"/>
+	<property name="testsrc.dir" location="${source.dir}/test"/>
+	<property name="build.dir" location="${dist.dir}/classes"/>
+	<property name="testbuild.dir" location="${dist.dir}/tests"/>
+
+
 	<target name="agent-jar" depends="compile-source">
-		<jar destfile="bin/deuceAgent.jar">
-			<fileset dir="bin/classes"/>
+		<jar destfile="${dist.dir}/deuceAgent.jar">
+			<fileset dir="${build.dir}"/>
 			<manifest>
 				<attribute name="Implementation-Vendor" value="deuce.org" />
 				<attribute name="Implementation-Version" value="1.4"/>
@@ -16,10 +24,10 @@
 			</manifest>
 		</jar>
 	</target>
-	
+
 	<target name="tests-jar" depends="compile-tests">
-		<jar destfile="bin/deuceTests.jar">
-			<fileset dir="bin/tests"/>
+		<jar destfile="${dist.dir}/deuceTests.jar">
+			<fileset dir="${testbuild.dir}"/>
 			<manifest>
 				<attribute name="Implementation-Vendor" value="deuce.org" />
 				<attribute name="Implementation-Version" value="1.4"/>
@@ -55,42 +63,42 @@
 			<param name="exclude" value="org/deuce/**"/>
 		</antcall>
 	</target>
-	
+
 	<target name="junits">
-		<mkdir dir="bin/junit"/>
+		<mkdir dir="${dist.dir}/junit"/>
 		<echo message="Test ${sysprop}=${value}"/>
 		<junit fork="yes">
-			<jvmarg value="-javaagent:${basedir}/bin/deuceAgent.jar"/>
+			<jvmarg value="-javaagent:${dist.dir}/deuceAgent.jar"/>
 			<sysproperty key="${sysprop}" value="${value}"/>
 			<formatter type="xml"/>
 			<formatter type="brief" usefile="false"/>
-			<classpath path="${basedir}/lib/junit.jar:${basedir}/bin/tests"/>
-			<batchTest todir="${basedir}/bin/junit">
-				<fileset dir="${basedir}/bin/tests" 
+			<classpath path="${basedir}/lib/junit.jar:${testbuild.dir}"/>
+			<batchTest todir="${dist.dir}/junit">
+				<fileset dir="${testbuild.dir}" 
 					includes="org/deuce/utest/**/*Test.class"
 					excludes="org/deuce/utest/basic/StaticFieldInheritanceTest.class,${exclude}"/>
 			</batchTest>
 		</junit>
 	</target>
-	
-	<target name="compile-source">
-		<mkdir dir="bin/classes"/>
-		<javac fork="true" srcdir="src"  source="1.6" target="1.6"
-			destdir="bin/classes"
-		 	includes="java/**"
-			excludes="test/**"
-			debug="true"
+
+	<target name="compile-source" >
+		<mkdir dir="${build.dir}"/>
+		<javac srcdir="${deucesrc.dir}"  source="1.6" target="1.6" destdir="${build.dir}" debug="true" 
+			includeantruntime="false">
+		</javac>
+	</target>
+
+	<target name="compile-tests" depends="compile-source">
+		<mkdir dir="${testbuild.dir}"/>
+		<javac fork="true" srcdir="${testsrc.dir}" source="1.6" target="1.6"
+			destdir="${testbuild.dir}" includeantruntime="false"
+			classpath="${build.dir};${testbuild.dir};lib/junit.jar" debug="true"
 		/>
 	</target>
-	
-	<target name="compile-tests" depends="compile-source">
-		<mkdir dir="bin/tests"/>
-		<javac fork="true" srcdir="src" source="1.6" target="1.6"
-			destdir="bin/tests"
-			classpath="bin/classes;lib/junit.jar"
-		 	includes="test/**"
-			excludes="java/**"
-			debug="true"
-		/>
+
+	<target name="clean" description="clean up" >
+		<delete includeemptydirs="true">
+		    <fileset dir="${dist.dir}" includes="**/*"/>
+		</delete>
 	</target>
 </project>

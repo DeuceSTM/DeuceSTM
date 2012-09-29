@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
 import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 import org.deuce.trove.THashMap;
 import org.deuce.trove.TObjectProcedure;
 
@@ -13,7 +13,7 @@ import org.deuce.trove.TObjectProcedure;
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  */
-@Exclude
+@ExcludeInternal
 public class WriteSet implements Iterable<WriteFieldAccess>{
 	
 	final private THashMap<WriteFieldAccess,WriteFieldAccess> writeSet = 

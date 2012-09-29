@@ -1,7 +1,7 @@
 package org.deuce.transaction.tl2.pool;
 
 import org.deuce.transaction.tl2.field.ReadFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * Represents the transaction read set.
@@ -10,7 +10,7 @@ import org.deuce.transform.Exclude;
  * @author Guy Korland
  * @since 1.0
  */
-@Exclude
+@ExcludeInternal
 final public class Pool<T>{
 	
 	private static final int DEFAULT_CAPACITY = 1024;

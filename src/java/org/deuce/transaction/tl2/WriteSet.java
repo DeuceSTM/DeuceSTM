@@ -3,7 +3,7 @@ package org.deuce.transaction.tl2;
 
 import org.deuce.transaction.tl2.field.ReadFieldAccess;
 import org.deuce.transaction.tl2.field.WriteFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 import org.deuce.trove.THashSet;
 import org.deuce.trove.TObjectProcedure;
 
@@ -13,7 +13,7 @@ import org.deuce.trove.TObjectProcedure;
  * @author Guy Korland
  * @since 0.7
  */
-@Exclude
+@ExcludeInternal
 public class WriteSet{
 	
 	final private THashSet<WriteFieldAccess> writeSet = new THashSet<WriteFieldAccess>( 16);

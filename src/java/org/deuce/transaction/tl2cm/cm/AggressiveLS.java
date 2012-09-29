@@ -3,7 +3,7 @@ package org.deuce.transaction.tl2cm.cm;
 import org.deuce.transaction.tl2cm.Context;
 import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
 import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * A contention manager that is able to revoke a lock from another transaction.<br>
@@ -15,7 +15,7 @@ import org.deuce.transform.Exclude;
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  * @since 1.4
  */
-@Exclude
+@ExcludeInternal
 public class AggressiveLS extends AbstractContentionManager {
 
 	@Override

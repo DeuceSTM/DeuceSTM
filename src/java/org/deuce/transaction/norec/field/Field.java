@@ -1,17 +1,17 @@
 package org.deuce.transaction.norec.field;
 
 import org.deuce.reflection.UnsafeHolder;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 import sun.misc.Unsafe;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public class Field {
 
-	@Exclude
+	@ExcludeInternal
 	static public enum Type {
 		BYTE, BOOLEAN, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, OBJECT
 	}

@@ -5,12 +5,12 @@ import java.util.concurrent.atomic.AtomicLongArray;
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.lsacm.Context;
 import org.deuce.transaction.lsacm.ContentionManager.ConflictType;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public class LockTable {
 
 	// Failure transaction 

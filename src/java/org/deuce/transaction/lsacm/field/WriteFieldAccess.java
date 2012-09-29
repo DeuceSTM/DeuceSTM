@@ -2,12 +2,12 @@ package org.deuce.transaction.lsacm.field;
 
 import org.deuce.transaction.lsacm.field.Field;
 import org.deuce.transaction.lsacm.field.Field.Type;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public class WriteFieldAccess extends ReadFieldAccess {
 
 	private Type type;

@@ -3,7 +3,7 @@ package org.deuce.transaction.estm;
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.estm.Context.LockTable;
 import org.deuce.transaction.estm.field.ReadFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * The set of read entries maintained by the transaction
@@ -11,7 +11,7 @@ import org.deuce.transform.Exclude;
  * 
  * @author Vincent Gramoli
  */
-@Exclude
+@ExcludeInternal
 final public class ReadSet {
 
 	/** An array of read entries */

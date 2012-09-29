@@ -1,7 +1,7 @@
 package org.deuce.transaction;
 
 import org.deuce.objectweb.asm.Type;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * If thrown under the context of an active transaction the current transaction
@@ -10,7 +10,7 @@ import org.deuce.transform.Exclude;
  * @author Guy Korland
  * @since 1.0
  */
-@Exclude
+@ExcludeInternal
 public class TransactionException extends RuntimeException {
 
 	final static public String TRANSACTION_EXCEPTION_INTERNAL = Type.getInternalName(TransactionException.class);

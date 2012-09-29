@@ -11,14 +11,14 @@ import org.deuce.objectweb.asm.Type;
 import org.deuce.objectweb.asm.commons.Method;
 import org.deuce.transaction.Context;
 import org.deuce.transaction.ContextDelegator;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 import org.deuce.transform.asm.method.MethodTransformer;
 import org.deuce.transform.asm.method.StaticMethodTransformer;
 import org.deuce.transform.asm.type.TypeCodeResolver;
 import org.deuce.transform.asm.type.TypeCodeResolverFactory;
 import org.deuce.transform.util.Util;
 
-@Exclude
+@ExcludeInternal
 public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 
 	final private static String ENUM_DESC = Type.getInternalName(Enum.class); 
@@ -28,7 +28,7 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 	final private LinkedList<Field> fields = new LinkedList<Field>();
 	private String staticField = null;
 	
-	final static public String EXCLUDE_DESC = Type.getDescriptor(Exclude.class);
+	final static public String EXCLUDE_DESC = Type.getDescriptor(ExcludeInternal.class);
 	final static private String ANNOTATION_NAME = Type.getInternalName(Annotation.class);
 	private boolean isInterface;
 	private boolean isEnum;
@@ -60,7 +60,7 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 	}
 
 	/**
-	 * Checks if the class is marked as {@link Exclude @Exclude}
+	 * Checks if the class is marked as {@link ExcludeInternal @ExcludeInternal}
 	 */
 	@Override
 	public AnnotationVisitor visitAnnotation( String desc, boolean visible) {

@@ -19,7 +19,7 @@ public class IrrevocableTest extends TestCase{
 
 	public void testIrrevocableCalled() throws Exception {
 
-		Context originalInstance = ContextDelegator.getInstance(); // save the real context before setting the moke
+		Context originalInstance = (Context) ContextDelegator.getInstance(); // save the real context before setting the moke
 		Field declaredField = ContextDelegator.class.getDeclaredField("THREAD_CONTEXT");
 		declaredField.setAccessible(true);
 		ThreadLocal<Context> threadLocal = (ThreadLocal<Context>) declaredField.get(Thread.currentThread());

@@ -3,12 +3,12 @@ package org.deuce.transaction.lsa;
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.lsa.field.ReadFieldAccess;
 import org.deuce.transaction.lsa.LockTable;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public class ReadSet {
 
 	private static final int DEFAULT_CAPACITY = 1024;

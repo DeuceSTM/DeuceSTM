@@ -4,11 +4,11 @@ import java.lang.reflect.Field;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 import sun.misc.Unsafe;
 
-@Exclude
+@ExcludeInternal
 public class UnsafeHolder {
 
 	final private static Logger logger = Logger.getLogger("org.deuce.reflection");

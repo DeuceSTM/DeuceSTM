@@ -11,7 +11,7 @@ import org.deuce.transaction.estm.field.ReadFieldAccess.Field.Type;
 //import org.deuce.transaction.estm.field.Field.Type;
 import org.deuce.transaction.estm.ReadSet;
 import org.deuce.transaction.estm.WriteSet;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * E-STM
@@ -22,7 +22,7 @@ import org.deuce.transform.Exclude;
  * 
  * @author Vincent Gramoli
  */
-@Exclude
+@ExcludeInternal
 final public class Context implements org.deuce.transaction.Context {
 
 	/** Type of the tx, (!elastic) means regular type */
@@ -311,8 +311,8 @@ final public class Context implements org.deuce.transaction.Context {
 	public void onWriteAccess(Object obj, double value, long field) {
 		onWriteAccess(obj, field, (Object) value, Type.DOUBLE);
 	}
-	
-	@Exclude
+
+	@ExcludeInternal
 	static public class LockTable {
 
 		// Failure transaction 

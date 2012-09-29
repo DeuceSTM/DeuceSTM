@@ -2,7 +2,7 @@ package org.deuce.transaction.tl2cm;
 
 import java.util.concurrent.atomic.AtomicLongArray;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * Table of locks for accessed locations. Each lock is comprised of a 64-bit number that encodes
@@ -14,7 +14,7 @@ import org.deuce.transform.Exclude;
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  */
-@Exclude
+@ExcludeInternal
 public class LockTable {
 
 	public static final int OWNERSIZE = 8;	// Allowing for 2^OWNERSIZE threads in the system

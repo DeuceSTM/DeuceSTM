@@ -5,14 +5,14 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * This class provides statistics collecting functionality for TL2CM
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  */
-@Exclude
+@ExcludeInternal
 public class Statistics {
 
 	public enum AbortType {ALL, SPECULATION, COMMIT, COMMIT_READSET_VALIDATION, COMMIT_WRITESET_LOCKING, COMMIT_KILLED, SPECULATION_READVERSION, SPECULATION_LOCATION_LOCKED} 

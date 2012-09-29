@@ -33,13 +33,17 @@ public class RBTree implements IntSet{
 	 * child of this node. Indirection needed to make changes to the root
 	 * transactional.
 	 */
-	private RBNode root;
+	private final RBNode root;
 	/**
 	 * Used in place of null pointer.
 	 */
-	public static RBNode sentinelNode;
+	public static final RBNode sentinelNode;
 	static {
 		sentinelNode = new RBNode();
+		initStatic();
+	}
+	@Atomic
+	private static void initStatic() {
 		sentinelNode.setValue(123456);
 		sentinelNode.setLeft(null);
 		sentinelNode.setRight(null);
@@ -51,6 +55,11 @@ public class RBTree implements IntSet{
 	 **/
 	public RBTree() {
 		root = new RBNode();
+		init();
+	}
+	
+	@Atomic
+	private void init() {
 		root.setLeft(sentinelNode);
 		root.setValue(Integer.MIN_VALUE);
 		root.setColor(Color.BLACK);
