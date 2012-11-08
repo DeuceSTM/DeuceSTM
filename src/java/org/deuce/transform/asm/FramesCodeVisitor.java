@@ -29,7 +29,7 @@ public class FramesCodeVisitor extends ClassAdapter{
 	public void visit(final int version, final int access, final String name,
 			final String signature, final String superName, final String[] interfaces) {
 		
-		if(version == JAVA6_VERSION) // already has frames 
+		if(version >= JAVA6_VERSION) // already has frames 
 			throw VersionException.INSTANCE;
 		
 		super.visit(JAVA5_VERSION, access, name, signature, superName, interfaces);

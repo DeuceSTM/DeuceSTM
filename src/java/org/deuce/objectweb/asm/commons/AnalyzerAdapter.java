@@ -77,7 +77,7 @@ public class AnalyzerAdapter extends MethodAdapter {
      * {@link Opcodes#DOUBLE},{@link Opcodes#NULL} or
      * {@link Opcodes#UNINITIALIZED_THIS} (long and double are represented by a
      * two elements, the second one being TOP). Reference types are represented
-     * by String objects (representing internal names), and uninitialized types 
+     * by String objects (representing internal names), and uninitialized types
      * by Label objects (this label designates the NEW instruction that created
      * this uninitialized value). This field is <tt>null</tt> for unreacheable
      * instructions.
@@ -97,7 +97,7 @@ public class AnalyzerAdapter extends MethodAdapter {
      * types, and the associated internal name represents the NEW operand, i.e.
      * the final, initialized type value.
      */
-    private final Map uninitializedTypes;
+    public Map uninitializedTypes;
 
     /**
      * The maximum stack size of this method.
@@ -110,8 +110,13 @@ public class AnalyzerAdapter extends MethodAdapter {
     private int maxLocals;
 
     /**
+     * The owner's class name.
+     */
+    private String owner;
+    
+    /**
      * Creates a new {@link AnalyzerAdapter}.
-     * 
+     *
      * @param owner the owner's class name.
      * @param access the method's access flags (see {@link Opcodes}).
      * @param name the method's name.
@@ -127,6 +132,7 @@ public class AnalyzerAdapter extends MethodAdapter {
         final MethodVisitor mv)
     {
         super(mv);
+        this.owner = owner;
         locals = new ArrayList();
         stack = new ArrayList();
         uninitializedTypes = new HashMap();
@@ -279,13 +285,17 @@ public class AnalyzerAdapter extends MethodAdapter {
         if (mv != null) {
             mv.visitMethodInsn(opcode, owner, name, desc);
         }
+        if (this.locals == null) {
+            labels = null;
+            return;
+        }
         pop(desc);
         if (opcode != Opcodes.INVOKESTATIC && opcode != Opcodes.INVOKEDYNAMIC) {
             Object t = pop();
             if (opcode == Opcodes.INVOKESPECIAL && name.charAt(0) == '<') {
                 Object u;
                 if (t == Opcodes.UNINITIALIZED_THIS) {
-                    u = owner;
+                    u = this.owner;
                 } else {
                     u = uninitializedTypes.get(t);
                 }
@@ -329,6 +339,10 @@ public class AnalyzerAdapter extends MethodAdapter {
     public void visitLdcInsn(final Object cst) {
         if (mv != null) {
             mv.visitLdcInsn(cst);
+        }
+        if (this.locals == null) {
+            labels = null;
+            return;
         }
         if (cst instanceof Integer) {
             push(Opcodes.INTEGER);
@@ -489,6 +503,7 @@ public class AnalyzerAdapter extends MethodAdapter {
 
     private void execute(final int opcode, final int iarg, final String sarg) {
         if (this.locals == null) {
+            labels = null;
             return;
         }
         Object t1, t2, t3, t4;
