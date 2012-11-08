@@ -23,6 +23,8 @@ public class ExcludeIncludeStore {
 		excludeIncludeStore.excludeClass.add("java/lang/Object");
 		excludeIncludeStore.excludeClass.add("java/lang/Thread");
 		excludeIncludeStore.excludeClass.add("java/lang/Throwable");
+		excludeIncludeStore.excludeClass.add("javax/management/remote/rmi/_RMIConnection_Stub");
+		excludeIncludeStore.excludeClass.add("org/omg/stub/javax/management/remote/rmi/_RMIConnection_Stub");
 		//Always ignore TransactionException so user can explicitly throw this exception
 		excludeIncludeStore.excludeClass.add(TransactionException.TRANSACTION_EXCEPTION_INTERNAL);
 		excludeIncludeStore.excludeClass.add(AbortTransactionException.ABORT_TRANSACTION_EXCEPTION_INTERNAL);
