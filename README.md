@@ -42,3 +42,6 @@ More information can be found here: http://www.deucestm.org/documentation
    - Compiler: JDK6+ 
 
    - Libs and other inst req.: JDK6+
+
+
+[Read More](https://github.com/DeuceSTM/DeuceSTM/wiki/_pages)
