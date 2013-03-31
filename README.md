@@ -1,10 +1,6 @@
 [![Build Status](https://secure.travis-ci.org/DeuceSTM/DeuceSTM.png)](http://travis-ci.org/DeuceSTM/DeuceSTM)
 
-Forums:
-
-[Users](http://groups.google.com/group/deuce-stm)
-
-[Developers](http://groups.google.com/group/deuce-stm-developers)
+Forums:  [Users](http://groups.google.com/group/deuce-stm), [Developers](http://groups.google.com/group/deuce-stm-developers)
 
 <h1>Steps for building Deuce STM</h1>
 
