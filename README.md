@@ -34,7 +34,9 @@ Download:
 http://sites.google.com/site/deucestm/download/deuceAgent-1.3.0.jar
 
 More information can be found here: 
+
     - [Wiki](https://github.com/DeuceSTM/DeuceSTM/wiki/_pages)
+  
     - [Site](http://sites.google.com/site/deucestm/documentation)
 
 1.3 System requirements
