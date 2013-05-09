@@ -22,6 +22,14 @@ public class SingleStaticUpdate  extends TestCase{
 	
     @Override
     public void setUp() { 
+        setUpAtomic();
+    }
+    /**
+     * Multi-dimensional arrays such as booleanArrArrVar should be accessed 
+     * in atomic methods when they are wrapped in CapturedStateArray.
+     */
+    @Atomic
+    public void setUpAtomic() {
     	intVar = 0;
     	longVar = 0;
     	doubleVar = 0;
@@ -53,8 +61,16 @@ public class SingleStaticUpdate  extends TestCase{
 		Assert.assertNotNull(objectArrvar[0]);
 		Assert.assertEquals("a", stringArrvar[0]);
 		
-		Assert.assertEquals(booleanArrArrVar[0][0], true);
+		Assert.assertEquals(booleanArrArrVar(0, 0), true);
 		
+	}
+	/**
+	 * According to the CapturedMem solution we cannot access
+	 * multi-dimensional arrays in a non-transactional method. 
+	 */
+	@Atomic
+	public boolean booleanArrArrVar(int x, int y){
+	    return booleanArrArrVar[0][0];
 	}
 	
 	@Atomic
