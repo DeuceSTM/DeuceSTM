@@ -19,11 +19,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.deuce.reflection.UnsafeHolder;
+import org.deuce.transaction.ContextDelegator;
 import org.deuce.transform.Exclude;
 
 /**
  * A java agent to dynamically instrument transactional supported classes/  
  * 
+ * Modified by FMC@2012-09-14:
+ * * Included support for ClassEnhancer objects, which act like ASM transformations
+ *   that we can add after the standard instrumentation made by the DeuceStm 
+ *   to transactional classes.
+ *    
  * @author Guy Korland
  * @since 1.0
  */
@@ -32,6 +38,44 @@ public class Agent implements ClassFileTransformer {
 	final private static Logger logger = Logger.getLogger("org.deuce.agent");
 	final private static boolean VERBOSE = Boolean.getBoolean("org.deuce.verbose");
 	final private static boolean GLOBAL_TXN = Boolean.getBoolean("org.deuce.transaction.global");
+
+	/**
+	 * The name of the class that implements a post transformation (FMC@2012-09-14).
+	 */
+	final private static ClassEnhancerChain postEnhancer;
+
+	static{
+		try {
+			/*
+			 * Here, we force to load the ContextDelegator specified by the end user, because it may depends
+			 * on post transformations.  
+			 * In this case the specified ContextDelegator must define the required post transformations 
+			 * in the corresponding system property: org.deuce.transform.post.   
+			 * Then the Agent will process this transformation. 
+			 */
+			logger.info("context delegator = " + ContextDelegator.CONTEXT_DELEGATOR_INTERNAL);
+			/*
+			 * Loads the post ClassEnhancer objects. 
+			 */
+			String enhancer = System.getProperty("org.deuce.transform.post");
+			ClassEnhancerChain aux = null;
+			if(enhancer != null && !enhancer.equals("")){
+				for(String eh : enhancer.split(",")){
+					/*
+					 * The ClassEnhancerChain implement a chain of transformations. 
+					 * This solution was adapted from the the Decorator design pattern. 
+					 * We cannot make the own implementations of the ClassEnhancer as 
+					 * decorators, because we need to instantiate a new ClassEnhancer 
+					 * for each instrumentation.  
+					 */
+					Class<ClassEnhancer> klassEnhancer = (Class<ClassEnhancer>) Class.forName(eh);
+					aux = new ClassEnhancerChain(klassEnhancer, aux);
+				}
+			}
+			postEnhancer = aux;                
+		} 
+		catch (ClassNotFoundException e) {throw new RuntimeException(e);} 
+	}
 
 	/*
 	 * @see java.lang.instrument.ClassFileTransformer#transform(java.lang.ClassLoader,
@@ -53,6 +97,10 @@ public class Agent implements ClassFileTransformer {
 	}
 	
 	/**
+	 * (FMC@2012-09-14) After performing the Deuce transformation we check the postEnhancer field.
+	 * If the user specified a post transformation then we will instrument also every class resulted 
+	 * from the Deuce transformation with the enhancement defined by the postEnhancer.
+	 * 
 	 * @param offline <code>true</code> if this is an offline transform.
 	 */
 	private List<ClassByteCode> transform(String className, byte[] classfileBuffer, boolean offline)
@@ -79,9 +127,18 @@ public class Agent implements ClassFileTransformer {
 			if(offline) {
 				fieldsHolder = new ExternalFieldsHolder(className);
 			}
-			ByteCodeVisitor cv = new org.deuce.transform.asm.ClassTransformer( className, fieldsHolder);
-			byte[] bytecode = cv.visit(classfileBuffer);
-			byteCodes.add(new ClassByteCode( className, bytecode));
+			org.deuce.transform.asm.ClassTransformer cv = new org.deuce.transform.asm.ClassTransformer( className, fieldsHolder);
+ 			byte[] bytecode = cv.visit(classfileBuffer);
+ 			/*
+ 			 * Pos Deuce transformation for each class
+ 			 */
+ 			if(cv.exclude || postEnhancer == null){
+ 				byteCodes.add(new ClassByteCode( className, bytecode));
+ 			}
+ 			else{
+ 				List<ClassByteCode> res = postEnhancer.visit(offline, className, bytecode);
+ 				byteCodes.addAll(res);
+ 			}
 			if(offline) {
 				byteCodes.add(fieldsHolder.getClassByteCode());
 			}

@@ -37,7 +37,15 @@ public class ExcludeIncludeStore {
 		if( property == null)
 			property = "java.*,sun.*,org.eclipse.*,org.junit.*,junit.*";
 		excludeTree = new IgnoreTree( property);
-
+		
+		/*
+		 * We cannot add the Exclude annotation to inner classes generated 
+		 * by the compiler (e.g. $1 state machine for switch statement).
+		 * So we must exclude the Deuce transaction infrastructure via
+		 * the excludeTree.
+		 */
+		excludeTree.add("org.deuce.transaction.*");   
+		
 		property = System.getProperty("org.deuce.include");
 		if( property == null)
 			property = "";
@@ -47,6 +55,10 @@ public class ExcludeIncludeStore {
 	public static boolean exclude(String className){
 		if(excludeIncludeStore.excludeClass.contains(className))
 			return true;
+
+		// We replace $ by / to deal with inner classes as subpackages.
+		className = className.replace('$', '/');
+
 		return excludeIncludeStore.excludeTree.contains(className) && !excludeIncludeStore.includeTree.contains(className);
 	} 
 	

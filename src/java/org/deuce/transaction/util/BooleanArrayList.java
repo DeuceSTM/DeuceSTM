@@ -1,11 +1,14 @@
 package org.deuce.transaction.util;
 
+import org.deuce.transform.Exclude;
+
 /**
  * Dynamic boolean array.
  *
  * @author	Guy Korland
  * @since	1.0
  */
+@Exclude
 public class BooleanArrayList{
 
     private static final int DEFAULT_CAPACITY = 100;

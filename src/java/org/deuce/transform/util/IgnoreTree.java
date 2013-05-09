@@ -22,7 +22,12 @@ public class IgnoreTree {
 		String[] names = name.split("\\/");
 		return root.contains(names, 0);
 	}
-	
+
+	public void add( String name){
+		String[] names = name.split("\\.");
+		root.add(names, 0);
+	}
+
 	private static class TreeNode{
 		
 		final private HashMap<String, TreeNode> descendants = new HashMap<String, TreeNode>();

@@ -23,7 +23,7 @@ public class ClassTransformer extends ByteCodeVisitor implements FieldsHolder{
 
 	final private static String ENUM_DESC = Type.getInternalName(Enum.class); 
 	
-	private boolean exclude = false;
+	protected boolean exclude = false;
 	private boolean visitclinit = false;
 	final private LinkedList<Field> fields = new LinkedList<Field>();
 	private String staticField = null;
