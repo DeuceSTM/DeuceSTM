@@ -1,8 +1,11 @@
 package org.deuce.transaction;
 
+import java.lang.reflect.Constructor;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
+
 import org.deuce.objectweb.asm.Type;
 import org.deuce.reflection.AddressUtil;
-import org.deuce.transaction.Context;
 import org.deuce.transform.Exclude;
 
 /**
@@ -16,7 +19,24 @@ import org.deuce.transform.Exclude;
  */
 public class ContextDelegator {
 
-	final static public String CONTEXT_DELEGATOR_INTERNAL = Type.getInternalName(ContextDelegator.class);
+	final static private Logger logger = Logger.getLogger("org.deuce.transaction");
+	final static public String CONTEXT_DELEGATOR_INTERNAL;
+
+	static{
+		/*
+		 * Initialize CONTEXT_DELEGATOR_INTERNAL
+		 */ 
+		try{
+			String DELEGATOR_NAME = System.getProperty("org.deuce.delegator");
+			if(DELEGATOR_NAME != null){
+				CONTEXT_DELEGATOR_INTERNAL = Type.getInternalName(Class.forName(DELEGATOR_NAME));
+			} else{
+				CONTEXT_DELEGATOR_INTERNAL = Type.getInternalName(ContextDelegator.class);
+			}
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+	}
 	
 	final static public String BEFORE_READ_METHOD_NAME = "beforeReadAccess";
 	final static public String BEFORE_READ_METHOD_DESC = "(Ljava/lang/Object;J" + Context.CONTEXT_DESC +")V";
@@ -102,9 +122,38 @@ public class ContextDelegator {
 	@Exclude
 	private static class ContextThreadLocal extends ThreadLocal<Context>
 	{
-		private Class<? extends Context> contextClass;  
+		private Class<? extends Context> contextClass;
+		private Constructor<? extends Context> [] contextFilters;
 
 		public ContextThreadLocal(){
+			/* 
+			 * Initialize filters classes
+			 */
+			String filterProp = System.getProperty("org.deuce.transaction.filter");
+			if(filterProp == null){
+				contextFilters = new Constructor[0];
+			}else{
+				String [] fitersStrs= filterProp.split(",");
+				contextFilters = new Constructor[fitersStrs.length];
+				for (int i = 0; i < fitersStrs.length; i++) {
+					try {
+						Class<? extends Context> c = (Class<? extends Context>) Class.forName(fitersStrs[i]);
+						contextFilters[i] = c.getConstructor(Context.class);
+					} catch (ClassNotFoundException e) {
+						logger.severe("FATAL ERROR: Illegal filter class name!");
+						System.exit(-1);
+					} catch (NoSuchMethodException e) {
+						logger.severe("FATAL ERROR: Illegal filter without a valid <init>(Context) constructor!");
+						System.exit(-1);
+					} catch (SecurityException e) {
+						e.printStackTrace();
+						System.exit(-1);
+					}
+				}
+			}
+			/* 
+			 * Initialize context class
+			 */
 			String className = System.getProperty( "org.deuce.transaction.contextClass");
 			if( className != null){
 				try {
@@ -115,12 +164,32 @@ public class ContextDelegator {
 				}
 			}
 			this.contextClass = org.deuce.transaction.lsa.Context.class;
+			/*
+			 * Print Deuce system properties
+			 */          
+			String stmHeader = "********************* DEUCE STM = " + contextClass + " *********************";
+			String headerTemplate = new String(new char[stmHeader.length()]); 
+			logger.info(stmHeader);
+			logger.info(headerTemplate.replace('\0', '-'));
+			for (Entry<Object, Object> e : System.getProperties().entrySet()) {
+				if(e.getKey().toString().contains("org.deuce"))
+					logger.info("* " + e.getKey() + " = " + e.getValue());
+			}
+			logger.info(headerTemplate.replace('\0', '*'));
 		}
 
 		@Override
 		protected synchronized Context initialValue() {
+			/*
+			 * Instantiate the filters classes and combine them
+			 * according to the Decorator design pattern.
+			 */
 			try {
-				return this.contextClass.newInstance();
+				Context ctx = this.contextClass.newInstance();
+				for (Constructor<? extends Context> ctor : contextFilters) {
+					ctx = ctor.newInstance(ctx);
+				}
+				return ctx;
 			} catch (Exception e) {
 				throw new TransactionException( e);
 			}
