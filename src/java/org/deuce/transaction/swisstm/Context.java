@@ -1,5 +1,9 @@
 package org.deuce.transaction.swisstm;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.deuce.transaction.TransactionException;
@@ -10,6 +14,15 @@ import org.deuce.transform.Exclude;
 /**
  * SwissTM implementation
  *
+ * TODO:
+ *  - irrevocableState
+ *  - RO_HINT
+ *  - Contention Manager
+ *  - rollback
+ *  - commit
+ *  - validate
+ *  - TODOs in read and write
+ *
  * @author Daniel Pinto
  */
 @Exclude
@@ -17,24 +30,36 @@ final public class Context implements org.deuce.transaction.Context {
 
 	// Exceptions
 	private static final TransactionException WRITE_FAILURE_EXCEPTION =
-		new TransactionException("Fail on write.");
+			new TransactionException("Fail on write.");
 
 	private static final TransactionException READ_FAILURE_EXCEPTION =
-		new TransactionException("Fail on read.");
+			new TransactionException("Fail on read.");
 
 	// Global variables
 	private static final AtomicInteger threadID = new AtomicInteger(1);
 	private static final AtomicInteger commitTS = new AtomicInteger(0);
 	private static final LockTable lockTable = new LockTable();
 
-	private int id;
+	// Transaction local variables
+	private final int id;
 	private int validTS;
 
 	private Object readValue;
 
+	// TODO: Isolate these into classes to hide Address class
+	private final Map<Address, ReadLogEntry> readLog;
+	private final Map<Address, WriteLogEntry> writeLog;
+	private final Set<Address> readLockedAddresses;
+
+	public Context() {
+		this.id = threadID.incrementAndGet();
+		this.readLog = new HashMap<Address, ReadLogEntry>();
+		this.writeLog = new HashMap<Address, WriteLogEntry>();
+		this.readLockedAddresses = new HashSet<Address>();
+	}
+
 	@Override
 	public void init(int atomicBlockId, String metainf) {
-		this.id = threadID.incrementAndGet();
 		this.validTS = commitTS.get();
 	}
 
@@ -50,21 +75,33 @@ final public class Context implements org.deuce.transaction.Context {
 
 	}
 
-	public boolean extend() {
-		// TODO Auto-generated method stub
+	private boolean extend() {
+		int ts = commitTS.get();
+		if (validate()) {
+			this.validTS = ts;
+			return true;
+		}
+
 		return false;
 	}
 
+	private boolean validate() {
+		// TODO
+		return true;
+	}
+
+
+
 	@Override
 	public void beforeReadAccess(Object obj, long field) {
-		// TODO Auto-generated method stub
+		// Useless for SwissTM
 
 	}
 
 	// Returns true if the value should be read from memory or false
 	// if it is in readValue
 	private boolean onReadAccess(Object obj, long field, Type type) {
-		AddressLocks locks = Context.lockTable.getLocks(obj, field);
+		AddressLocks locks = lockTable.getLocks(obj, field);
 		boolean shouldReturnLogValue = true;
 
 		if (locks.getWLockThreadID() == this.id) { // Locked by me?
@@ -101,7 +138,7 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	private void onWriteAccess(Object obj, long field, Object value, Type type) {
-		AddressLocks locks = Context.lockTable.getLocks(obj, field);
+		AddressLocks locks = lockTable.getLocks(obj, field);
 
 		if (locks.getWLockThreadID() == this.id) { // Locked by me?
 			// TODO: update-log-entry(w-lock, addr, value)
