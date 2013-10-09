@@ -17,6 +17,8 @@ public class LockTable {
 
 	public AddressLocks getLocks(Object obj, long field, Type type) {
 		Address address = new Address(obj, field, type);
-		return this.objectsMap.putIfAbsent(address, new AddressLocks());
+		AddressLocks newValue = new AddressLocks();
+		AddressLocks previousValue = this.objectsMap.putIfAbsent(address, newValue);
+		return previousValue == null ? newValue : previousValue;
 	}
 }

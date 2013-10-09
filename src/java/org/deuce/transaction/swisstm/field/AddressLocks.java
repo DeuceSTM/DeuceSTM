@@ -54,6 +54,9 @@ public class AddressLocks {
 	}
 
 	public boolean casWLock(int expect, int update) {
+		if (expect == WRITE_UNLOCKED) {
+			expect = 0;
+		}
 		return this.wLock.compareAndSet(expect, update);
 	}
 
