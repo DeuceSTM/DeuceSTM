@@ -67,6 +67,9 @@ final public class Context implements org.deuce.transaction.Context {
 			irrevocableAccessLock.readLock().lock();
 		}
 
+		this.readLog.clear();
+		this.writeLog.clear();
+		this.readLockedAddresses.clear();
 		this.validTS = commitTS.get();
 	}
 
