@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.swisstm.field.AddressLocks;
@@ -16,7 +17,6 @@ import org.deuce.transform.Exclude;
  * SwissTM implementation
  *
  * TODO:
- *  - irrevocableState
  *  - RO_HINT
  *  - Contention Manager
  *
@@ -31,6 +31,10 @@ final public class Context implements org.deuce.transaction.Context {
 
 	private static final TransactionException READ_FAILURE_EXCEPTION =
 			new TransactionException("Fail on read.");
+
+	// Global lock used to allow only one irrevocable transaction solely.
+	private final static ReentrantReadWriteLock irrevocableAccessLock = new ReentrantReadWriteLock();
+	private boolean irrevocableState = false;
 
 	// Global variables
 	private static final AtomicInteger threadID = new AtomicInteger(1);
@@ -56,6 +60,13 @@ final public class Context implements org.deuce.transaction.Context {
 
 	@Override
 	public void init(int atomicBlockId, String metainf) {
+		// Lock according to the transaction irrevocable state
+		if (this.irrevocableState) {
+			irrevocableAccessLock.writeLock().lock();
+		} else {
+			irrevocableAccessLock.readLock().lock();
+		}
+
 		this.validTS = commitTS.get();
 	}
 
@@ -65,44 +76,57 @@ final public class Context implements org.deuce.transaction.Context {
 
 	@Override
 	public boolean commit() {
-		if (isReadOnly()) {
-			return true;
-		}
-
-		// Lock r-locks of read addresses
-		for (Address address : this.readLog.keySet()) {
-			ReadLogEntry readLogEntry = this.readLog.get(address);
-			readLogEntry.locks.lockRLock();
-			this.readLockedAddresses.add(address);
-		}
-
-		int ts = commitTS.incrementAndGet();
-		if (ts > this.validTS + 1 && !validate()) {
-			for (Address address : this.readLog.keySet()) {
-				ReadLogEntry readLogEntry = this.readLog.get(address);
-				readLogEntry.locks.unlockRLock(readLogEntry.version);
+		try {
+			if (isReadOnly()) {
+				return true;
 			}
 
-			// rollback call needed???
-			return false;
-		}
+			// Lock r-locks of read addresses
+			for (Address address : this.readLog.keySet()) {
+				ReadLogEntry readLogEntry = this.readLog.get(address);
+				readLogEntry.locks.lockRLock();
+				this.readLockedAddresses.add(address);
+			}
 
-		for (Address address : this.writeLog.keySet()) {
-			WriteLogEntry writeLogEntry = this.writeLog.get(address);
-			Field.putValue(address.object, address.field, writeLogEntry.value, address.type);
-			writeLogEntry.locks.unlockRLock(ts);
-			writeLogEntry.locks.unlockWLock();
+			int ts = commitTS.incrementAndGet();
+			if (ts > this.validTS + 1 && !validate()) {
+				for (Address address : this.readLog.keySet()) {
+					ReadLogEntry readLogEntry = this.readLog.get(address);
+					readLogEntry.locks.unlockRLock(readLogEntry.version);
+				}
+
+				// rollback call needed???
+				return false;
+			}
+
+			for (Address address : this.writeLog.keySet()) {
+				WriteLogEntry writeLogEntry = this.writeLog.get(address);
+				Field.putValue(address.object, address.field, writeLogEntry.value, address.type);
+				writeLogEntry.locks.unlockRLock(ts);
+				writeLogEntry.locks.unlockWLock();
+			}
+			return true;
+		} finally {
+			if (this.irrevocableState){
+				this.irrevocableState = false;
+				irrevocableAccessLock.writeLock().unlock();
+			} else {
+				irrevocableAccessLock.readLock().unlock();
+			}
 		}
-		return true;
 	}
 
 	@Override
 	public void rollback() {
-		for (Address address : this.writeLog.keySet()) {
-			WriteLogEntry writeLogEntry = this.writeLog.get(address);
-			writeLogEntry.locks.unlockWLock();
+		try {
+			for (Address address : this.writeLog.keySet()) {
+				WriteLogEntry writeLogEntry = this.writeLog.get(address);
+				writeLogEntry.locks.unlockWLock();
+			}
+			// TODO: cm-on-rollback()
+		} finally {
+			irrevocableAccessLock.readLock().unlock();
 		}
-		// TODO: cm-on-rollback()
 	}
 
 	private boolean extend() {
@@ -313,6 +337,11 @@ final public class Context implements org.deuce.transaction.Context {
 
 	@Override
 	public void onIrrevocableAccess() {
-		// TODO Auto-generated method stub
+		if (this.irrevocableState) { // already in irrevocable state so no need to restart transaction
+			return;
+		}
+
+		this.irrevocableState = true;
+		throw TransactionException.STATIC_TRANSACTION;
 	}
 }
