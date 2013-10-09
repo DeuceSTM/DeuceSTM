@@ -7,8 +7,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.deuce.transaction.TransactionException;
-import org.deuce.transaction.lsa.field.Field.Type;
 import org.deuce.transaction.swisstm.field.AddressLocks;
+import org.deuce.transaction.swisstm.field.Field;
+import org.deuce.transaction.swisstm.field.Field.Type;
 import org.deuce.transform.Exclude;
 
 /**
@@ -18,10 +19,6 @@ import org.deuce.transform.Exclude;
  *  - irrevocableState
  *  - RO_HINT
  *  - Contention Manager
- *  - rollback
- *  - commit
- *  - validate
- *  - TODOs in read and write
  *
  * @author Daniel Pinto
  */
@@ -46,7 +43,6 @@ final public class Context implements org.deuce.transaction.Context {
 
 	private Object readValue;
 
-	// TODO: Isolate these into classes to hide Address class
 	private final Map<Address, ReadLogEntry> readLog;
 	private final Map<Address, WriteLogEntry> writeLog;
 	private final Set<Address> readLockedAddresses;
@@ -63,16 +59,50 @@ final public class Context implements org.deuce.transaction.Context {
 		this.validTS = commitTS.get();
 	}
 
+	private boolean isReadOnly() {
+		return this.writeLog.size() == 0;
+	}
+
 	@Override
 	public boolean commit() {
-		// TODO Auto-generated method stub
-		return false;
+		if (isReadOnly()) {
+			return true;
+		}
+
+		// Lock r-locks of read addresses
+		for (Address address : this.readLog.keySet()) {
+			ReadLogEntry readLogEntry = this.readLog.get(address);
+			readLogEntry.locks.lockRLock();
+			this.readLockedAddresses.add(address);
+		}
+
+		int ts = commitTS.incrementAndGet();
+		if (ts > this.validTS + 1 && !validate()) {
+			for (Address address : this.readLog.keySet()) {
+				ReadLogEntry readLogEntry = this.readLog.get(address);
+				readLogEntry.locks.unlockRLock(readLogEntry.version);
+			}
+
+			// rollback call needed???
+			return false;
+		}
+
+		for (Address address : this.writeLog.keySet()) {
+			WriteLogEntry writeLogEntry = this.writeLog.get(address);
+			Field.putValue(address.object, address.field, writeLogEntry.value, address.type);
+			writeLogEntry.locks.unlockRLock(ts);
+			writeLogEntry.locks.unlockWLock();
+		}
+		return true;
 	}
 
 	@Override
 	public void rollback() {
-		// TODO Auto-generated method stub
-
+		for (Address address : this.writeLog.keySet()) {
+			WriteLogEntry writeLogEntry = this.writeLog.get(address);
+			writeLogEntry.locks.unlockWLock();
+		}
+		// TODO: cm-on-rollback()
 	}
 
 	private boolean extend() {
@@ -86,11 +116,32 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	private boolean validate() {
-		// TODO
+		for (Address address : this.readLog.keySet()) {
+			ReadLogEntry readLogEntry = this.readLog.get(address);
+			if (readLogEntry.version != readLogEntry.locks.getRLockVersion() &&
+					!this.readLockedAddresses.contains(address)) {
+				return false;
+			}
+		}
 		return true;
 	}
 
+	private void addToReadLog(Object obj, long field, Type type, AddressLocks locks, int version) {
+		Address address = new Address(obj, field, type);
+		ReadLogEntry newEntry = new ReadLogEntry(locks, version);
+		this.readLog.put(address, newEntry);
+	}
 
+	private void addToWriteLog(Object obj, long field, Type type, AddressLocks locks, Object value) {
+		Address address = new Address(obj, field, type);
+		WriteLogEntry newEntry = new WriteLogEntry(locks, value);
+		this.writeLog.put(address, newEntry);
+	}
+
+	private Object getFromWriteLog(Object obj, long field, Type type) {
+		Address address = new Address(obj, field, type);
+		return this.writeLog.get(address);
+	}
 
 	@Override
 	public void beforeReadAccess(Object obj, long field) {
@@ -101,11 +152,11 @@ final public class Context implements org.deuce.transaction.Context {
 	// Returns true if the value should be read from memory or false
 	// if it is in readValue
 	private boolean onReadAccess(Object obj, long field, Type type) {
-		AddressLocks locks = lockTable.getLocks(obj, field);
+		AddressLocks locks = lockTable.getLocks(obj, field, type);
 		boolean shouldReturnLogValue = true;
 
 		if (locks.getWLockThreadID() == this.id) { // Locked by me?
-			// TODO: Put the value last written in this.readValue
+			this.readValue = getFromWriteLog(obj, field, type);
 			return shouldReturnLogValue;
 		}
 
@@ -127,7 +178,7 @@ final public class Context implements org.deuce.transaction.Context {
 			version2 = version;
 		}
 
-		// TODO: Add lock to list of locks locked by this tx
+		addToReadLog(obj, field, type, locks, version);
 
 		if (version > this.validTS && !extend()) {
 			// Is calling rollback needed???
@@ -138,10 +189,10 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	private void onWriteAccess(Object obj, long field, Object value, Type type) {
-		AddressLocks locks = lockTable.getLocks(obj, field);
+		AddressLocks locks = lockTable.getLocks(obj, field, type);
 
 		if (locks.getWLockThreadID() == this.id) { // Locked by me?
-			// TODO: update-log-entry(w-lock, addr, value)
+			addToWriteLog(obj, field, type, locks, value);
 			return;
 		}
 
@@ -153,8 +204,8 @@ final public class Context implements org.deuce.transaction.Context {
 
 				throw WRITE_FAILURE_EXCEPTION;
 			}
-			// TODO
-			// add-to-write-log(tx, w-lock, addr, value)
+
+			addToWriteLog(obj, field, type, locks, value);
 
 			if (locks.casWLock(AddressLocks.WRITE_UNLOCKED, this.id)) {
 				break;

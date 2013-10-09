@@ -4,18 +4,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.deuce.transaction.swisstm.field.AddressLocks;
+import org.deuce.transaction.swisstm.field.Field.Type;
 import org.deuce.transform.Exclude;
 
 @Exclude
 public class LockTable {
 	private final ConcurrentMap<Address, AddressLocks> objectsMap;
-	
+
 	public LockTable() {
 		this.objectsMap = new ConcurrentHashMap<Address, AddressLocks>();
 	}
-	
-	public AddressLocks getLocks(Object obj, long field) {
-		Address address = new Address(obj, field);
+
+	public AddressLocks getLocks(Object obj, long field, Type type) {
+		Address address = new Address(obj, field, type);
 		return this.objectsMap.putIfAbsent(address, new AddressLocks());
 	}
 }
