@@ -22,8 +22,9 @@ public class AddressLocks {
 	}
 
 	public int getWLockThreadID() {
-		if (isLocked(this.wLock)) {
-			return this.wLock.get() >> 1;
+		int lockValue = this.wLock.get();
+		if (isLocked(lockValue)) {
+			return lockValue >> 1;
 		} else {
 			return WRITE_UNLOCKED;
 		}
@@ -38,10 +39,11 @@ public class AddressLocks {
 	}
 
 	public int getRLockVersion() {
-		if (isLocked(this.rLock)) {
+		int lockValue = this.rLock.get();
+		if (isLocked(lockValue)) {
 			return READ_LOCKED;
 		} else {
-			return this.rLock.get() >> 1;
+			return lockValue >> 1;
 		}
 	}
 
@@ -60,7 +62,7 @@ public class AddressLocks {
 		return this.wLock.compareAndSet(expect, update);
 	}
 
-	private boolean isLocked(AtomicInteger lock) {
-		return (lock.get() & 1) == 1;
+	private boolean isLocked(int lockValue) {
+		return (lockValue & 1) == 1;
 	}
 }
