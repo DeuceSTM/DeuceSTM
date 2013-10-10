@@ -24,7 +24,7 @@ public class AddressLocks {
 	public int getWLockThreadID() {
 		int lockValue = this.wLock.get();
 		if (isLocked(lockValue)) {
-			return lockValue >> 1;
+			return lockValue >>> 1;
 		} else {
 			return WRITE_UNLOCKED;
 		}
@@ -43,7 +43,7 @@ public class AddressLocks {
 		if (isLocked(lockValue)) {
 			return READ_LOCKED;
 		} else {
-			return lockValue >> 1;
+			return lockValue >>> 1;
 		}
 	}
 

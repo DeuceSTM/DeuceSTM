@@ -75,7 +75,6 @@ public final class Context implements org.deuce.transaction.Context {
 
 	private Object onReadAccess(Object obj, long field, Type type) {
 		AddressLocks locks = lockTable.getLocks(obj, field, type);
-
 		if (locks.getWLockThreadID() == this.id) { // Locked by me?
 			return getFromWriteLog(obj, field, type);
 		}
@@ -108,7 +107,6 @@ public final class Context implements org.deuce.transaction.Context {
 
 	private void onWriteAccess(Object obj, long field, Object value, Type type) {
 		AddressLocks locks = lockTable.getLocks(obj, field, type);
-
 		if (locks.getWLockThreadID() == this.id) { // Locked by me?
 			addToWriteLog(obj, field, type, locks, value);
 			return;
@@ -197,8 +195,8 @@ public final class Context implements org.deuce.transaction.Context {
 		for (Address address : this.readLog.keySet()) {
 			ReadLogEntry readLogEntry = this.readLog.get(address);
 			boolean wasEntryChanged = readLogEntry.version != readLogEntry.locks.getRLockVersion();
-			boolean wasChangedByMe = this.readLockedAddresses.contains(address);
-			if (wasEntryChanged && !wasChangedByMe) {
+			boolean isLockedByMe = this.readLockedAddresses.contains(address);
+			if (wasEntryChanged && !isLockedByMe) {
 				return false;
 			}
 		}
@@ -211,7 +209,6 @@ public final class Context implements org.deuce.transaction.Context {
 			this.validTS = ts;
 			return true;
 		}
-
 		return false;
 	}
 
