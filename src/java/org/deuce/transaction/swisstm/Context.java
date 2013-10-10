@@ -23,7 +23,7 @@ import org.deuce.transform.Exclude;
  * @author Daniel Pinto
  */
 @Exclude
-final public class Context implements org.deuce.transaction.Context {
+public final class Context implements org.deuce.transaction.Context {
 
 	// Exceptions
 	private static final TransactionException WRITE_FAILURE_EXCEPTION =
@@ -33,7 +33,8 @@ final public class Context implements org.deuce.transaction.Context {
 			new TransactionException("Fail on read.");
 
 	// Global lock used to allow only one irrevocable transaction solely.
-	private final static ReentrantReadWriteLock irrevocableAccessLock = new ReentrantReadWriteLock();
+	private final static ReentrantReadWriteLock irrevocableAccessLock =
+			new ReentrantReadWriteLock();
 	private boolean irrevocableState = false;
 
 	// Global variables
@@ -44,18 +45,15 @@ final public class Context implements org.deuce.transaction.Context {
 	// Transaction local variables
 	private final int id;
 	private int validTS;
-
-	private Object readValue;
-
 	private final Map<Address, ReadLogEntry> readLog;
 	private final Map<Address, WriteLogEntry> writeLog;
 	private final Set<Address> readLockedAddresses;
 
 	public Context() {
-		this.id = threadID.incrementAndGet();
 		this.readLog = new HashMap<Address, ReadLogEntry>();
 		this.writeLog = new HashMap<Address, WriteLogEntry>();
 		this.readLockedAddresses = new HashSet<Address>();
+		this.id = threadID.incrementAndGet();
 	}
 
 	@Override
@@ -67,14 +65,77 @@ final public class Context implements org.deuce.transaction.Context {
 			irrevocableAccessLock.readLock().lock();
 		}
 
+		// Clear logs
 		this.readLog.clear();
 		this.writeLog.clear();
 		this.readLockedAddresses.clear();
 		this.validTS = commitTS.get();
+		// TODO: cm-start(tx)
 	}
 
-	private boolean isReadOnly() {
-		return this.writeLog.size() == 0;
+	private Object onReadAccess(Object obj, long field, Type type) {
+		AddressLocks locks = lockTable.getLocks(obj, field, type);
+
+		if (locks.getWLockThreadID() == this.id) { // Locked by me?
+			return getFromWriteLog(obj, field, type);
+		}
+
+		// Get a consistent reading of the value
+		Object value;
+		int version = locks.getRLockVersion();
+		int version2;
+		while (true) {
+			if (version == AddressLocks.READ_LOCKED) {
+				version = locks.getRLockVersion();
+				continue;
+			}
+			value = Field.getValue(obj, field, type);
+			version2 = locks.getRLockVersion();
+			if (version == version2) {
+				break;
+			}
+			version2 = version;
+		}
+
+		addToReadLog(obj, field, type, locks, version);
+		if (version > this.validTS && !extend()) {
+			// Is calling rollback needed???
+			throw READ_FAILURE_EXCEPTION;
+		}
+
+		return value;
+	}
+
+	private void onWriteAccess(Object obj, long field, Object value, Type type) {
+		AddressLocks locks = lockTable.getLocks(obj, field, type);
+
+		if (locks.getWLockThreadID() == this.id) { // Locked by me?
+			addToWriteLog(obj, field, type, locks, value);
+			return;
+		}
+
+		while (true) {
+			if (locks.getWLockThreadID() != AddressLocks.WRITE_UNLOCKED) {
+				// TODO
+				// if cm-should-abort(tx, w-lock) then rollback()
+				// else continue
+
+				throw WRITE_FAILURE_EXCEPTION;
+			}
+
+			addToWriteLog(obj, field, type, locks, value);
+
+			if (locks.casWLock(AddressLocks.WRITE_UNLOCKED, this.id)) {
+				break;
+			}
+		}
+
+		if (locks.getRLockVersion() > this.validTS && !extend()) {
+			// Is calling rollback needed???
+			throw WRITE_FAILURE_EXCEPTION;
+		}
+
+		// TODO: cm-on-write(tx)
 	}
 
 	@Override
@@ -132,6 +193,18 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 	}
 
+	private boolean validate() {
+		for (Address address : this.readLog.keySet()) {
+			ReadLogEntry readLogEntry = this.readLog.get(address);
+			boolean wasEntryChanged = readLogEntry.version != readLogEntry.locks.getRLockVersion();
+			boolean wasChangedByMe = this.readLockedAddresses.contains(address);
+			if (wasEntryChanged && !wasChangedByMe) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private boolean extend() {
 		int ts = commitTS.get();
 		if (validate()) {
@@ -140,17 +213,6 @@ final public class Context implements org.deuce.transaction.Context {
 		}
 
 		return false;
-	}
-
-	private boolean validate() {
-		for (Address address : this.readLog.keySet()) {
-			ReadLogEntry readLogEntry = this.readLog.get(address);
-			if (readLogEntry.version != readLogEntry.locks.getRLockVersion() &&
-					!this.readLockedAddresses.contains(address)) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	private void addToReadLog(Object obj, long field, Type type, AddressLocks locks, int version) {
@@ -170,127 +232,53 @@ final public class Context implements org.deuce.transaction.Context {
 		return this.writeLog.get(address);
 	}
 
-	@Override
-	public void beforeReadAccess(Object obj, long field) {
-		// Useless for SwissTM
-
-	}
-
-	// Returns true if the value should be read from memory or false
-	// if it is in readValue
-	private boolean onReadAccess(Object obj, long field, Type type) {
-		AddressLocks locks = lockTable.getLocks(obj, field, type);
-		boolean shouldReturnLogValue = true;
-
-		if (locks.getWLockThreadID() == this.id) { // Locked by me?
-			this.readValue = getFromWriteLog(obj, field, type);
-			return shouldReturnLogValue;
-		}
-
-		int version = locks.getRLockVersion();
-		int version2;
-		while (true) {
-			if (version == AddressLocks.READ_LOCKED) {
-				version = locks.getRLockVersion();
-				continue;
-			}
-
-			shouldReturnLogValue = false;
-
-			version2 = locks.getRLockVersion();
-			if (version == version2) {
-				break;
-			}
-
-			version2 = version;
-		}
-
-		addToReadLog(obj, field, type, locks, version);
-
-		if (version > this.validTS && !extend()) {
-			// Is calling rollback needed???
-			throw READ_FAILURE_EXCEPTION;
-		}
-
-		return shouldReturnLogValue;
-	}
-
-	private void onWriteAccess(Object obj, long field, Object value, Type type) {
-		AddressLocks locks = lockTable.getLocks(obj, field, type);
-
-		if (locks.getWLockThreadID() == this.id) { // Locked by me?
-			addToWriteLog(obj, field, type, locks, value);
-			return;
-		}
-
-		while (true) {
-			if (locks.getWLockThreadID() != AddressLocks.WRITE_UNLOCKED) {
-				// TODO
-				// if cm-should-abort(tx, w-lock) then rollback()
-				// else continue
-
-				throw WRITE_FAILURE_EXCEPTION;
-			}
-
-			addToWriteLog(obj, field, type, locks, value);
-
-			if (locks.casWLock(AddressLocks.WRITE_UNLOCKED, this.id)) {
-				break;
-			}
-		}
-
-		if (locks.getRLockVersion() > this.validTS && !extend()) {
-			// Is calling rollback needed???
-			throw WRITE_FAILURE_EXCEPTION;
-		}
-
-		// TODO: cm-on-write(tx)
-
+	private boolean isReadOnly() {
+		return this.writeLog.size() == 0;
 	}
 
 	@Override
 	public Object onReadAccess(Object obj, Object value, long field) {
-		return (onReadAccess(obj, field, Type.OBJECT) ? this.readValue : value);
+		return onReadAccess(obj, field, Type.OBJECT);
 	}
 
 	@Override
 	public boolean onReadAccess(Object obj, boolean value, long field) {
-		return (onReadAccess(obj, field, Type.BOOLEAN) ? (Boolean) this.readValue : value);
+		return (Boolean) onReadAccess(obj, field, Type.BOOLEAN);
 	}
 
 	@Override
 	public byte onReadAccess(Object obj, byte value, long field) {
-		return (onReadAccess(obj, field, Type.BYTE) ? ((Number) this.readValue).byteValue() : value);
+		return ((Number) onReadAccess(obj, field, Type.BYTE)).byteValue();
 	}
 
 	@Override
 	public char onReadAccess(Object obj, char value, long field) {
-		return (onReadAccess(obj, field, Type.CHAR) ? (Character) this.readValue : value);
+		return (Character) onReadAccess(obj, field, Type.CHAR);
 	}
 
 	@Override
 	public short onReadAccess(Object obj, short value, long field) {
-		return (onReadAccess(obj, field, Type.SHORT) ? ((Number) this.readValue).shortValue() : value);
+		return ((Number) onReadAccess(obj, field, Type.SHORT)).shortValue();
 	}
 
 	@Override
 	public int onReadAccess(Object obj, int value, long field) {
-		return (onReadAccess(obj, field, Type.INT) ? ((Number) this.readValue).intValue() : value);
+		return ((Number) onReadAccess(obj, field, Type.INT)).intValue();
 	}
 
 	@Override
 	public long onReadAccess(Object obj, long value, long field) {
-		return (onReadAccess(obj, field, Type.LONG) ? ((Number) this.readValue).longValue() : value);
+		return ((Number) onReadAccess(obj, field, Type.LONG)).longValue();
 	}
 
 	@Override
 	public float onReadAccess(Object obj, float value, long field) {
-		return (onReadAccess(obj, field, Type.FLOAT) ? ((Number) this.readValue).floatValue() : value);
+		return ((Number) onReadAccess(obj, field, Type.FLOAT)).floatValue();
 	}
 
 	@Override
 	public double onReadAccess(Object obj, double value, long field) {
-		return (onReadAccess(obj, field, Type.DOUBLE) ? ((Number) this.readValue).doubleValue() : value);
+		return ((Number) onReadAccess(obj, field, Type.DOUBLE)).doubleValue();
 	}
 
 	@Override
@@ -339,8 +327,13 @@ final public class Context implements org.deuce.transaction.Context {
 	}
 
 	@Override
+	public void beforeReadAccess(Object obj, long field) {
+		// Useless for SwissTM
+	}
+
+	@Override
 	public void onIrrevocableAccess() {
-		if (this.irrevocableState) { // already in irrevocable state so no need to restart transaction
+		if (this.irrevocableState) { // Already in irrevocable state so no need to restart transaction
 			return;
 		}
 
