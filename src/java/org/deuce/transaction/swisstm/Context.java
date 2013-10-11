@@ -19,6 +19,7 @@ import org.deuce.transform.Exclude;
  * TODO:
  *  - RO_HINT
  *  - Contention Manager
+ *  - In commit, read-log should be write log
  *
  * @author Daniel Pinto
  */
@@ -38,7 +39,7 @@ public final class Context implements org.deuce.transaction.Context {
 	private boolean irrevocableState = false;
 
 	// Global variables
-	private static final AtomicInteger threadID = new AtomicInteger(1);
+	private static final AtomicInteger threadID = new AtomicInteger(0);
 	private static final AtomicInteger commitTS = new AtomicInteger(0);
 	private static final LockTable lockTable = new LockTable();
 
@@ -93,7 +94,7 @@ public final class Context implements org.deuce.transaction.Context {
 			if (version == version2) {
 				break;
 			}
-			version2 = version;
+			version = version2;
 		}
 
 		addToReadLog(obj, field, type, locks, version);
