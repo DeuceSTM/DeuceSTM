@@ -38,12 +38,12 @@ public final class Context implements org.deuce.transaction.Context {
 	private boolean irrevocableState = false;
 
 	// Global variables
-	private static final AtomicInteger threadID = new AtomicInteger(0);
+	private static final AtomicInteger transactionID = new AtomicInteger(0);
 	private static final AtomicInteger commitTS = new AtomicInteger(0);
 	private static final LockTable lockTable = new LockTable();
 
 	// Transaction local variables
-	private final int id;
+	private int id;
 	private int validTS;
 	private final Map<Address, ReadLogEntry> readLog;
 	private final Map<Address, WriteLogEntry> writeLog;
@@ -53,7 +53,6 @@ public final class Context implements org.deuce.transaction.Context {
 		this.readLog = new HashMap<Address, ReadLogEntry>();
 		this.writeLog = new HashMap<Address, WriteLogEntry>();
 		this.readLockedAddresses = new HashSet<Address>();
-		this.id = threadID.incrementAndGet();
 	}
 
 	@Override
@@ -69,6 +68,7 @@ public final class Context implements org.deuce.transaction.Context {
 		this.readLog.clear();
 		this.writeLog.clear();
 		this.readLockedAddresses.clear();
+		this.id = transactionID.incrementAndGet();
 		this.validTS = commitTS.get();
 		// TODO: cm-start(tx)
 	}
