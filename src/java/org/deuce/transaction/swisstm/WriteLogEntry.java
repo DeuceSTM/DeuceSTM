@@ -6,10 +6,12 @@ import org.deuce.transform.Exclude;
 @Exclude
 public class WriteLogEntry {
 	public final AddressLocks locks;
-	public final Object value;
+	public Object value;
+	public final int version;
 
-	public WriteLogEntry(AddressLocks locks, Object value) {
+	public WriteLogEntry(AddressLocks locks, Object value, int version) {
 		this.locks = locks;
 		this.value = value;
+		this.version = version;
 	}
 }

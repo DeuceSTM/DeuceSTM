@@ -19,7 +19,6 @@ import org.deuce.transform.Exclude;
  * TODO:
  *  - RO_HINT
  *  - Contention Manager
- *  - In commit, read-log should be write log
  *
  * @author Daniel Pinto
  */
@@ -99,7 +98,6 @@ public final class Context implements org.deuce.transaction.Context {
 
 		addToReadLog(obj, field, type, locks, version);
 		if (version > this.validTS && !extend()) {
-			// Is calling rollback needed???
 			throw READ_FAILURE_EXCEPTION;
 		}
 
@@ -109,7 +107,7 @@ public final class Context implements org.deuce.transaction.Context {
 	private void onWriteAccess(Object obj, long field, Object value, Type type) {
 		AddressLocks locks = lockTable.getLocks(obj, field, type);
 		if (locks.getWLockThreadID() == this.id) { // Locked by me?
-			addToWriteLog(obj, field, type, locks, value);
+			updateWriteLog(obj, field, type, value);
 			return;
 		}
 
@@ -122,15 +120,15 @@ public final class Context implements org.deuce.transaction.Context {
 				throw WRITE_FAILURE_EXCEPTION;
 			}
 
-			addToWriteLog(obj, field, type, locks, value);
-
 			if (locks.casWLock(AddressLocks.WRITE_UNLOCKED, this.id)) {
 				break;
 			}
 		}
 
-		if (locks.getRLockVersion() > this.validTS && !extend()) {
-			// Is calling rollback needed???
+		int version = locks.getRLockVersion();
+		addToWriteLog(obj, field, type, locks, value, version);
+
+		if (version > this.validTS && !extend()) {
 			throw WRITE_FAILURE_EXCEPTION;
 		}
 
@@ -144,24 +142,24 @@ public final class Context implements org.deuce.transaction.Context {
 				return true;
 			}
 
-			// Lock r-locks of read addresses
-			for (Address address : this.readLog.keySet()) {
-				ReadLogEntry readLogEntry = this.readLog.get(address);
-				readLogEntry.locks.lockRLock();
+			// Lock r-locks of written addresses
+			for (Address address : this.writeLog.keySet()) {
+				WriteLogEntry writeLogEntry = this.writeLog.get(address);
+				writeLogEntry.locks.lockRLock();
 				this.readLockedAddresses.add(address);
 			}
 
 			int ts = commitTS.incrementAndGet();
 			if (ts > this.validTS + 1 && !validate()) {
-				for (Address address : this.readLog.keySet()) {
-					ReadLogEntry readLogEntry = this.readLog.get(address);
-					readLogEntry.locks.unlockRLock(readLogEntry.version);
+				// Restore r-locks to previous values
+				for (Address address : this.writeLog.keySet()) {
+					WriteLogEntry writeLogEntry = this.writeLog.get(address);
+					writeLogEntry.locks.unlockRLock(writeLogEntry.version);
 				}
-
-				// rollback call needed???
 				return false;
 			}
 
+			// Write values and unlock locks
 			for (Address address : this.writeLog.keySet()) {
 				WriteLogEntry writeLogEntry = this.writeLog.get(address);
 				Field.putValue(address.object, address.field, writeLogEntry.value, address.type);
@@ -219,10 +217,16 @@ public final class Context implements org.deuce.transaction.Context {
 		this.readLog.put(address, newEntry);
 	}
 
-	private void addToWriteLog(Object obj, long field, Type type, AddressLocks locks, Object value) {
+	private void addToWriteLog(Object obj, long field, Type type, AddressLocks locks, Object value, int version) {
 		Address address = new Address(obj, field, type);
-		WriteLogEntry newEntry = new WriteLogEntry(locks, value);
+		WriteLogEntry newEntry = new WriteLogEntry(locks, value, version);
 		this.writeLog.put(address, newEntry);
+	}
+
+	private void updateWriteLog(Object obj, long field, Type type, Object value) {
+		Address address = new Address(obj, field, type);
+		WriteLogEntry entry = this.writeLog.get(address);
+		entry.value = value;
 	}
 
 	private Object getFromWriteLog(Object obj, long field, Type type) {
