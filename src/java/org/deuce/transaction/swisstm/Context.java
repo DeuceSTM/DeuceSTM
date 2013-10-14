@@ -43,7 +43,7 @@ public final class Context implements org.deuce.transaction.Context {
 	private static final LockTable lockTable = new LockTable();
 
 	// Transaction local variables
-	private int id;
+	private final int id;
 	private int validTS;
 	private final Map<Address, ReadLogEntry> readLog;
 	private final Map<Address, WriteLogEntry> writeLog;
@@ -53,6 +53,7 @@ public final class Context implements org.deuce.transaction.Context {
 		this.readLog = new HashMap<Address, ReadLogEntry>();
 		this.writeLog = new HashMap<Address, WriteLogEntry>();
 		this.readLockedAddresses = new HashSet<Address>();
+		this.id = transactionID.incrementAndGet();
 	}
 
 	@Override
@@ -68,14 +69,13 @@ public final class Context implements org.deuce.transaction.Context {
 		this.readLog.clear();
 		this.writeLog.clear();
 		this.readLockedAddresses.clear();
-		this.id = transactionID.incrementAndGet();
 		this.validTS = commitTS.get();
 		// TODO: cm-start(tx)
 	}
 
 	private Object onReadAccess(Object obj, long field, Type type) {
 		AddressLocks locks = lockTable.getLocks(obj, field, type);
-		if (locks.getWLockThreadID() == this.id) { // Locked by me?
+		if (locks.getWLockTransactionID() == this.id) { // Locked by me?
 			return getFromWriteLog(obj, field, type);
 		}
 
@@ -106,13 +106,13 @@ public final class Context implements org.deuce.transaction.Context {
 
 	private void onWriteAccess(Object obj, long field, Object value, Type type) {
 		AddressLocks locks = lockTable.getLocks(obj, field, type);
-		if (locks.getWLockThreadID() == this.id) { // Locked by me?
+		if (locks.getWLockTransactionID() == this.id) { // Locked by me?
 			updateWriteLog(obj, field, type, value);
 			return;
 		}
 
 		while (true) {
-			if (locks.getWLockThreadID() != AddressLocks.WRITE_UNLOCKED) {
+			if (locks.getWLockTransactionID() != AddressLocks.WRITE_UNLOCKED) {
 				// TODO
 				// if cm-should-abort(tx, w-lock) then rollback()
 				// else continue
@@ -231,7 +231,8 @@ public final class Context implements org.deuce.transaction.Context {
 
 	private Object getFromWriteLog(Object obj, long field, Type type) {
 		Address address = new Address(obj, field, type);
-		return this.writeLog.get(address);
+		WriteLogEntry logEntry = this.writeLog.get(address);
+		return logEntry.value;
 	}
 
 	private boolean isReadOnly() {

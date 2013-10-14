@@ -21,7 +21,7 @@ public class AddressLocks {
 		this.wLock = new AtomicInteger(wLock);
 	}
 
-	public int getWLockThreadID() {
+	public int getWLockTransactionID() {
 		int lockValue = this.wLock.get();
 		if (isLocked(lockValue)) {
 			return lockValue >>> 1;
@@ -30,8 +30,8 @@ public class AddressLocks {
 		}
 	}
 
-	public void lockWLock(int threadID) {
-		this.wLock.set((threadID << 1) | 1);
+	public void lockWLock(int transactionID) {
+		this.wLock.set(getWLockNormalizedValue(transactionID));
 	}
 
 	public void unlockWLock() {
@@ -55,14 +55,21 @@ public class AddressLocks {
 		this.rLock.set(version << 1);
 	}
 
-	public boolean casWLock(int expect, int update) {
-		if (expect == WRITE_UNLOCKED) {
-			expect = 0;
-		}
-		return this.wLock.compareAndSet(expect, update);
+	public boolean casWLock(int expectTransactionID, int newTransactionID) {
+		expectTransactionID = getWLockNormalizedValue(expectTransactionID);
+		newTransactionID =  getWLockNormalizedValue(newTransactionID);
+		return this.wLock.compareAndSet(expectTransactionID, newTransactionID);
 	}
 
 	private boolean isLocked(int lockValue) {
 		return (lockValue & 1) == 1;
+	}
+
+	private int getWLockNormalizedValue(int transactionID) {
+		if (transactionID == WRITE_UNLOCKED) {
+			return 0;
+		} else {
+			return (transactionID << 1) | 1;
+		}
 	}
 }
