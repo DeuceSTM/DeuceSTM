@@ -10,14 +10,14 @@ import org.deuce.transaction.swisstm.Context;
 
 public class TwoPhaseContentionManager implements ContentionManager {
 
-	private static final int GREEDY_PHASE_THRESHOLD = 10;
 	/*
-	 * SwissTM uses cycles instead of ns. Java was no way of
+	 * SwissTM uses cycles instead of ns. Java has no way of
 	 * getting the CPU cycles. SwissTM uses 8000 cycles as
 	 * a multiplicator. At 2GHz, 1 ns is 2 cycles, so I
 	 * halved their value to convert to ns.
 	 */
 	private static final int WAIT_NS_MULTIPLICATOR = 4000;
+	private static final int GREEDY_PHASE_THRESHOLD = 10;
 
 	// Global variables
 	private static final AtomicInteger greedyTS = new AtomicInteger(0);
@@ -79,7 +79,7 @@ public class TwoPhaseContentionManager implements ContentionManager {
 		try {
 			Thread.sleep(0, waitTime);
 		} catch (InterruptedException e) {
-
+			// Do nothing
 		}
 	}
 

@@ -17,10 +17,7 @@ import org.deuce.transform.Exclude;
 
 /**
  * SwissTM implementation
- *
- * TODO:
- *  - RO_HINT
- *
+
  * @author Daniel Pinto
  */
 @Exclude
