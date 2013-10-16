@@ -6,8 +6,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.deuce.transaction.swisstm.Context;
+import org.deuce.transform.Exclude;
 
+@Exclude
 public class TwoPhaseContentionManager implements ContentionManager {
 
 	/*
@@ -21,8 +22,8 @@ public class TwoPhaseContentionManager implements ContentionManager {
 
 	// Global variables
 	private static final AtomicInteger greedyTS = new AtomicInteger(0);
-	private static final ConcurrentMap<Integer, Context> threadMap =
-			new ConcurrentHashMap<Integer, Context>();
+	private static final ConcurrentMap<Integer, TransactionWithCM> threadMap =
+			new ConcurrentHashMap<Integer, TransactionWithCM>();
 	private static final Random RANDOM = new Random();
 
 	// Transaction local variables
@@ -31,7 +32,7 @@ public class TwoPhaseContentionManager implements ContentionManager {
 	private int successiveAbortCount;
 	private boolean wasRestarted = false;
 
-	public TwoPhaseContentionManager(int threadID, Context thread) {
+	public TwoPhaseContentionManager(int threadID, TransactionWithCM thread) {
 		threadMap.put(threadID, thread);
 	}
 
@@ -62,7 +63,7 @@ public class TwoPhaseContentionManager implements ContentionManager {
 			return true;
 		}
 
-		Context lockOwner = threadMap.get(attackerID);
+		TransactionWithCM lockOwner = threadMap.get(attackerID);
 		if (lockOwner.getContentionManager().getTS() < this.cmTS) {
 			return true;
 		} else {

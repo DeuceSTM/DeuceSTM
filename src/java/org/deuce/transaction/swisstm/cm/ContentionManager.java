@@ -1,6 +1,8 @@
 package org.deuce.transaction.swisstm.cm;
 
+import org.deuce.transform.Exclude;
 
+@Exclude
 public interface ContentionManager {
 	public void start();
 	public void onWrite(int writeCount);

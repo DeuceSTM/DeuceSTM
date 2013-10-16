@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.swisstm.cm.ContentionManager;
+import org.deuce.transaction.swisstm.cm.TransactionWithCM;
 import org.deuce.transaction.swisstm.cm.TwoPhaseContentionManager;
 import org.deuce.transaction.swisstm.field.AddressLocks;
 import org.deuce.transaction.swisstm.field.Field;
@@ -21,7 +22,7 @@ import org.deuce.transform.Exclude;
  * @author Daniel Pinto
  */
 @Exclude
-public final class Context implements org.deuce.transaction.Context {
+public final class Context implements org.deuce.transaction.Context, TransactionWithCM {
 
 	// Exceptions
 	private static final TransactionException WRITE_FAILURE_EXCEPTION =
@@ -252,6 +253,7 @@ public final class Context implements org.deuce.transaction.Context {
 		return this.writeLog.size() == 0;
 	}
 
+	@Override
 	public ContentionManager getContentionManager() {
 		return this.contentionManager;
 	}
