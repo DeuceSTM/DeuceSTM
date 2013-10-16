@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.deuce.transaction.TransactionException;
+import org.deuce.transaction.swisstm.cm.ContentionManager;
+import org.deuce.transaction.swisstm.cm.TwoPhaseContentionManager;
 import org.deuce.transaction.swisstm.field.AddressLocks;
 import org.deuce.transaction.swisstm.field.Field;
 import org.deuce.transaction.swisstm.field.Field.Type;
@@ -18,7 +20,6 @@ import org.deuce.transform.Exclude;
  *
  * TODO:
  *  - RO_HINT
- *  - Contention Manager
  *
  * @author Daniel Pinto
  */
@@ -48,12 +49,14 @@ public final class Context implements org.deuce.transaction.Context {
 	private final Map<Address, ReadLogEntry> readLog;
 	private final Map<Address, WriteLogEntry> writeLog;
 	private final Set<Address> readLockedAddresses;
+	private final ContentionManager contentionManager;
 
 	public Context() {
 		this.readLog = new HashMap<Address, ReadLogEntry>();
 		this.writeLog = new HashMap<Address, WriteLogEntry>();
 		this.readLockedAddresses = new HashSet<Address>();
 		this.id = transactionID.incrementAndGet();
+		this.contentionManager = new TwoPhaseContentionManager(this.id, this);
 	}
 
 	@Override
@@ -70,10 +73,14 @@ public final class Context implements org.deuce.transaction.Context {
 		this.writeLog.clear();
 		this.readLockedAddresses.clear();
 		this.validTS = commitTS.get();
-		// TODO: cm-start(tx)
+		this.contentionManager.start();
 	}
 
 	private Object onReadAccess(Object obj, long field, Type type) {
+		if (this.contentionManager.wasAbortSignaled()) {
+			throw READ_FAILURE_EXCEPTION;
+		}
+
 		AddressLocks locks = lockTable.getLocks(obj, field, type);
 		if (locks.getWLockTransactionID() == this.id) { // Locked by me?
 			return getFromWriteLog(obj, field, type);
@@ -105,6 +112,10 @@ public final class Context implements org.deuce.transaction.Context {
 	}
 
 	private void onWriteAccess(Object obj, long field, Object value, Type type) {
+		if (this.contentionManager.wasAbortSignaled()) {
+			throw WRITE_FAILURE_EXCEPTION;
+		}
+
 		AddressLocks locks = lockTable.getLocks(obj, field, type);
 		if (locks.getWLockTransactionID() == this.id) { // Locked by me?
 			updateWriteLog(obj, field, type, value);
@@ -112,12 +123,13 @@ public final class Context implements org.deuce.transaction.Context {
 		}
 
 		while (true) {
-			if (locks.getWLockTransactionID() != AddressLocks.WRITE_UNLOCKED) {
-				// TODO
-				// if cm-should-abort(tx, w-lock) then rollback()
-				// else continue
-
-				throw WRITE_FAILURE_EXCEPTION;
+			int attackerID = locks.getWLockTransactionID();
+			if (attackerID != AddressLocks.WRITE_UNLOCKED) {
+				if (this.contentionManager.shouldAbort(attackerID)) {
+					throw WRITE_FAILURE_EXCEPTION;
+				} else {
+					continue;
+				}
 			}
 
 			if (locks.casWLock(AddressLocks.WRITE_UNLOCKED, this.id)) {
@@ -131,8 +143,7 @@ public final class Context implements org.deuce.transaction.Context {
 		if (version > this.validTS && !extend()) {
 			throw WRITE_FAILURE_EXCEPTION;
 		}
-
-		// TODO: cm-on-write(tx)
+		this.contentionManager.onWrite(this.writeLog.size());
 	}
 
 	@Override
@@ -140,6 +151,10 @@ public final class Context implements org.deuce.transaction.Context {
 		try {
 			if (isReadOnly()) {
 				return true;
+			}
+
+			if (this.contentionManager.wasAbortSignaled()) {
+				return false;
 			}
 
 			// Lock r-locks of written addresses
@@ -166,6 +181,7 @@ public final class Context implements org.deuce.transaction.Context {
 				writeLogEntry.locks.unlockRLock(ts);
 				writeLogEntry.locks.unlockWLock();
 			}
+			this.contentionManager.onCommit();
 			return true;
 		} finally {
 			if (this.irrevocableState){
@@ -184,7 +200,7 @@ public final class Context implements org.deuce.transaction.Context {
 				WriteLogEntry writeLogEntry = this.writeLog.get(address);
 				writeLogEntry.locks.unlockWLock();
 			}
-			// TODO: cm-on-rollback()
+			this.contentionManager.onRollback();
 		} finally {
 			irrevocableAccessLock.readLock().unlock();
 		}
@@ -237,6 +253,10 @@ public final class Context implements org.deuce.transaction.Context {
 
 	private boolean isReadOnly() {
 		return this.writeLog.size() == 0;
+	}
+
+	public ContentionManager getContentionManager() {
+		return this.contentionManager;
 	}
 
 	@Override
