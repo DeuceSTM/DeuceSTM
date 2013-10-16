@@ -1,11 +1,12 @@
-package org.deuce.transaction.swisstm.field;
+package org.deuce.transaction.swisstm;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.deuce.transaction.swisstm.Address;
+import org.deuce.transaction.swisstm.field.LockPair;
+import org.deuce.transaction.swisstm.field.ReadFieldAccess;
 import org.deuce.transform.Exclude;
 
 @Exclude

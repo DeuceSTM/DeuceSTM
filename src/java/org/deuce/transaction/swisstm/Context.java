@@ -11,8 +11,6 @@ import org.deuce.transaction.swisstm.cm.TwoPhaseContentionManager;
 import org.deuce.transaction.swisstm.field.Field;
 import org.deuce.transaction.swisstm.field.Field.Type;
 import org.deuce.transaction.swisstm.field.LockPair;
-import org.deuce.transaction.swisstm.field.ReadLog;
-import org.deuce.transaction.swisstm.field.WriteLog;
 import org.deuce.transform.Exclude;
 
 /**
