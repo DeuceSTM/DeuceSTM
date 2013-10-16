@@ -27,7 +27,9 @@ public final class Address {
 			return false;
 		}
 
-		Address address = (Address)obj;
+		Address address = (Address) obj;
+
+		// type depends on the address and field, no need to check it
 		return this.object == address.object && this.field == address.field;
 	}
 

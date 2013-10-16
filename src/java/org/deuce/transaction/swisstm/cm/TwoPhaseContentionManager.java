@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.deuce.transform.Exclude;
 
 @Exclude
-public class TwoPhaseContentionManager implements ContentionManager {
+public final class TwoPhaseContentionManager implements ContentionManager {
 
 	/*
 	 * SwissTM uses cycles instead of ns. Java has no way of

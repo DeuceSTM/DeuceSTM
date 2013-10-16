@@ -10,6 +10,15 @@ public interface ContentionManager {
 	public void onRollback();
 	public void onCommit();
 	public int getTS();
+
+	/*
+	 * These methods exist because rollback cannot
+	 * be called directly from the contention
+	 * manager. Calling rollback would cause problems
+	 * because it is being called from another thread.
+	 * Instead the transaction should check themselves
+	 * if they should abort.
+	 */
 	public void signalAbort();
 	public boolean wasAbortSignaled();
 }

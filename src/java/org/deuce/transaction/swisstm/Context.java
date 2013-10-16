@@ -1,9 +1,6 @@
 package org.deuce.transaction.swisstm;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -11,9 +8,11 @@ import org.deuce.transaction.TransactionException;
 import org.deuce.transaction.swisstm.cm.ContentionManager;
 import org.deuce.transaction.swisstm.cm.TransactionWithCM;
 import org.deuce.transaction.swisstm.cm.TwoPhaseContentionManager;
-import org.deuce.transaction.swisstm.field.AddressLocks;
 import org.deuce.transaction.swisstm.field.Field;
 import org.deuce.transaction.swisstm.field.Field.Type;
+import org.deuce.transaction.swisstm.field.LockPair;
+import org.deuce.transaction.swisstm.field.ReadLog;
+import org.deuce.transaction.swisstm.field.WriteLog;
 import org.deuce.transform.Exclude;
 
 /**
@@ -44,15 +43,13 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 	// Transaction local variables
 	private final int id;
 	private int validTS;
-	private final Map<Address, ReadLogEntry> readLog;
-	private final Map<Address, WriteLogEntry> writeLog;
-	private final Set<Address> readLockedAddresses;
+	private final ReadLog readLog;
+	private final WriteLog writeLog;
 	private final ContentionManager contentionManager;
 
 	public Context() {
-		this.readLog = new HashMap<Address, ReadLogEntry>();
-		this.writeLog = new HashMap<Address, WriteLogEntry>();
-		this.readLockedAddresses = new HashSet<Address>();
+		this.readLog = new ReadLog();
+		this.writeLog = new WriteLog();
 		this.id = transactionID.incrementAndGet();
 		this.contentionManager = new TwoPhaseContentionManager(this.id, this);
 	}
@@ -69,19 +66,20 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 		// Clear logs
 		this.readLog.clear();
 		this.writeLog.clear();
-		this.readLockedAddresses.clear();
+
 		this.validTS = commitTS.get();
+
 		this.contentionManager.start();
 	}
 
-	private Object onReadAccess(Object obj, long field, Type type) {
+	private Object onReadAccess(Address address) {
 		if (this.contentionManager.wasAbortSignaled()) {
 			throw READ_FAILURE_EXCEPTION;
 		}
 
-		AddressLocks locks = lockTable.getLocks(obj, field, type);
+		LockPair locks = lockTable.getLocks(address);
 		if (locks.getWLockTransactionID() == this.id) { // Locked by me?
-			return getFromWriteLog(obj, field, type);
+			return this.writeLog.get(address);
 		}
 
 		// Get a consistent reading of the value
@@ -89,11 +87,11 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 		int version = locks.getRLockVersion();
 		int version2;
 		while (true) {
-			if (version == AddressLocks.READ_LOCKED) {
+			if (version == LockPair.READ_LOCKED) {
 				version = locks.getRLockVersion();
 				continue;
 			}
-			value = Field.getValue(obj, field, type);
+			value = Field.getValue(address.object, address.field, address.type);
 			version2 = locks.getRLockVersion();
 			if (version == version2) {
 				break;
@@ -101,7 +99,7 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 			version = version2;
 		}
 
-		addToReadLog(obj, field, type, locks, version);
+		this.readLog.add(address, locks, version);
 		if (version > this.validTS && !extend()) {
 			throw READ_FAILURE_EXCEPTION;
 		}
@@ -109,20 +107,20 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 		return value;
 	}
 
-	private void onWriteAccess(Object obj, long field, Object value, Type type) {
+	private void onWriteAccess(Address address, Object value) {
 		if (this.contentionManager.wasAbortSignaled()) {
 			throw WRITE_FAILURE_EXCEPTION;
 		}
 
-		AddressLocks locks = lockTable.getLocks(obj, field, type);
+		LockPair locks = lockTable.getLocks(address);
 		if (locks.getWLockTransactionID() == this.id) { // Locked by me?
-			updateWriteLog(obj, field, type, value);
+			this.writeLog.update(address, value);
 			return;
 		}
 
 		while (true) {
 			int attackerID = locks.getWLockTransactionID();
-			if (attackerID != AddressLocks.WRITE_UNLOCKED) {
+			if (attackerID != LockPair.WRITE_UNLOCKED) {
 				if (this.contentionManager.shouldAbort(attackerID)) {
 					throw WRITE_FAILURE_EXCEPTION;
 				} else {
@@ -130,17 +128,18 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 				}
 			}
 
-			if (locks.casWLock(AddressLocks.WRITE_UNLOCKED, this.id)) {
+			if (locks.casWLock(LockPair.WRITE_UNLOCKED, this.id)) {
 				break;
 			}
 		}
 
 		int version = locks.getRLockVersion();
-		addToWriteLog(obj, field, type, locks, value, version);
+		this.writeLog.add(address, locks, value, version);
 
 		if (version > this.validTS && !extend()) {
 			throw WRITE_FAILURE_EXCEPTION;
 		}
+
 		this.contentionManager.onWrite(this.writeLog.size());
 	}
 
@@ -156,29 +155,22 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 			}
 
 			// Lock r-locks of written addresses
-			for (Address address : this.writeLog.keySet()) {
-				WriteLogEntry writeLogEntry = this.writeLog.get(address);
-				writeLogEntry.locks.lockRLock();
-				this.readLockedAddresses.add(address);
-			}
+			this.writeLog.lockReadLocks();
+			Collection<Address> readLockedAddresses = this.writeLog.getAddresses();
 
 			int ts = commitTS.incrementAndGet();
-			if (ts > this.validTS + 1 && !validate()) {
+
+			// Ignore the addresses read-locked by commit (ie, the written addresses)
+			// during validation
+			if (ts > this.validTS + 1 && !this.readLog.validate(readLockedAddresses)) {
 				// Restore r-locks to previous values
-				for (Address address : this.writeLog.keySet()) {
-					WriteLogEntry writeLogEntry = this.writeLog.get(address);
-					writeLogEntry.locks.unlockRLock(writeLogEntry.version);
-				}
+				this.writeLog.restoreReadLocks();
 				return false;
 			}
 
 			// Write values and unlock locks
-			for (Address address : this.writeLog.keySet()) {
-				WriteLogEntry writeLogEntry = this.writeLog.get(address);
-				Field.putValue(address.object, address.field, writeLogEntry.value, address.type);
-				writeLogEntry.locks.unlockRLock(ts);
-				writeLogEntry.locks.unlockWLock();
-			}
+			this.writeLog.commitValues(ts);
+
 			this.contentionManager.onCommit();
 			return true;
 		} finally {
@@ -194,59 +186,20 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 	@Override
 	public void rollback() {
 		try {
-			for (Address address : this.writeLog.keySet()) {
-				WriteLogEntry writeLogEntry = this.writeLog.get(address);
-				writeLogEntry.locks.unlockWLock();
-			}
+			this.writeLog.unlockWriteLocks();
 			this.contentionManager.onRollback();
 		} finally {
 			irrevocableAccessLock.readLock().unlock();
 		}
 	}
 
-	private boolean validate() {
-		for (Address address : this.readLog.keySet()) {
-			ReadLogEntry readLogEntry = this.readLog.get(address);
-			boolean wasEntryChanged = readLogEntry.version != readLogEntry.locks.getRLockVersion();
-			boolean isLockedByMe = this.readLockedAddresses.contains(address);
-			if (wasEntryChanged && !isLockedByMe) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	private boolean extend() {
 		int ts = commitTS.get();
-		if (validate()) {
+		if (this.readLog.validate()) {
 			this.validTS = ts;
 			return true;
 		}
 		return false;
-	}
-
-	private void addToReadLog(Object obj, long field, Type type, AddressLocks locks, int version) {
-		Address address = new Address(obj, field, type);
-		ReadLogEntry newEntry = new ReadLogEntry(locks, version);
-		this.readLog.put(address, newEntry);
-	}
-
-	private void addToWriteLog(Object obj, long field, Type type, AddressLocks locks, Object value, int version) {
-		Address address = new Address(obj, field, type);
-		WriteLogEntry newEntry = new WriteLogEntry(locks, value, version);
-		this.writeLog.put(address, newEntry);
-	}
-
-	private void updateWriteLog(Object obj, long field, Type type, Object value) {
-		Address address = new Address(obj, field, type);
-		WriteLogEntry entry = this.writeLog.get(address);
-		entry.value = value;
-	}
-
-	private Object getFromWriteLog(Object obj, long field, Type type) {
-		Address address = new Address(obj, field, type);
-		WriteLogEntry logEntry = this.writeLog.get(address);
-		return logEntry.value;
 	}
 
 	private boolean isReadOnly() {
@@ -260,92 +213,92 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 
 	@Override
 	public Object onReadAccess(Object obj, Object value, long field) {
-		return onReadAccess(obj, field, Type.OBJECT);
+		return onReadAccess(new Address(obj, field, Type.OBJECT));
 	}
 
 	@Override
 	public boolean onReadAccess(Object obj, boolean value, long field) {
-		return (Boolean) onReadAccess(obj, field, Type.BOOLEAN);
+		return (Boolean) onReadAccess(new Address(obj, field, Type.BOOLEAN));
 	}
 
 	@Override
 	public byte onReadAccess(Object obj, byte value, long field) {
-		return ((Number) onReadAccess(obj, field, Type.BYTE)).byteValue();
+		return ((Number) onReadAccess(new Address(obj, field, Type.BYTE))).byteValue();
 	}
 
 	@Override
 	public char onReadAccess(Object obj, char value, long field) {
-		return (Character) onReadAccess(obj, field, Type.CHAR);
+		return (Character) onReadAccess(new Address(obj, field, Type.CHAR));
 	}
 
 	@Override
 	public short onReadAccess(Object obj, short value, long field) {
-		return ((Number) onReadAccess(obj, field, Type.SHORT)).shortValue();
+		return ((Number) onReadAccess(new Address(obj, field, Type.SHORT))).shortValue();
 	}
 
 	@Override
 	public int onReadAccess(Object obj, int value, long field) {
-		return ((Number) onReadAccess(obj, field, Type.INT)).intValue();
+		return ((Number) onReadAccess(new Address(obj, field, Type.INT))).intValue();
 	}
 
 	@Override
 	public long onReadAccess(Object obj, long value, long field) {
-		return ((Number) onReadAccess(obj, field, Type.LONG)).longValue();
+		return ((Number) onReadAccess(new Address(obj, field, Type.LONG))).longValue();
 	}
 
 	@Override
 	public float onReadAccess(Object obj, float value, long field) {
-		return ((Number) onReadAccess(obj, field, Type.FLOAT)).floatValue();
+		return ((Number) onReadAccess(new Address(obj, field, Type.FLOAT))).floatValue();
 	}
 
 	@Override
 	public double onReadAccess(Object obj, double value, long field) {
-		return ((Number) onReadAccess(obj, field, Type.DOUBLE)).doubleValue();
+		return ((Number) onReadAccess(new Address(obj, field, Type.DOUBLE))).doubleValue();
 	}
 
 	@Override
 	public void onWriteAccess(Object obj, Object value, long field) {
-		onWriteAccess(obj, field, value, Type.OBJECT);
+		onWriteAccess(new Address(obj, field, Type.OBJECT), value);
 	}
 
 	@Override
 	public void onWriteAccess(Object obj, boolean value, long field) {
-		onWriteAccess(obj, field, value, Type.BOOLEAN);
+		onWriteAccess(new Address(obj, field, Type.BOOLEAN), value);
 	}
 
 	@Override
 	public void onWriteAccess(Object obj, byte value, long field) {
-		onWriteAccess(obj, field, value, Type.BYTE);
+		onWriteAccess(new Address(obj, field, Type.BYTE), value);
 	}
 
 	@Override
 	public void onWriteAccess(Object obj, char value, long field) {
-		onWriteAccess(obj, field, value, Type.CHAR);
+		onWriteAccess(new Address(obj, field, Type.CHAR), value);
 	}
 
 	@Override
 	public void onWriteAccess(Object obj, short value, long field) {
-		onWriteAccess(obj, field, value, Type.SHORT);
+		onWriteAccess(new Address(obj, field, Type.SHORT), value);
 	}
 
 	@Override
 	public void onWriteAccess(Object obj, int value, long field) {
-		onWriteAccess(obj, field, value, Type.INT);
+		onWriteAccess(new Address(obj, field, Type.INT), value);
 	}
 
 	@Override
 	public void onWriteAccess(Object obj, long value, long field) {
-		onWriteAccess(obj, field, value, Type.LONG);
+		onWriteAccess(new Address(obj, field, Type.LONG), value);
 	}
 
 	@Override
 	public void onWriteAccess(Object obj, float value, long field) {
-		onWriteAccess(obj, field, value, Type.FLOAT);
+		onWriteAccess(new Address(obj, field, Type.FLOAT), value);
 	}
 
 	@Override
 	public void onWriteAccess(Object obj, double value, long field) {
-		onWriteAccess(obj, field, value, Type.DOUBLE);
+		onWriteAccess(new Address(obj, field, Type.DOUBLE), value);
 	}
 
 	@Override

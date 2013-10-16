@@ -3,22 +3,24 @@ package org.deuce.transaction.swisstm;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.deuce.transaction.swisstm.field.AddressLocks;
-import org.deuce.transaction.swisstm.field.Field.Type;
+import org.deuce.transaction.swisstm.field.LockPair;
 import org.deuce.transform.Exclude;
 
+/**
+ * Maps each Address to a pair of a w-lock and a r-lock
+ */
 @Exclude
-public class LockTable {
-	private final ConcurrentMap<Address, AddressLocks> objectsMap;
+public final class LockTable {
+
+	private final ConcurrentMap<Address, LockPair> objectsMap;
 
 	public LockTable() {
-		this.objectsMap = new ConcurrentHashMap<Address, AddressLocks>();
+		this.objectsMap = new ConcurrentHashMap<Address, LockPair>();
 	}
 
-	public AddressLocks getLocks(Object obj, long field, Type type) {
-		Address address = new Address(obj, field, type);
-		AddressLocks newValue = new AddressLocks();
-		AddressLocks previousValue = this.objectsMap.putIfAbsent(address, newValue);
+	public LockPair getLocks(Address address) {
+		LockPair newValue = new LockPair();
+		LockPair previousValue = this.objectsMap.putIfAbsent(address, newValue);
 		return previousValue == null ? newValue : previousValue;
 	}
 }

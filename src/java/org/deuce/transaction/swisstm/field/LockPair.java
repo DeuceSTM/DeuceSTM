@@ -4,19 +4,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.deuce.transform.Exclude;
 
+/**
+ * Contains a r-lock and a w-lock
+ * r-lock can have a version number or the READ_LOCKED value
+ * w-lock can have a transaction id or the WRITE_UNLOCKED value
+ * 
+ * The values are internally represented by an int. The least significant
+ * bit tells if the lock is locked and the remaining bits contain the data
+ * (version or transaction id)
+ */
 @Exclude
-public class AddressLocks {
+public final class LockPair {
+
 	public static final int READ_LOCKED = -1;
 	public static final int WRITE_UNLOCKED = -1;
 
 	private final AtomicInteger rLock;
 	private final AtomicInteger wLock;
 
-	public AddressLocks() {
+	public LockPair() {
 		this(0, 0);
 	}
 
-	public AddressLocks(int rLock, int wLock) {
+	private LockPair(int rLock, int wLock) {
 		this.rLock = new AtomicInteger(rLock);
 		this.wLock = new AtomicInteger(wLock);
 	}
@@ -31,7 +41,7 @@ public class AddressLocks {
 	}
 
 	public void lockWLock(int transactionID) {
-		this.wLock.set(getWLockNormalizedValue(transactionID));
+		this.wLock.set(getWLockInternalValue(transactionID));
 	}
 
 	public void unlockWLock() {
@@ -56,8 +66,8 @@ public class AddressLocks {
 	}
 
 	public boolean casWLock(int expectTransactionID, int newTransactionID) {
-		expectTransactionID = getWLockNormalizedValue(expectTransactionID);
-		newTransactionID =  getWLockNormalizedValue(newTransactionID);
+		expectTransactionID = getWLockInternalValue(expectTransactionID);
+		newTransactionID =  getWLockInternalValue(newTransactionID);
 		return this.wLock.compareAndSet(expectTransactionID, newTransactionID);
 	}
 
@@ -65,7 +75,7 @@ public class AddressLocks {
 		return (lockValue & 1) == 1;
 	}
 
-	private int getWLockNormalizedValue(int transactionID) {
+	private int getWLockInternalValue(int transactionID) {
 		if (transactionID == WRITE_UNLOCKED) {
 			return 0;
 		} else {
