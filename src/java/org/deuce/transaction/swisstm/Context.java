@@ -41,13 +41,13 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 	// Transaction local variables
 	private final int id;
 	private int validTS;
-	private final ReadLog readLog;
-	private final WriteLog writeLog;
+	private final ReadSet readSet;
+	private final WriteSet writeSet;
 	private final ContentionManager contentionManager;
 
 	public Context() {
-		this.readLog = new ReadLog();
-		this.writeLog = new WriteLog();
+		this.readSet = new ReadSet();
+		this.writeSet = new WriteSet();
 		this.id = transactionID.incrementAndGet();
 		this.contentionManager = new TwoPhaseContentionManager(this.id, this);
 	}
@@ -61,9 +61,9 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 			irrevocableAccessLock.readLock().lock();
 		}
 
-		// Clear logs
-		this.readLog.clear();
-		this.writeLog.clear();
+		// Clear sets
+		this.readSet.clear();
+		this.writeSet.clear();
 
 		this.validTS = commitTS.get();
 
@@ -77,7 +77,7 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 
 		LockPair locks = lockTable.getLocks(address);
 		if (locks.getWLockTransactionID() == this.id) { // Locked by me?
-			return this.writeLog.get(address);
+			return this.writeSet.get(address);
 		}
 
 		// Get a consistent reading of the value
@@ -97,7 +97,7 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 			version = version2;
 		}
 
-		this.readLog.add(address, locks, version);
+		this.readSet.add(address, locks, version);
 		if (version > this.validTS && !extend()) {
 			throw READ_FAILURE_EXCEPTION;
 		}
@@ -112,7 +112,7 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 
 		LockPair locks = lockTable.getLocks(address);
 		if (locks.getWLockTransactionID() == this.id) { // Locked by me?
-			this.writeLog.update(address, value);
+			this.writeSet.update(address, value);
 			return;
 		}
 
@@ -132,13 +132,13 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 		}
 
 		int version = locks.getRLockVersion();
-		this.writeLog.add(address, locks, value, version);
+		this.writeSet.add(address, locks, value, version);
 
 		if (version > this.validTS && !extend()) {
 			throw WRITE_FAILURE_EXCEPTION;
 		}
 
-		this.contentionManager.onWrite(this.writeLog.size());
+		this.contentionManager.onWrite(this.writeSet.size());
 	}
 
 	@Override
@@ -153,21 +153,21 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 			}
 
 			// Lock r-locks of written addresses
-			this.writeLog.lockReadLocks();
-			Collection<Address> readLockedAddresses = this.writeLog.getAddresses();
+			this.writeSet.lockReadLocks();
+			Collection<Address> readLockedAddresses = this.writeSet.getAddresses();
 
 			int ts = commitTS.incrementAndGet();
 
 			// Ignore the addresses read-locked by commit (ie, the written addresses)
 			// during validation
-			if (ts > this.validTS + 1 && !this.readLog.validate(readLockedAddresses)) {
+			if (ts > this.validTS + 1 && !this.readSet.validate(readLockedAddresses)) {
 				// Restore r-locks to previous values
-				this.writeLog.restoreReadLocks();
+				this.writeSet.restoreReadLocks();
 				return false;
 			}
 
 			// Write values and unlock locks
-			this.writeLog.commitValues(ts);
+			this.writeSet.commitValues(ts);
 
 			this.contentionManager.onCommit();
 			return true;
@@ -184,7 +184,7 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 	@Override
 	public void rollback() {
 		try {
-			this.writeLog.unlockWriteLocks();
+			this.writeSet.unlockWriteLocks();
 			this.contentionManager.onRollback();
 		} finally {
 			irrevocableAccessLock.readLock().unlock();
@@ -193,7 +193,7 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 
 	private boolean extend() {
 		int ts = commitTS.get();
-		if (this.readLog.validate()) {
+		if (this.readSet.validate()) {
 			this.validTS = ts;
 			return true;
 		}
@@ -201,7 +201,7 @@ public final class Context implements org.deuce.transaction.Context, Transaction
 	}
 
 	private boolean isReadOnly() {
-		return this.writeLog.size() == 0;
+		return this.writeSet.size() == 0;
 	}
 
 	@Override

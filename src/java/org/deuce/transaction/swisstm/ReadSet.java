@@ -10,15 +10,15 @@ import org.deuce.transaction.swisstm.field.ReadFieldAccess;
 import org.deuce.transform.Exclude;
 
 @Exclude
-public final class ReadLog {
-	private final Map<Address, ReadFieldAccess> readLog;
+public final class ReadSet {
+	private final Map<Address, ReadFieldAccess> readSet;
 
-	public ReadLog() {
-		this.readLog = new HashMap<Address, ReadFieldAccess>();
+	public ReadSet() {
+		this.readSet = new HashMap<Address, ReadFieldAccess>();
 	}
 
 	public void clear() {
-		this.readLog.clear();
+		this.readSet.clear();
 	}
 
 	/**
@@ -43,8 +43,8 @@ public final class ReadLog {
 	 *         are valid, false otherwise
 	 */
 	public boolean validate(Collection<Address> excludedAddresses) {
-		for (Address address : this.readLog.keySet()) {
-			ReadFieldAccess readLogEntry = this.readLog.get(address);
+		for (Address address : this.readSet.keySet()) {
+			ReadFieldAccess readLogEntry = this.readSet.get(address);
 			boolean wasEntryChanged = readLogEntry.version != readLogEntry.locks.getRLockVersion();
 			boolean isExcluded = excludedAddresses.contains(address);
 			if (wasEntryChanged && !isExcluded) {
@@ -56,6 +56,6 @@ public final class ReadLog {
 
 	public void add(Address address, LockPair locks, int version) {
 		ReadFieldAccess newEntry = new ReadFieldAccess(locks, version);
-		this.readLog.put(address, newEntry);
+		this.readSet.put(address, newEntry);
 	}
 }
