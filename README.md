@@ -48,3 +48,7 @@ More information can be found here: [Wiki](https://github.com/DeuceSTM/DeuceSTM/
 
 
 [Read More](https://github.com/DeuceSTM/DeuceSTM/wiki/_pages)
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/DeuceSTM/deucestm/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
