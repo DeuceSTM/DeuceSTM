@@ -7,8 +7,8 @@ Forums:  [Users](http://groups.google.com/group/deuce-stm), [Developers](http://
 <h2>Installation</h2>
 
 Running Deuce can be done in two options:
-   * Online e.g. java -javaagent:bin/deuceAgent.jar -cp my.jar myMain
-   * Offline e.g. java -jar deuceAgent.jar my.jar out_my.jar
+   * Online e.g. `java -javaagent:bin/deuceAgent.jar -cp my.jar myMain`
+   * Offline e.g. `java -jar deuceAgent.jar my.jar out_my.jar`
 
 # Introduction
 
