@@ -10,7 +10,7 @@ Running Deuce can be done in two options:
    * Online e.g. java -javaagent:bin/deuceAgent.jar -cp my.jar myMain
    * Offline e.g. java -jar deuceAgent.jar my.jar out_my.jar
 
-1. Introduction
+# Introduction
 
 Deuce comes with few benchmarks and unit tests which are not part of the 
 downloaded but can be checkout from the SVN. The tests are JUnit3 tests and 
@@ -21,7 +21,7 @@ Also under the src/test exist few known benchmarks which are
 already adapted to run under Deuce including JSTAMP, STMBENCH7, IntSet 
 and Bank. 
 
-1.1 Naming convention
+## Naming convention
 
 Under deuce svn you can find the /src directory
 
@@ -29,14 +29,14 @@ Under the src directory you can find two directories:
    /java --> deuce agent sources.
    /test --> deuce unit tests and benchmarks sources.
 
-1.2 Quick installation instructions
+## Quick installation instructions
 
 Download: 
 http://sites.google.com/site/deucestm/download/deuceAgent-1.3.0.jar
 
 More information can be found here: [Wiki](https://github.com/DeuceSTM/DeuceSTM/wiki/_pages) & [Site](http://sites.google.com/site/deucestm/documentation)
 
-1.3 System requirements
+## System requirements
 
    - Operating system: Any-OS
 
