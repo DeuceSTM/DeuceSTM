@@ -23,12 +23,21 @@ Under the src directory you can find two directories:
 
 ## Getting started
 
-### Quick installation instructions
+### Building 
 
-Download: 
+The build is using [Ant](https://ant.apache.org/) script `build.xml`.
+To build all is needed to call ant.
+```bash
+$ ant
+```
+
+### Download
 http://sites.google.com/site/deucestm/download/deuceAgent-1.3.0.jar
 
-More information can be found here: [Wiki](https://github.com/DeuceSTM/DeuceSTM/wiki/_pages) & [Site](http://sites.google.com/site/deucestm/documentation)
+More information can be found here: 
+
+* [Wiki](https://github.com/DeuceSTM/DeuceSTM/wiki/_pages)  
+* [Site](http://sites.google.com/site/deucestm/documentation)
 
 ### System requirements
 
