@@ -31,6 +31,11 @@
 	<target name="Tests" depends="agent-jar,tests-jar">
 		<antcall target="junits">
 			<param name="sysprop" value="org.deuce.transaction.contextClass"/>
+			<param name="value" value="org.deuce.transaction.swisstm.Context"/>
+			<param name="exclude" value=""/>
+		</antcall>
+		<antcall target="junits">
+			<param name="sysprop" value="org.deuce.transaction.contextClass"/>
 			<param name="value" value="org.deuce.transaction.norec.Context"/>
 			<param name="exclude" value="org/deuce/utest/basic/IrrevocableContextTest.class"/>
 		</antcall>
