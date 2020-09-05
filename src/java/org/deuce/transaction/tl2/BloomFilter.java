@@ -1,6 +1,6 @@
 package org.deuce.transaction.tl2;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * Implements Bloom filter map
@@ -9,7 +9,7 @@ import org.deuce.transform.Exclude;
  * @since 1.0
  *
  */
-@Exclude
+@ExcludeInternal
 public class BloomFilter {
 	
 	final private static short BLOOM_FILTER_SIZE = 1 << 10; // the array length

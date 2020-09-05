@@ -1,14 +1,14 @@
 package org.deuce.transaction.tl2cm.field;
 
 import org.deuce.transaction.tl2cm.LockTable;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * Represents a base class for field write access. Based on Guy Korland's work on <code>org.deuce.transaction.tl2.*</code>
  * 
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  */
-@Exclude
+@ExcludeInternal
 public class ReadFieldAccess{
 	protected Object reference;
 	protected long field;

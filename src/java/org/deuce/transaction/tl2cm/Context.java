@@ -21,7 +21,7 @@ import org.deuce.transaction.tl2cm.field.ObjectWriteFieldAccess;
 import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
 import org.deuce.transaction.tl2cm.field.ShortWriteFieldAccess;
 import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 import org.deuce.trove.TObjectProcedure;
 
 /**
@@ -33,7 +33,7 @@ import org.deuce.trove.TObjectProcedure;
  * and <code>org.deuce.transaction.lsa*</code>
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  */
-@Exclude
+@ExcludeInternal
 final public class Context implements org.deuce.transaction.Context {
 
 	// Static members - shared by all threads

@@ -18,7 +18,7 @@ import org.deuce.transaction.tl2.field.ShortWriteFieldAccess;
 import org.deuce.transaction.tl2.field.WriteFieldAccess;
 import org.deuce.transaction.tl2.pool.Pool;
 import org.deuce.transaction.tl2.pool.ResourceFactory;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 import org.deuce.trove.TObjectProcedure;
 
 /**
@@ -27,7 +27,7 @@ import org.deuce.trove.TObjectProcedure;
  * @author	Guy Korland
  * @since	1.0
  */
-@Exclude
+@ExcludeInternal
 final public class Context implements org.deuce.transaction.Context{
 
 	final static AtomicInteger clock = new AtomicInteger( 0);

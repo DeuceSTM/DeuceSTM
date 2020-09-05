@@ -1,7 +1,7 @@
 package org.deuce.transaction.estm.field;
 
 import org.deuce.reflection.UnsafeHolder;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 import sun.misc.Unsafe;
 
@@ -11,7 +11,7 @@ import sun.misc.Unsafe;
  * 
  * @author Vincent Gramoli
  */
-@Exclude
+@ExcludeInternal
 public class ReadFieldAccess {
 
 	protected Object reference;
@@ -48,10 +48,10 @@ public class ReadFieldAccess {
 		return lock;
 	}
 	
-	@Exclude
+	@ExcludeInternal
 	static final public class Field {
 
-		@Exclude
+		@ExcludeInternal
 		static public enum Type {
 			BYTE, BOOLEAN, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, OBJECT
 		}

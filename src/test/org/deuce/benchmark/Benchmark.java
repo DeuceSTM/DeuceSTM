@@ -1,12 +1,12 @@
 package org.deuce.benchmark;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  * @since 0.1
  */
-@Exclude
+@ExcludeInternal
 public interface Benchmark {
 
 	public static final int WARMUP_PHASE = 1;

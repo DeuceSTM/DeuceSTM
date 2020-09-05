@@ -3,7 +3,7 @@ package org.deuce.transaction.tl2cm.cm;
 import org.deuce.transaction.tl2cm.Context;
 import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
 import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * The Suicide contention manager always aborts the current transaction
@@ -11,7 +11,7 @@ import org.deuce.transform.Exclude;
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  * @since 1.2
  */
-@Exclude
+@ExcludeInternal
 public class Suicide extends AbstractContentionManager {
 
 	@Override

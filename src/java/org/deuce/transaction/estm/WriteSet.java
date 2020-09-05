@@ -3,7 +3,7 @@ package org.deuce.transaction.estm;
 import org.deuce.transaction.estm.field.WriteFieldAccess;
 import org.deuce.transaction.estm.field.ReadFieldAccess.Field.Type;
 import org.deuce.transaction.estm.Context.LockTable;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 import org.deuce.trove.THashMap;
 
 /**
@@ -12,7 +12,7 @@ import org.deuce.trove.THashMap;
  * 
  * @author Vincent Gramoli
  */
-@Exclude
+@ExcludeInternal
 final public class WriteSet {
 
 	private static final int DEFAULT_CAPACITY = 16;

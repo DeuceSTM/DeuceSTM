@@ -1,15 +1,14 @@
 package org.deuce.transaction.lsacm;
 
-import org.deuce.transaction.lsacm.Context;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public interface ContentionManager {
 
-	@Exclude
+	@ExcludeInternal
 	static public enum ConflictType {
 		RR, RW, WR, WW
 	}

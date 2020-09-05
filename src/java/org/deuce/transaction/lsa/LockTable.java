@@ -3,12 +3,12 @@ package org.deuce.transaction.lsa;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import org.deuce.transaction.TransactionException;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public class LockTable {
 
 	// Failure transaction 

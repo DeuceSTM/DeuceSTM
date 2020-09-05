@@ -348,7 +348,7 @@ public class AtomicMethod extends MethodAdapter{
 	private Label getContext(final int contextIndex) {
 		Label label = new Label();
 		mv.visitLabel(label); // Context context = ContextDelegator.getInstance();
-		mv.visitMethodInsn(INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL, "getInstance", "()Lorg/deuce/transaction/Context;");
+		mv.visitMethodInsn(INVOKESTATIC, ContextDelegator.CONTEXT_DELEGATOR_INTERNAL, "getInstance", "()Lorg/deuce/transaction/IContext;");
 		mv.visitVarInsn(ASTORE, contextIndex);
 		return label;
 	}

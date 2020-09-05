@@ -6,9 +6,9 @@
  */
 package org.deuce.transform.asm;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
-@Exclude
+@ExcludeInternal
 public class Field{
 	private final String fieldNameAddress;
 	private final String fieldName;

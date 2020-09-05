@@ -1,7 +1,7 @@
 package org.deuce.transaction.estm.field;
 
 import org.deuce.transaction.estm.field.ReadFieldAccess.Field.Type;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * The write entry
@@ -9,7 +9,7 @@ import org.deuce.transform.Exclude;
  * 
  * @author Vincent Gramoli
  */
-@Exclude
+@ExcludeInternal
 final public class WriteFieldAccess extends ReadFieldAccess {
 
 	final private Type type;

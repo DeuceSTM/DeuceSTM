@@ -1,11 +1,11 @@
 package org.deuce.transaction.lsa.field;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public class ReadFieldAccess {
 
 	protected Object reference;

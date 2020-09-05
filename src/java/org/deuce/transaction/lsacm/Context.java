@@ -15,14 +15,14 @@ import org.deuce.transaction.lsacm.WriteSet;
 import org.deuce.transaction.lsacm.ContentionManager;
 import org.deuce.transaction.lsacm.ContentionManager.ConflictType;
 import org.deuce.transaction.util.BooleanArrayList;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * LSA implementation
  * 
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 final public class Context implements org.deuce.transaction.Context {
 
 	final private static int TX_IDLE = 0;

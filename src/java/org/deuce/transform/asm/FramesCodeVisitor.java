@@ -6,7 +6,7 @@ import org.deuce.objectweb.asm.ClassReader;
 import org.deuce.objectweb.asm.ClassWriter;
 import org.deuce.objectweb.asm.MethodVisitor;
 import org.deuce.objectweb.asm.commons.JSRInlinerAdapter;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 
 /**
@@ -14,7 +14,7 @@ import org.deuce.transform.Exclude;
  * @author Guy Korland
  * @since 1.0
  */
-@Exclude
+@ExcludeInternal
 public class FramesCodeVisitor extends ClassAdapter{
 
 	final static private int JAVA5_VERSION = 49;
@@ -53,7 +53,7 @@ public class FramesCodeVisitor extends ClassAdapter{
 	}
 
 	
-	@Exclude
+	@ExcludeInternal
 	public static class VersionException extends RuntimeException{
 		private static final long serialVersionUID = 1L;
 		final public static VersionException INSTANCE = new VersionException();
@@ -65,7 +65,7 @@ public class FramesCodeVisitor extends ClassAdapter{
 	 * @author Guy Korland
 	 *
 	 */
-	@Exclude
+	@ExcludeInternal
 	private static class CommonClassWriter extends ClassWriter{
 		
 		public CommonClassWriter(int flags, String className) {

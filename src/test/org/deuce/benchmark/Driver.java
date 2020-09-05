@@ -1,12 +1,12 @@
 package org.deuce.benchmark;
 
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  * @since 0.1
  */
-@Exclude
+@ExcludeInternal
 public class Driver {
 
 	public static void main(String[] args) {

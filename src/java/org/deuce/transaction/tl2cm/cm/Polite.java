@@ -3,7 +3,7 @@ package org.deuce.transaction.tl2cm.cm;
 import org.deuce.transaction.tl2cm.Context;
 import org.deuce.transaction.tl2cm.field.ReadFieldAccess;
 import org.deuce.transaction.tl2cm.field.WriteFieldAccess;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * The Polite contention manager resolves conflicts by backing off and retrying the lock. 
@@ -12,7 +12,7 @@ import org.deuce.transform.Exclude;
  * @author Yoav Cohen, yoav.cohen@cs.tau.ac.il
  * @since 1.2
  */
-@Exclude
+@ExcludeInternal
 public class Polite extends AbstractContentionManager {
 	
 	private static final int MAX_BACKOFF_TIMES = 22;

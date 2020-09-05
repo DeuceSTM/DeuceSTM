@@ -1,12 +1,12 @@
 package org.deuce.transaction.norec.field;
 
 import org.deuce.reflection.UnsafeHolder;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
 /**
  * @author Pascal Felber
  */
-@Exclude
+@ExcludeInternal
 public class ByteFieldAccess extends FieldAccess {
 
 	final private byte value;

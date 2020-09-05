@@ -37,10 +37,15 @@ public class IntSetLinkedList implements IntSet {
 	final private Node m_first;
 
 	public IntSetLinkedList() {
-		Node min = new Node(Integer.MIN_VALUE);
+		m_first = new Node(Integer.MIN_VALUE);
+		init();
+	}
+	
+	@Atomic
+	private void init() {
+		Node min = m_first;
 		Node max = new Node(Integer.MAX_VALUE);
 		min.setNext(max);
-		m_first = min;
 	}
 
 	@Atomic

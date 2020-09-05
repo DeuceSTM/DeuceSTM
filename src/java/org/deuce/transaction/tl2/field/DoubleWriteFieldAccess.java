@@ -1,9 +1,9 @@
 package org.deuce.transaction.tl2.field;
 
 import org.deuce.reflection.UnsafeHolder;
-import org.deuce.transform.Exclude;
+import org.deuce.transform.ExcludeInternal;
 
-@Exclude
+@ExcludeInternal
 public class DoubleWriteFieldAccess extends WriteFieldAccess {
 
 	private double value;
