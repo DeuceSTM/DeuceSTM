@@ -15,36 +15,61 @@ import org.deuce.transform.Exclude;
  *
  */
 public class AbortTest extends TestCase{
-
-	final private AtomicInteger cout = new AtomicInteger();
-	private int i = 0;
+   
+	/**
+	 * This test requires the exclusion of the class AtomicInteger, otherwise
+	 * its internal invocation to a native method will cause the re-execution 
+	 * of the transaction in Irrevocable mode and misrepresent the expected number
+	 * of retries.
+	 */
+	AbortTestTarget target = new AbortTestTarget();
 	
 	public void testAbort() throws Exception {
 		try{
-			foo();
+			target.foo();
 			Assert.fail("Should get TransactionException");
 		}catch(TransactionException ex){
-			Assert.assertEquals(0, i);
-			Assert.assertEquals(5, cout.get());
+			Assert.assertEquals(0, target.i);
+			Assert.assertEquals(5, target.cout.get());
 		}
 		try{
-			fooAbort();
+			target.fooAbort();
 			Assert.fail("Should get AbortTransactionException");
 		}catch(AbortTransactionException ex){
-			Assert.assertEquals(0, i);
-			Assert.assertEquals(6, cout.get());
+			Assert.assertEquals(0, target.i);
+			Assert.assertEquals(6, target.cout.get());
 		}
 	}
-	
+}
+
+/**
+ * We created this auxiliary class due to the ANT restrictions.   
+ * Running the build.xml with ANT then the TestCase class will 
+ * be loaded before the Deuce java agent and thereby avoids 
+ * the Deuce intrumentation.
+ * Yet and according to the capture analysis technique we need to 
+ * instrument also the TestCase base class. 
+ * So, we moved the transactional part of the AbortTest class into 
+ * AbortTestTarget to ensure that it does not inherit from TestCase
+ * and therefore it does not have any base class that was not 
+ * instrumented.  
+ * 
+ * @author fmcarvalho
+ */
+class AbortTestTarget{
+    
+        final AtomicInteger cout = new AtomicInteger();
+        int i = 0;
+    
 	@Atomic(retries=5)
-	private void foo(){
+	void foo(){
 		++i;
 		cout.incrementAndGet();
 		throw new TransactionException();
 	}
 	
 	@Atomic(retries=5)
-	private void fooAbort(){
+	void fooAbort(){
 		++i;
 		cout.incrementAndGet();
 		throw new AbortTransactionException();
